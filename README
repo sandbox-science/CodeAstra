@@ -1,1 +1,15 @@
-TO-DO: Write Documentation
+CodeAstra ~ The Code Editor
+
+How to run the project:
+- clone the project: ``git clone https://github.com/sandbox-science/CodeAstra.git``
+- In the root directory, install the app: ``make``
+- ``./build/CodeAstra`` to run the editor.
+
+Disclammer:
+This project has been tested on MacOS, but not yet on Windows nor Linux. Although, it should run on Linux without problem, but on Windows, you may encouter errors.
+
+TO-DO:
+- Write Documentation
+- Setting up Docker for cross platform development.
+
+
