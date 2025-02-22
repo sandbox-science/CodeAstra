@@ -29,15 +29,21 @@ void MainWindow::createMenuBar()
     QMenuBar *menuBar = new QMenuBar(this);
     QMenu *fileMenu   = menuBar->addMenu("File");
 
-    QAction *openAction = new QAction("Open", this);
+    QAction *openAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::DocumentOpen), tr("&Open..."), this);
+    openAction->setShortcuts(QKeySequence::Open);
+    openAction->setStatusTip(tr("Open an existing file"));
     connect(openAction, &QAction::triggered, this, &MainWindow::openFile);
     fileMenu->addAction(openAction);
 
-    QAction *saveAction = new QAction("Save", this);
+    QAction *saveAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::DocumentSave), tr("&Save"), this);
+    saveAction->setShortcuts(QKeySequence::Save);
+    saveAction->setStatusTip(tr("Save your file"));
     connect(saveAction, &QAction::triggered, this, &MainWindow::saveFile);
     fileMenu->addAction(saveAction);
 
-    QAction *saveAsAction = new QAction("Save As", this);
+    QAction *saveAsAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::DocumentSaveAs), tr("&Save As"), this);
+    saveAsAction->setShortcuts(QKeySequence::SaveAs);
+    saveAsAction->setStatusTip(tr("Save current file as..."));
     connect(saveAsAction, &QAction::triggered, this, &MainWindow::saveFileAs);
     fileMenu->addAction(saveAsAction);
 
