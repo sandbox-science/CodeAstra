@@ -8,7 +8,7 @@
 ``make``
 
 3. Run the editor:
-``./build/CodeAstra``
+``./CodeAstra``
 
 ## Required Tools:
 - CMake
