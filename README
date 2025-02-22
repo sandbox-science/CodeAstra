@@ -1,15 +1,24 @@
 CodeAstra ~ The Code Editor
 
 How to run the project:
-- clone the project: ``git clone https://github.com/sandbox-science/CodeAstra.git``
-- In the root directory, install the app: ``make``
-- ``./build/CodeAstra`` to run the editor.
+1. Clone the project: 
+``git clone https://github.com/sandbox-science/CodeAstra.git``
+
+2. In the root directory, install the app: 
+``make``
+
+3. Run the editor:
+``./build/CodeAstra``
+
+Required Tools:
+- CMake
+- Make
+- g++ compiler
 
 Disclammer:
-This project has been tested on MacOS, but not yet on Windows nor Linux. Although, it should run on Linux without problem, but on Windows, you may encouter errors.
+This project has been tested on macOS but not yet on Windows or Linux. It should run on Linux without issues. However, on Windows, you may encounter errors. Docker will be used soon to avoid cross platform issues for development.
 
 TO-DO:
 - Write Documentation
 - Setting up Docker for cross platform development.
-
-
+- Setting up CI/CD using GitHub Action
