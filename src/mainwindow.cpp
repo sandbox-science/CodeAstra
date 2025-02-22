@@ -60,11 +60,13 @@ void MainWindow::showAbout()
 {
     QString aboutText = QString(
         "<div align='center'>"
-        "<b>Code Astra</b><br>"
-        "Version: %1<br><br>"
-        "Developed by Chris Dedman.<br>"
-        "© 2025 Chris Dedman. All rights reserved."
-        "</div>").arg(QApplication::applicationVersion());
+        "<b>%1</b><br>"
+        "Version: %2<br><br>"
+        "Developed by %3.<br>"
+        "© 2025 %3. All rights reserved."
+        "</div>").arg(QApplication::applicationName(),
+                      QApplication::applicationVersion(),
+                      QApplication::organizationName());
 
     QMessageBox::about(this, "About Code Astra", aboutText);
 }
