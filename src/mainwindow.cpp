@@ -7,6 +7,7 @@
 #include <QShortcut>
 #include <QMessageBox>
 #include <QStatusBar>
+#include <QApplication>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
@@ -47,7 +48,25 @@ void MainWindow::createMenuBar()
     connect(saveAsAction, &QAction::triggered, this, &MainWindow::saveFileAs);
     fileMenu->addAction(saveAsAction);
 
+    QMenu *appMenu = menuBar->addMenu("Code Astra");
+    QAction *aboutAction = new QAction("About Code Astra", this);
+    connect(aboutAction, &QAction::triggered, this, &MainWindow::showAbout);
+    appMenu->addAction(aboutAction);
+
     setMenuBar(menuBar);
+}
+
+void MainWindow::showAbout()
+{
+    QString aboutText = QString(
+        "<div align='center'>"
+        "<b>Code Astra</b><br>"
+        "Version: %1<br><br>"
+        "Developed by Chris Dedman.<br>"
+        "© 2025 Chris Dedman. All rights reserved."
+        "</div>").arg(QApplication::applicationVersion());
+
+    QMessageBox::about(this, "About Code Astra", aboutText);
 }
 
 void MainWindow::openFile()

@@ -16,6 +16,7 @@ private slots:
     void openFile();
     void saveFile();
     void saveFileAs();
+    void showAbout();
 
 private:
     CodeEditor *editor;
