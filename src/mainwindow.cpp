@@ -70,14 +70,15 @@ void MainWindow::newFile()
 void MainWindow::showAbout()
 {
     QString aboutText = QString(
-        "<div align='center'>"
+        "<p style='text-align:center;'>"
         "<b>%1</b><br>"
         "Version: %2<br><br>"
         "Developed by %3.<br>"
+        "Built with C++ and Qt 6.<br><br>"
         "© 2025 %3. All rights reserved."
-        "</div>").arg(QApplication::applicationName(),
-                      QApplication::applicationVersion(),
-                      QApplication::organizationName());
+        "</p>").arg(QApplication::applicationName().toHtmlEscaped(),
+                    QApplication::applicationVersion().toHtmlEscaped(),
+                    QApplication::organizationName().toHtmlEscaped());
 
     QMessageBox::about(this, "About Code Astra", aboutText);
 }
