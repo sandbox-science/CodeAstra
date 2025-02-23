@@ -34,16 +34,16 @@ void CodeEditor::keyPressEvent(QKeyEvent *event)
         case Qt::Key_I:
             mode = INSERT;
             break;
-        case Qt::Key_H:
+        case Qt::Key_A:
             moveCursor(QTextCursor::Left);
             break;
-        case Qt::Key_L:
+        case Qt::Key_D:
             moveCursor(QTextCursor::Right);
             break;
-        case Qt::Key_J:
+        case Qt::Key_X:
             moveCursor(QTextCursor::Down);
             break;
-        case Qt::Key_K:
+        case Qt::Key_W:
             moveCursor(QTextCursor::Up);
             break;
         case Qt::Key_Escape:
