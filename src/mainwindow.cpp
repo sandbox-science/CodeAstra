@@ -30,6 +30,12 @@ void MainWindow::createMenuBar()
     QMenuBar *menuBar = new QMenuBar(this);
     QMenu *fileMenu   = menuBar->addMenu("File");
 
+    QAction *newAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::DocumentNew), tr("&New File..."), this);
+    newAction->setShortcuts(QKeySequence::New);
+    newAction->setStatusTip(tr("Create a new file"));
+    connect(newAction, &QAction::triggered, this, &MainWindow::newFile);
+    fileMenu->addAction(newAction);
+
     QAction *openAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::DocumentOpen), tr("&Open..."), this);
     openAction->setShortcuts(QKeySequence::Open);
     openAction->setStatusTip(tr("Open an existing file"));
@@ -54,6 +60,11 @@ void MainWindow::createMenuBar()
     appMenu->addAction(aboutAction);
 
     setMenuBar(menuBar);
+}
+
+void MainWindow::newFile()
+{
+    // TO-DO: Implement new file function
 }
 
 void MainWindow::showAbout()
