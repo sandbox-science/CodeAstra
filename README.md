@@ -4,7 +4,7 @@ CodeAstra is a modern, extensible, and lightweight code editor built using C++ a
 
 CodeAstra is **under active development**—stay tuned for updates or feel free to contribute and help shape its future!
 
-## Disclammer
+## Disclaimer
 This project has been tested on macOS but not yet on Windows or Linux. It should run on Linux without issues. However, on Windows, you may encounter errors. Docker will be used soon to avoid cross platform issues for development.
 
 ## How to run the project
