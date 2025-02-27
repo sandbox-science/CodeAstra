@@ -15,7 +15,23 @@ This project has been tested on macOS but not yet on Windows or Linux. It should
 ``make``
 
 3. Run the editor:
-``./CodeAstra``
+``open CodeAstra.app``
+
+## Windows Users
+For installing the project on windows, you will need to install WSL.
+
+```bash
+# open PowerShell, then run:
+wsl --install
+
+# then, install all this packages:
+sudo apt update
+sudo apt install make
+sudo apt install cmake
+sudo apt install g++ -y
+sudo apt-get install build-essential libgl1-mesa-dev
+sudo apt install qt6-base-dev
+```
 
 ## Required Tools
 - CMake
