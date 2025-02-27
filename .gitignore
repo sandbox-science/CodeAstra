@@ -6,3 +6,9 @@
 
 # Ignore the executable
 CodeAstra
+
+#  Executable
+CodeAstra.app
+
+# Mac file
+.DS_Store
