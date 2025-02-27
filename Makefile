@@ -1,6 +1,6 @@
 PROJECT    = CodeAstra
 BUILD_DIR  = build
-EXECUTABLE = $(PROJECT).app
+EXECUTABLE = $(PROJECT)
 
 # Set CMake options
 CMAKE_OPTIONS = ..
@@ -20,9 +20,9 @@ clean:
 	@rm -rf $(BUILD_DIR)
 
 # Uninstalling the software
-uninstall:
+uninstall: clean
 	@echo "Uninstalling the software..."
-	@rm -rf $(EXECUTABLE)
+	@rm -rf $(EXECUTABLE).app $(EXECUTABLE)d.app
 
 # Install the project
 install:
