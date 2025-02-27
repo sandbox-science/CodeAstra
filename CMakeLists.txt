@@ -58,6 +58,9 @@ add_executable(${TARGET_NAME}
     include/codeeditor.h
 )
 
+qt_add_resources(APP_RESOURCES resources.qrc)
+target_sources(${TARGET_NAME} PRIVATE ${APP_RESOURCES})
+
 # Compiler flags per OS
 if(MSVC)
     target_compile_options(${TARGET_NAME} PRIVATE /W4 /WX)
