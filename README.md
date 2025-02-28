@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="resources/app_icon.png" alt="CodeAstra Logo" width="100">
+</p>
+
 <h1 align="center">CodeAstra ~ Modern Code Editor</h1>
 
 CodeAstra is a modern, extensible, and lightweight code editor built using C++ and Qt6, designed to offer a fast, customizable, and feature-rich development experience. Inspired by NeoVim and VSCode, it **will** provides efficient file navigation, syntax highlighting, and a powerful plugin system, making it an ideal choice for developers who need speed, flexibility, and control. With a focus on performance and usability, the editor **will** supports split views, an integrated terminal, customizable key bindings, and seamless Git integration, catering to both beginners and power users.
@@ -48,4 +52,4 @@ sudo apt install qt6-base-dev
 - [ ] Plugin system
 
 ## To-Do
-Find tasks to to-do on our open [issues](https://github.com/sandbox-science/CodeAstra/issues)
+Find tasks to-do on our open [issues](https://github.com/sandbox-science/CodeAstra/issues)
