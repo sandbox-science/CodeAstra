@@ -28,3 +28,20 @@ uninstall: clean
 install:
 	@echo "Installing $(PROJECT)..."
 	@cd $(BUILD_DIR) && make
+	@echo "Do you want to create a shortcut on the desktop? (Y/n)"
+	@read choice; \
+	if [ "$$choice" = "y" ] || [ "$$choice" = "Y" ]; then \
+		echo "Creating shortcut..."; \
+		OS_NAME=$(shell uname -s); \
+		if [ "$$OS_NAME" = "Darwin" ]; then \
+			echo "MacOS Detected..."; \
+			cp -R $(EXECUTABLE).app ~/Desktop/; \
+		elif [ "$$OS_NAME" = "Linux" ]; then \
+			echo "Linux Detected..."; \
+			cp $(EXECUTABLE) ~/Desktop/; \
+		elif [ "$$OS_NAME" = "CYGWIN" ] || [ "$$OS_NAME" = "MINGW" ] || [ "$$OS_NAME" = "MSYS" ]; then \
+			echo "Windows Detected..."; \
+			cp $(EXECUTABLE).exe $(USERPROFILE)/Desktop/; \
+		fi \
+	fi
+	@echo "$(PROJECT) installed."
