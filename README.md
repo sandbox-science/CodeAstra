@@ -40,7 +40,8 @@ sudo apt install qt6-base-dev
 ## Required Tools
 - CMake
 - Make
-- g++ compiler
+- g++ compiler (with support of C++17 and beyond)
+- Qt6 Framework
 
 ## Roadmap
 - [x] Basic text editing
