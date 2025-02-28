@@ -69,16 +69,44 @@ void MainWindow::newFile()
 
 void MainWindow::showAbout()
 {
+    // Extract the C++ version from the __cplusplus macro
+    QString cppVersion;
+    if (__cplusplus == 201103L)
+    {
+        cppVersion = "C++11";
+    }
+    else if (__cplusplus == 201402L)
+    {
+        cppVersion = "C++14";
+    }
+    else if (__cplusplus == 201703L)
+    {
+        cppVersion = "C++17";
+    }
+    else if (__cplusplus == 202002L)
+    {
+        cppVersion = "C++20";
+    }
+    else
+    {
+        cppVersion = "C++";
+    }
+
+    // Construct the about text
     QString aboutText = QString(
         "<p style='text-align:center;'>"
         "<b>%1</b><br>"
         "Version: %2<br><br>"
         "Developed by %3.<br>"
-        "Built with C++ and Qt 6.<br><br>"
+        "Built with %4 and Qt %5.<br><br>"
         "© 2025 %3. All rights reserved."
         "</p>").arg(QApplication::applicationName().toHtmlEscaped(),
                     QApplication::applicationVersion().toHtmlEscaped(),
-                    QApplication::organizationName().toHtmlEscaped());
+                    QApplication::organizationName().toHtmlEscaped(),
+                    cppVersion,
+                    QString::number(QT_VERSION >> 16) + "." +         // Major version
+                    QString::number((QT_VERSION >> 8) & 0xFF) + "." + // Minor version
+                    QString::number(QT_VERSION & 0xFF));              // Patch version
 
     QMessageBox::about(this, "About Code Astra", aboutText);
 }
