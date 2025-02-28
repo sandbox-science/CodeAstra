@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="resources/app_icon.png" alt="CodeAstra Logo" width="100">
+  <img src="resources/app_icon.png" alt="CodeAstra Logo" width="200">
 </p>
 
 <h1 align="center">CodeAstra ~ Modern Code Editor</h1>
