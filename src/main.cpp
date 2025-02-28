@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
     app.setWindowIcon(roundIcon);
     app.setApplicationVersion("0.0.1");
     app.setOrganizationName("Chris Dedman");
-    app.setApplicationName("Code Astra");
+    app.setApplicationName("CodeAstra");
 
     MainWindow window;
     window.show();
