@@ -1,7 +1,7 @@
 #ifndef LINENUMBER_H
 #define LINENUMBER_H
 
-#include "codeeditor.h"
+#include "CodeEditor.h"
 
 #include <QWidget>
 #include <QPaintEvent>
