@@ -4,10 +4,10 @@
 #include <QFileDialog>
 #include <QFile>
 #include <QTextStream>
-#include <QShortcut>
 #include <QMessageBox>
 #include <QStatusBar>
 #include <QApplication>
+#include <QDesktopServices>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
@@ -18,9 +18,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     setCentralWidget(editor);
 
     createMenuBar();
-
-    QShortcut *saveShortcut = new QShortcut(QKeySequence("Ctrl+S"), this);
-    connect(saveShortcut, &QShortcut::activated, this, &MainWindow::saveFile);
 }
 
 MainWindow::~MainWindow() {}
@@ -28,38 +25,58 @@ MainWindow::~MainWindow() {}
 void MainWindow::createMenuBar()
 {
     QMenuBar *menuBar = new QMenuBar(this);
+
     QMenu *fileMenu   = menuBar->addMenu("File");
+    QMenu *helpMenu   = menuBar->addMenu("Help");
+    QMenu *appMenu    = menuBar->addMenu("CodeAstra");
 
-    QAction *newAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::DocumentNew), tr("&New File..."), this);
-    newAction->setShortcuts(QKeySequence::New);
-    newAction->setStatusTip(tr("Create a new file"));
-    connect(newAction, &QAction::triggered, this, &MainWindow::newFile);
-    fileMenu->addAction(newAction);
-
-    QAction *openAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::DocumentOpen), tr("&Open..."), this);
-    openAction->setShortcuts(QKeySequence::Open);
-    openAction->setStatusTip(tr("Open an existing file"));
-    connect(openAction, &QAction::triggered, this, &MainWindow::openFile);
-    fileMenu->addAction(openAction);
-
-    QAction *saveAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::DocumentSave), tr("&Save"), this);
-    saveAction->setShortcuts(QKeySequence::Save);
-    saveAction->setStatusTip(tr("Save your file"));
-    connect(saveAction, &QAction::triggered, this, &MainWindow::saveFile);
-    fileMenu->addAction(saveAction);
-
-    QAction *saveAsAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::DocumentSaveAs), tr("&Save As"), this);
-    saveAsAction->setShortcuts(QKeySequence::SaveAs);
-    saveAsAction->setStatusTip(tr("Save current file as..."));
-    connect(saveAsAction, &QAction::triggered, this, &MainWindow::saveFileAs);
-    fileMenu->addAction(saveAsAction);
-
-    QMenu *appMenu = menuBar->addMenu("Code Astra");
-    QAction *aboutAction = new QAction("About Code Astra", this);
-    connect(aboutAction, &QAction::triggered, this, &MainWindow::showAbout);
-    appMenu->addAction(aboutAction);
+    createFileActions(fileMenu);
+    createHelpActions(helpMenu);
+    createAppActions(appMenu);
 
     setMenuBar(menuBar);
+}
+
+void MainWindow::createFileActions(QMenu *fileMenu)
+{
+    QAction *newAction = createAction(QIcon::fromTheme(QIcon::ThemeIcon::DocumentNew), tr("&New File..."), QKeySequence::New, tr("Create a new file"), &MainWindow::newFile);
+    fileMenu->addAction(newAction);
+
+    QAction *openAction = createAction(QIcon::fromTheme(QIcon::ThemeIcon::DocumentOpen), tr("&Open..."), QKeySequence::Open, tr("Open an existing file"), &MainWindow::openFile);
+    fileMenu->addAction(openAction);
+
+    QAction *saveAction = createAction(QIcon::fromTheme(QIcon::ThemeIcon::DocumentSave), tr("&Save"), QKeySequence::Save, tr("Save your file"), &MainWindow::saveFile);
+    fileMenu->addAction(saveAction);
+
+    QAction *saveAsAction = createAction(QIcon::fromTheme(QIcon::ThemeIcon::DocumentSaveAs), tr("&Save As"), QKeySequence::SaveAs, tr("Save current file as..."), &MainWindow::saveFileAs);
+    fileMenu->addAction(saveAsAction);
+}
+
+void MainWindow::createHelpActions(QMenu *helpMenu)
+{
+    QAction *helpDoc = new QAction(tr("Documentation"), this);
+    connect(helpDoc, &QAction::triggered, this, []()
+            { QDesktopServices::openUrl(QUrl("https://github.com/sandbox-science/CodeAstra/wiki")); });
+    helpDoc->setStatusTip(tr("Open Wiki"));
+    helpMenu->addAction(helpDoc);
+}
+
+void MainWindow::createAppActions(QMenu *appMenu)
+{
+    QAction *aboutAction = new QAction("About CodeAstra", this);
+    connect(aboutAction, &QAction::triggered, this, &MainWindow::showAbout);
+    appMenu->addAction(aboutAction);
+}
+
+QAction *MainWindow::createAction(const QIcon &icon, const QString &text, const QKeySequence &shortcut, const QString &statusTip, void (MainWindow::*slot)())
+{
+    QAction *action = new QAction(icon, text, this);
+
+    action->setShortcuts(QList<QKeySequence>{shortcut});
+    action->setStatusTip(statusTip);
+    connect(action, &QAction::triggered, this, slot);
+
+    return action;
 }
 
 void MainWindow::newFile()
