@@ -1,8 +1,13 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
 #include "codeeditor.h"
+#include <QMainWindow>
+#include <QMenu>
+#include <QAction>
+#include <QIcon>
+#include <QKeySequence>
+#include <QDesktopServices>
 
 class MainWindow : public QMainWindow
 {
@@ -20,8 +25,15 @@ private slots:
     void showAbout();
 
 private:
+    void createMenuBar();
+    void createFileActions(QMenu *fileMenu);
+    void createHelpActions(QMenu *helpMenu);
+    void createAppActions(QMenu *appMenu);
+    QAction *createAction(const QIcon &icon, const QString &text,
+                          const QKeySequence &shortcut, const QString &statusTip,
+                          void (MainWindow::*slot)());
     CodeEditor *editor;
     QString currentFileName;
-    void createMenuBar();
 };
+
 #endif // MAINWINDOW_H
