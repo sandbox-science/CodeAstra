@@ -1,7 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "codeeditor.h"
+#include "CodeEditor.h"
 #include <QMainWindow>
 #include <QMenu>
 #include <QAction>

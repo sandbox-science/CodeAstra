@@ -52,10 +52,10 @@ find_package(Qt${QT_MAJOR_VERSION} COMPONENTS Widgets REQUIRED)
 # Add executable and source files
 add_executable(${TARGET_NAME}
     src/main.cpp
-    src/mainwindow.cpp
-    src/codeeditor.cpp
-    include/mainwindow.h
-    include/codeeditor.h
+    src/MainWindow.cpp
+    src/CodeEditor.cpp
+    include/MainWindow.h
+    include/CodeEditor.h
 )
 
 qt_add_resources(APP_RESOURCES resources.qrc)
