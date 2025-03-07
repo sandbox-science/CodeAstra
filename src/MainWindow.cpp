@@ -39,16 +39,16 @@ void MainWindow::createMenuBar()
 
 void MainWindow::createFileActions(QMenu *fileMenu)
 {
-    QAction *newAction = createAction(QIcon::fromTheme(QIcon::ThemeIcon::DocumentNew), tr("&New File..."), QKeySequence::New, tr("Create a new file"), &MainWindow::newFile);
+    QAction *newAction = createAction(QIcon::fromTheme("document-new"), tr("&New File..."), QKeySequence::New, tr("Create a new file"), &MainWindow::newFile);
     fileMenu->addAction(newAction);
 
-    QAction *openAction = createAction(QIcon::fromTheme(QIcon::ThemeIcon::DocumentOpen), tr("&Open..."), QKeySequence::Open, tr("Open an existing file"), &MainWindow::openFile);
+    QAction *openAction = createAction(QIcon::fromTheme("document-open"), tr("&Open..."), QKeySequence::Open, tr("Open an existing file"), &MainWindow::openFile);
     fileMenu->addAction(openAction);
 
-    QAction *saveAction = createAction(QIcon::fromTheme(QIcon::ThemeIcon::DocumentSave), tr("&Save"), QKeySequence::Save, tr("Save your file"), &MainWindow::saveFile);
+    QAction *saveAction = createAction(QIcon::fromTheme("document-save"), tr("&Save"), QKeySequence::Save, tr("Save your file"), &MainWindow::saveFile);
     fileMenu->addAction(saveAction);
 
-    QAction *saveAsAction = createAction(QIcon::fromTheme(QIcon::ThemeIcon::DocumentSaveAs), tr("&Save As"), QKeySequence::SaveAs, tr("Save current file as..."), &MainWindow::saveFileAs);
+    QAction *saveAsAction = createAction(QIcon::fromTheme("document-saveAs"), tr("&Save As"), QKeySequence::SaveAs, tr("Save current file as..."), &MainWindow::saveFileAs);
     fileMenu->addAction(saveAsAction);
 }
 
