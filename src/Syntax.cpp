@@ -4,7 +4,7 @@ Syntax::Syntax(QTextDocument *parent) : QSyntaxHighlighter(parent)
 {
   SyntaxRule rule;
 
-  keywordFormat.setForeground(Qt::darkBlue);
+  keywordFormat.setForeground(Qt::blue);
   keywordFormat.setFontWeight(QFont::Bold);
   QStringList keywordPatterns;
   keywordPatterns << "\\bchar\\b" << "\\bclass\\b" << "\\bconst\\b"
@@ -16,7 +16,7 @@ Syntax::Syntax(QTextDocument *parent) : QSyntaxHighlighter(parent)
                   << "\\bslots\\b" << "\\bstatic\\b" << "\\bstruct\\b"
                   << "\\btemplate\\b" << "\\btypedef\\b" << "\\btypename\\b"
                   << "\\bunion\\b" << "\\bunsigned\\b" << "\\bvirtual\\b"
-                  << "\\bvoid\\b" << "\\bvolatile\\b";
+                  << "\\bvoid\\b" << "\\bvolatile\\b" << "\\bforeach\\b";
   foreach (const QString &pattern, keywordPatterns)
   {
     rule.pattern = QRegularExpression(pattern);
@@ -25,9 +25,35 @@ Syntax::Syntax(QTextDocument *parent) : QSyntaxHighlighter(parent)
   }
 
   // Single line comment format expression
-  singleLineCommentFormat.setForeground(Qt::red);
+  singleLineCommentFormat.setForeground(Qt::darkGray);
   rule.pattern = QRegularExpression(QStringLiteral("//[^\n]*"));
   rule.format  = singleLineCommentFormat;
+  syntaxRules.append(rule);
+
+  // Double quotation mark for string
+  quotationMark.setForeground(Qt::darkGreen);
+  rule.pattern = QRegularExpression(QStringLiteral("\".*\""));
+  rule.format  = quotationMark;
+  syntaxRules.append(rule);
+
+  // Function format expression
+  functionFormat.setFontItalic(true);
+  functionFormat.setForeground(Qt::darkYellow);
+  rule.pattern = QRegularExpression(QStringLiteral("\\b[a-zA-Z_][a-zA-Z0-9_]*(?=\\s*\\()"));
+  rule.format  = functionFormat;
+  syntaxRules.append(rule);
+
+  // Color pattern for parenthesis
+  QColor parenthesisColor("#6495ED");
+  parenthesisFormat.setForeground(parenthesisColor);
+  rule.pattern = QRegularExpression(QStringLiteral("[()]"));
+  rule.format  = parenthesisFormat;
+  syntaxRules.append(rule);
+
+  // Regex for single character format 'a', '\n', etc
+  charFormat.setForeground(Qt::darkCyan);
+  rule.pattern = QRegularExpression(QStringLiteral("'(\\\\.|[^'])'"));
+  rule.format  = charFormat;
   syntaxRules.append(rule);
 }
 

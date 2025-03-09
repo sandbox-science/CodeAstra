@@ -26,6 +26,10 @@ private:
 
     QTextCharFormat keywordFormat;
     QTextCharFormat singleLineCommentFormat;
+    QTextCharFormat quotationMark;
+    QTextCharFormat functionFormat;
+    QTextCharFormat parenthesisFormat;
+    QTextCharFormat charFormat;
 };
 
 #endif // SYNTAX_H
