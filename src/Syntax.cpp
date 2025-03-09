@@ -19,42 +19,39 @@ Syntax::Syntax(QTextDocument *parent) : QSyntaxHighlighter(parent)
                   << "\\bvoid\\b" << "\\bvolatile\\b" << "\\bforeach\\b";
   foreach (const QString &pattern, keywordPatterns)
   {
-    rule.pattern = QRegularExpression(pattern);
-    rule.format  = keywordFormat;
-    syntaxRules.append(rule);
+    addPattern(pattern, keywordFormat);
   }
 
   // Single line comment format expression
   singleLineCommentFormat.setForeground(Qt::darkGray);
-  rule.pattern = QRegularExpression(QStringLiteral("//[^\n]*"));
-  rule.format  = singleLineCommentFormat;
-  syntaxRules.append(rule);
+  addPattern("//[^\n]*", singleLineCommentFormat);
 
   // Double quotation mark for string
   quotationMark.setForeground(Qt::darkGreen);
-  rule.pattern = QRegularExpression(QStringLiteral("\".*\""));
-  rule.format  = quotationMark;
-  syntaxRules.append(rule);
+  addPattern("\".*\"", quotationMark);
 
   // Function format expression
   functionFormat.setFontItalic(true);
   functionFormat.setForeground(Qt::darkYellow);
-  rule.pattern = QRegularExpression(QStringLiteral("\\b[a-zA-Z_][a-zA-Z0-9_]*(?=\\s*\\()"));
-  rule.format  = functionFormat;
-  syntaxRules.append(rule);
+  addPattern("\\b[a-zA-Z_][a-zA-Z0-9_]*(?=\\s*\\()", functionFormat);
 
   // Color pattern for parenthesis
   QColor parenthesisColor("#6495ED");
   parenthesisFormat.setForeground(parenthesisColor);
-  rule.pattern = QRegularExpression(QStringLiteral("[()]"));
-  rule.format  = parenthesisFormat;
-  syntaxRules.append(rule);
+  addPattern("[()]", parenthesisFormat);
 
   // Regex for single character format 'a', '\n', etc
   charFormat.setForeground(Qt::darkCyan);
-  rule.pattern = QRegularExpression(QStringLiteral("'(\\\\.|[^'])'"));
-  rule.format  = charFormat;
-  syntaxRules.append(rule);
+  addPattern("'(\\\\.|[^'])'", charFormat);
+}
+
+// Add syntax highlighting patterns
+void Syntax::addPattern(const QString &pattern, const QTextCharFormat &format)
+{
+    SyntaxRule rule;
+    rule.pattern = QRegularExpression(pattern);
+    rule.format  = format;
+    syntaxRules.append(rule);
 }
 
 void Syntax::highlightBlock(const QString &text)

@@ -30,6 +30,8 @@ private:
     QTextCharFormat functionFormat;
     QTextCharFormat parenthesisFormat;
     QTextCharFormat charFormat;
+
+    void addPattern(const QString &pattern, const QTextCharFormat &format);
 };
 
 #endif // SYNTAX_H
