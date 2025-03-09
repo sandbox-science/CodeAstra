@@ -2,8 +2,6 @@
 
 Syntax::Syntax(QTextDocument *parent) : QSyntaxHighlighter(parent)
 {
-  SyntaxRule rule;
-
   keywordFormat.setForeground(Qt::blue);
   keywordFormat.setFontWeight(QFont::Bold);
   QStringList keywordPatterns;
