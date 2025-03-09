@@ -47,7 +47,7 @@ endif()
 set(CMAKE_PREFIX_PATH ${Qt_DIR})
 
 # Find Qt Widgets
-find_package(Qt${QT_MAJOR_VERSION} COMPONENTS Widgets REQUIRED)
+find_package(Qt${QT_MAJOR_VERSION} COMPONENTS Widgets Test REQUIRED)
 
 # Add executable and source files
 add_executable(${TARGET_NAME}
@@ -57,6 +57,8 @@ add_executable(${TARGET_NAME}
     include/MainWindow.h
     include/CodeEditor.h
 )
+
+add_subdirectory(tests)
 
 qt_add_resources(APP_RESOURCES resources.qrc)
 target_sources(${TARGET_NAME} PRIVATE ${APP_RESOURCES})
