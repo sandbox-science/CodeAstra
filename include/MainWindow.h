@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include "CodeEditor.h"
+#include "Syntax.h"
 #include <QMainWindow>
 #include <QMenu>
 #include <QAction>
@@ -34,6 +35,7 @@ private:
                           void (MainWindow::*slot)());
     CodeEditor *editor;
     QString currentFileName;
+    Syntax *syntax;
 };
 
 #endif // MAINWINDOW_H
