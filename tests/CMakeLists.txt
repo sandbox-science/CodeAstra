@@ -6,8 +6,10 @@ add_executable(test_mainwindow
     test_mainwindow.cpp
     ../src/MainWindow.cpp
     ../src/CodeEditor.cpp
+    ../src/Syntax.cpp
     ../include/MainWindow.h
     ../include/CodeEditor.h
+    ../include/Syntax.h
 )
 
 # Link each test with necessary libraries
