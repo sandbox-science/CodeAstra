@@ -54,8 +54,10 @@ add_executable(${TARGET_NAME}
     src/main.cpp
     src/MainWindow.cpp
     src/CodeEditor.cpp
+    src/Syntax.cpp
     include/MainWindow.h
     include/CodeEditor.h
+    include/Syntax.h
 )
 
 add_subdirectory(tests)
