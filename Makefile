@@ -75,3 +75,11 @@ install:
 		fi \
 	fi
 	@echo "$(PROJECT) installed."
+
+test:
+	@for test in ./build/tests/test_*; do \
+		if [ -f $$test ]; then \
+			echo "Running $$test..."; \
+			$$test; \
+		fi; \
+	done

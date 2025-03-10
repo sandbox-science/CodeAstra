@@ -1,5 +1,5 @@
-#include "MainWindow.h"
-#include "Syntax.h"
+#include "../include/MainWindow.h"
+#include "../include/Syntax.h"
 
 #include <QMenuBar>
 #include <QFileDialog>

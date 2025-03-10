@@ -1,4 +1,4 @@
-#include "Syntax.h"
+#include "../include/Syntax.h"
 
 Syntax::Syntax(QTextDocument *parent) : QSyntaxHighlighter(parent)
 {
