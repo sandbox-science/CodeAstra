@@ -1,4 +1,5 @@
 #include "MainWindow.h"
+#include "Syntax.h"
 
 #include <QMenuBar>
 #include <QFileDialog>
@@ -15,8 +16,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     resize(800, 600);
 
     editor = new CodeEditor(this);
-    setCentralWidget(editor);
+    syntax = new Syntax(editor->document());
 
+    setCentralWidget(editor);
     createMenuBar();
 }
 
