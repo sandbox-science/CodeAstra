@@ -28,9 +28,9 @@ void MainWindow::createMenuBar()
 {
     QMenuBar *menuBar = new QMenuBar(this);
 
-    QMenu *fileMenu   = menuBar->addMenu("File");
-    QMenu *helpMenu   = menuBar->addMenu("Help");
-    QMenu *appMenu    = menuBar->addMenu("CodeAstra");
+    QMenu *fileMenu = menuBar->addMenu("File");
+    QMenu *helpMenu = menuBar->addMenu("Help");
+    QMenu *appMenu = menuBar->addMenu("CodeAstra");
 
     createFileActions(fileMenu);
     createHelpActions(helpMenu);
@@ -83,11 +83,51 @@ QAction *MainWindow::createAction(const QIcon &icon, const QString &text, const 
 
 void MainWindow::newFile()
 {
-    //Added functionality to create a new file by creating a new window
-    MainWindow* newWindow=new MainWindow();
+    // First time save and editor is not empty
+    if (!this->editor->toPlainText().isEmpty() && currentFileName.isEmpty())
+    {
+        MainWindow::saveFile();
+        // Check that the file has been saved properly
+        if (currentFileName.isEmpty())
+        {
+            return;
+        }
+    }
+    // Check if file has been previously saved
+    else if (!currentFileName.isEmpty())
+    {
+        // Read from saved file and compare to current file
+        QFile file(currentFileName);
+
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+            return;
+        QTextStream in(&file);
+        QString savedFileContents = in.readAll();
+        if (savedFileContents != this->editor->toPlainText().trimmed())
+        {
+            // Create box to prompt user to save changes to file
+            QMessageBox promptBox;
+            promptBox.setWindowTitle("Changes Detected");
+            promptBox.setText("Would you like to save the current changes to the file?");
+            promptBox.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
+            promptBox.setDefaultButton(QMessageBox::Save);
+            int option = promptBox.exec();
+
+            // return if the user hit Cancel button
+            if (option == QMessageBox::Cancel)
+            {
+                return;
+            }
+
+            MainWindow::saveFile();
+        }
+    }
+
+    // New window will be created with the untitled name
+    MainWindow *newWindow = new MainWindow();
+    newWindow->setWindowTitle("Code Astra ~ untitled");
     newWindow->show();
 }
-
 void MainWindow::showAbout()
 {
     // Extract the C++ version from the __cplusplus macro
@@ -115,19 +155,20 @@ void MainWindow::showAbout()
 
     // Construct the about text
     QString aboutText = QString(
-        "<p style='text-align:center;'>"
-        "<b>%1</b><br>"
-        "Version: %2<br><br>"
-        "Developed by %3.<br>"
-        "Built with %4 and Qt %5.<br><br>"
-        "© 2025 %3. All rights reserved."
-        "</p>").arg(QApplication::applicationName().toHtmlEscaped(),
-                    QApplication::applicationVersion().toHtmlEscaped(),
-                    QApplication::organizationName().toHtmlEscaped(),
-                    cppVersion,
-                    QString::number(QT_VERSION >> 16) + "." +         // Major version
-                    QString::number((QT_VERSION >> 8) & 0xFF) + "." + // Minor version
-                    QString::number(QT_VERSION & 0xFF));              // Patch version
+                            "<p style='text-align:center;'>"
+                            "<b>%1</b><br>"
+                            "Version: %2<br><br>"
+                            "Developed by %3.<br>"
+                            "Built with %4 and Qt %5.<br><br>"
+                            "© 2025 %3. All rights reserved."
+                            "</p>")
+                            .arg(QApplication::applicationName().toHtmlEscaped(),
+                                 QApplication::applicationVersion().toHtmlEscaped(),
+                                 QApplication::organizationName().toHtmlEscaped(),
+                                 cppVersion,
+                                 QString::number(QT_VERSION >> 16) + "." +             // Major version
+                                     QString::number((QT_VERSION >> 8) & 0xFF) + "." + // Minor version
+                                     QString::number(QT_VERSION & 0xFF));              // Patch version
 
     QMessageBox::about(this, "About Code Astra", aboutText);
 }
