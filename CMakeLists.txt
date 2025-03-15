@@ -55,9 +55,11 @@ add_executable(${TARGET_NAME}
     src/MainWindow.cpp
     src/CodeEditor.cpp
     src/Syntax.cpp
+    src/Tree.cpp
     include/MainWindow.h
     include/CodeEditor.h
     include/Syntax.h
+    include/Tree.h
 )
 
 qt_add_resources(APP_RESOURCES resources.qrc)
