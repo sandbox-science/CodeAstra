@@ -15,22 +15,23 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     setWindowTitle("CodeAstra ~ Code Editor");
-    resize(800, 600);
 
     editor = new CodeEditor(this);
     syntax = new Syntax(editor->document());
 
     createMenuBar();
 
-    QSplitter *splitter = new QSplitter(this);
+    QSplitter *splitter = new QSplitter(Qt::Horizontal, this);
     setCentralWidget(splitter);
 
     tree = new Tree(splitter, this);
 
-    QWidget *editorWidget = new QWidget;
-    QVBoxLayout *layout   = new QVBoxLayout(editorWidget);
-    layout->addWidget(editor);
-    splitter->addWidget(editorWidget);
+    splitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    splitter->setHandleWidth(5);
+    splitter->setSizes(QList<int>() << 20 << 950);
+    splitter->addWidget(editor);
+
+    showMaximized();
 }
 
 MainWindow::~MainWindow() {}
