@@ -3,8 +3,9 @@
 #include "CodeEditor.h"
 
 #include <QFileDialog>
-#include <QAbstractItemView>
 #include <QFileInfo>
+#include <QFileIconProvider>
+#include <QTreeView>
 
 Tree::Tree(QSplitter *splitter, MainWindow *mainWindow) : QObject(splitter), mainWindow(mainWindow)
 {
@@ -22,6 +23,9 @@ Tree::~Tree() {}
 void Tree::setupModel()
 {
   model->setRootPath(getDirectoryPath());
+  model->setIconProvider(new QFileIconProvider);
+  model->setFilter(QDir::AllEntries | QDir::Hidden | QDir::NoDotAndDotDot);
+
 }
 
 void Tree::setupTree()
@@ -33,6 +37,9 @@ void Tree::setupTree()
   tree->setIndentation(20);
   tree->setSortingEnabled(false);
   tree->sortByColumn(1, Qt::AscendingOrder);
+
+  tree->setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(tree, &QTreeView::customContextMenuRequested, this, &Tree::showContextMenu);
 
   for (int i = 1; i <= 3; ++i)
   {
@@ -52,8 +59,20 @@ void Tree::openFile(const QModelIndex &index)
   QString filePath = model->filePath(index);
   QFileInfo fileInfo(filePath);
 
-  if (fileInfo.isFile()) // Ensure it's a file, not a folder
+  // Ensure it's a file, not a folder before loading
+  if (fileInfo.isFile())
   {
     mainWindow->loadFileInEditor(filePath);
   }
+}
+
+void Tree::showContextMenu(const QPoint &pos)
+{
+  // TO_DO: Implement delete a file
+  // TO_DO: Implement rename a file
+  // TO_DO: Implement create a new file
+  // TO_DO: Implement create a new folder
+
+  // use pos param for testing purpose for now
+  tree->indexAt(pos);
 }
