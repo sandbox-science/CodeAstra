@@ -17,6 +17,7 @@ public:
     ~Tree();
 
 private:
+    void showContextMenu(const QPoint &pos);
     void setupModel();
     void setupTree();
     void openFile(const QModelIndex &index);
