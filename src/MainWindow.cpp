@@ -1,5 +1,6 @@
 #include "MainWindow.h"
 #include "Syntax.h"
+#include "Tree.h"
 
 #include <QMenuBar>
 #include <QFileDialog>
@@ -9,17 +10,31 @@
 #include <QStatusBar>
 #include <QApplication>
 #include <QDesktopServices>
+#include <QVBoxLayout>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     setWindowTitle("CodeAstra ~ Code Editor");
-    resize(800, 600);
 
     editor = new CodeEditor(this);
     syntax = new Syntax(editor->document());
 
-    setCentralWidget(editor);
+    QFontMetrics metrics(editor->font());
+    int spaceWidth = metrics.horizontalAdvance(" ");
+    editor->setTabStopDistance(spaceWidth * 4);
+
+    QSplitter *splitter = new QSplitter(Qt::Horizontal, this);
+    setCentralWidget(splitter);
+
+    tree = new Tree(splitter, this);
+
+    splitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    splitter->setHandleWidth(5);
+    splitter->setSizes(QList<int>() << 20 << 950);
+    splitter->addWidget(editor);
+
     createMenuBar();
+    showMaximized();
 }
 
 MainWindow::~MainWindow() {}
@@ -28,9 +43,9 @@ void MainWindow::createMenuBar()
 {
     QMenuBar *menuBar = new QMenuBar(this);
 
-    QMenu *fileMenu   = menuBar->addMenu("File");
-    QMenu *helpMenu   = menuBar->addMenu("Help");
-    QMenu *appMenu    = menuBar->addMenu("CodeAstra");
+    QMenu *fileMenu = menuBar->addMenu("File");
+    QMenu *helpMenu = menuBar->addMenu("Help");
+    QMenu *appMenu  = menuBar->addMenu("CodeAstra");
 
     createFileActions(fileMenu);
     createHelpActions(helpMenu);
@@ -113,19 +128,20 @@ void MainWindow::showAbout()
 
     // Construct the about text
     QString aboutText = QString(
-        "<p style='text-align:center;'>"
-        "<b>%1</b><br>"
-        "Version: %2<br><br>"
-        "Developed by %3.<br>"
-        "Built with %4 and Qt %5.<br><br>"
-        "© 2025 %3. All rights reserved."
-        "</p>").arg(QApplication::applicationName().toHtmlEscaped(),
-                    QApplication::applicationVersion().toHtmlEscaped(),
-                    QApplication::organizationName().toHtmlEscaped(),
-                    cppVersion,
-                    QString::number(QT_VERSION >> 16) + "." +         // Major version
-                    QString::number((QT_VERSION >> 8) & 0xFF) + "." + // Minor version
-                    QString::number(QT_VERSION & 0xFF));              // Patch version
+                            "<p style='text-align:center;'>"
+                            "<b>%1</b><br>"
+                            "Version: %2<br><br>"
+                            "Developed by %3.<br>"
+                            "Built with %4 and Qt %5.<br><br>"
+                            "© 2025 %3. All rights reserved."
+                            "</p>")
+                            .arg(QApplication::applicationName().toHtmlEscaped(),
+                                 QApplication::applicationVersion().toHtmlEscaped(),
+                                 QApplication::organizationName().toHtmlEscaped(),
+                                 cppVersion,
+                                 QString::number(QT_VERSION >> 16) + "." +             // Major version
+                                     QString::number((QT_VERSION >> 8) & 0xFF) + "." + // Minor version
+                                     QString::number(QT_VERSION & 0xFF));              // Patch version
 
     QMessageBox::about(this, "About Code Astra", aboutText);
 }
@@ -192,4 +208,21 @@ void MainWindow::saveFileAs()
         currentFileName = fileName;
         saveFile();
     }
+}
+
+void MainWindow::loadFileInEditor(const QString &filePath)
+{
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        QMessageBox::warning(this, "Error", "Cannot open file: " + file.errorString());
+        return;
+    }
+
+    QTextStream in(&file);
+    editor->setPlainText(in.readAll());
+    file.close();
+
+    currentFileName = filePath;
+    setWindowTitle("CodeAstra ~ " + QFileInfo(filePath).fileName());
 }

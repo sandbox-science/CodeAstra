@@ -3,6 +3,8 @@
 
 #include "CodeEditor.h"
 #include "Syntax.h"
+#include "Tree.h"
+
 #include <QMainWindow>
 #include <QMenu>
 #include <QAction>
@@ -17,6 +19,7 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     virtual ~MainWindow();
+    void loadFileInEditor(const QString &filePath);
 
 private slots:
     void newFile();
@@ -36,6 +39,7 @@ private:
     CodeEditor *editor;
     QString currentFileName;
     Syntax *syntax;
+    Tree *tree;
 };
 
 #endif // MAINWINDOW_H
