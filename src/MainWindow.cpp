@@ -19,7 +19,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     editor = new CodeEditor(this);
     syntax = new Syntax(editor->document());
 
-    createMenuBar();
+    QFontMetrics metrics(editor->font());
+    int spaceWidth = metrics.horizontalAdvance(" ");
+    editor->setTabStopDistance(spaceWidth * 4);
 
     QSplitter *splitter = new QSplitter(Qt::Horizontal, this);
     setCentralWidget(splitter);
@@ -31,6 +33,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     splitter->setSizes(QList<int>() << 20 << 950);
     splitter->addWidget(editor);
 
+    createMenuBar();
     showMaximized();
 }
 
