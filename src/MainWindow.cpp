@@ -12,32 +12,44 @@
 #include <QDesktopServices>
 #include <QVBoxLayout>
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent),
+      editor(new CodeEditor(this)),
+      syntax(new Syntax(editor->document())),
+      tree(nullptr)
 {
     setWindowTitle("CodeAstra ~ Code Editor");
 
-    editor = new CodeEditor(this);
-    syntax = new Syntax(editor->document());
-
+    // Set tab width to 4 spaces
     QFontMetrics metrics(editor->font());
     int spaceWidth = metrics.horizontalAdvance(" ");
     editor->setTabStopDistance(spaceWidth * 4);
+    editor->setLineWrapMode(QPlainTextEdit::NoWrap);
 
-    QSplitter *splitter = new QSplitter(Qt::Horizontal, this);
-    setCentralWidget(splitter);
-
-    tree = new Tree(splitter, this);
-
-    splitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    splitter->setHandleWidth(5);
-    splitter->setSizes(QList<int>() << 20 << 950);
-    splitter->addWidget(editor);
-
+    initTree();
     createMenuBar();
     showMaximized();
 }
 
 MainWindow::~MainWindow() {}
+
+void MainWindow::initTree()
+{
+    QSplitter *splitter = new QSplitter(Qt::Horizontal, this);
+    setCentralWidget(splitter);
+
+    tree = new Tree(splitter, this);
+
+    splitter->addWidget(editor);
+
+    splitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    splitter->setHandleWidth(5);
+    splitter->setSizes(QList<int>() << 150 << 800);
+    splitter->setStretchFactor(0, 1);
+    splitter->setStretchFactor(1, 3);
+    splitter->setChildrenCollapsible(false);
+    splitter->setOpaqueResize(true);
+}
 
 void MainWindow::createMenuBar()
 {
@@ -56,17 +68,11 @@ void MainWindow::createMenuBar()
 
 void MainWindow::createFileActions(QMenu *fileMenu)
 {
-    QAction *newAction = createAction(QIcon::fromTheme("document-new"), tr("&New File..."), QKeySequence::New, tr("Create a new file"), &MainWindow::newFile);
-    fileMenu->addAction(newAction);
-
-    QAction *openAction = createAction(QIcon::fromTheme("document-open"), tr("&Open..."), QKeySequence::Open, tr("Open an existing file"), &MainWindow::openFile);
-    fileMenu->addAction(openAction);
-
-    QAction *saveAction = createAction(QIcon::fromTheme("document-save"), tr("&Save"), QKeySequence::Save, tr("Save your file"), &MainWindow::saveFile);
-    fileMenu->addAction(saveAction);
-
-    QAction *saveAsAction = createAction(QIcon::fromTheme("document-saveAs"), tr("&Save As"), QKeySequence::SaveAs, tr("Save current file as..."), &MainWindow::saveFileAs);
-    fileMenu->addAction(saveAsAction);
+    fileMenu->addAction(createAction(QIcon(), tr("&New"), QKeySequence::New, tr("Create a new file"), &MainWindow::newFile));
+    fileMenu->addAction(createAction(QIcon(), tr("&Open"), QKeySequence::Open, tr("Open an existing file"), &MainWindow::openFile));
+    fileMenu->addSeparator();
+    fileMenu->addAction(createAction(QIcon(), tr("&Save"), QKeySequence::Save, tr("Save the current file"), &MainWindow::saveFile));
+    fileMenu->addAction(createAction(QIcon(), tr("Save &As"), QKeySequence::SaveAs, tr("Save the file with a new name"), &MainWindow::saveFileAs));
 }
 
 void MainWindow::createHelpActions(QMenu *helpMenu)
@@ -143,12 +149,13 @@ void MainWindow::showAbout()
                                      QString::number((QT_VERSION >> 8) & 0xFF) + "." + // Minor version
                                      QString::number(QT_VERSION & 0xFF));              // Patch version
 
-    QMessageBox::about(this, "About Code Astra", aboutText);
+    QMessageBox::about(this, tr("About"), aboutText);
 }
 
 void MainWindow::openFile()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, "Open File");
+    QString fileName = QFileDialog::getOpenFileName(this, "Open File", QString(),
+                                                    "C++ Files (*.cpp *.h);;Text Files (*.txt);;All Files (*)");
     if (!fileName.isEmpty())
     {
         QFile file(fileName);
@@ -202,7 +209,9 @@ void MainWindow::saveFile()
 
 void MainWindow::saveFileAs()
 {
-    QString fileName = QFileDialog::getSaveFileName(this, "Save File As");
+    QString fileName = QFileDialog::getSaveFileName(this, "Save File As", QString(),
+                                                    "C++ Files (*.cpp *.h);;Text Files (*.txt);;All Files (*)");
+
     if (!fileName.isEmpty())
     {
         currentFileName = fileName;
