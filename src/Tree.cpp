@@ -7,11 +7,12 @@
 #include <QFileIconProvider>
 #include <QTreeView>
 
-Tree::Tree(QSplitter *splitter, MainWindow *mainWindow) : QObject(splitter), mainWindow(mainWindow)
+Tree::Tree(QSplitter *splitter, MainWindow *mainWindow)
+    : QObject(splitter),
+      model(new QFileSystemModel()),
+      tree(new QTreeView(splitter)),
+      mainWindow(mainWindow)
 {
-  model = new QFileSystemModel();
-  tree  = new QTreeView(splitter);
-
   setupModel();
   setupTree();
 
@@ -25,7 +26,6 @@ void Tree::setupModel()
   model->setRootPath(getDirectoryPath());
   model->setIconProvider(new QFileIconProvider);
   model->setFilter(QDir::AllEntries | QDir::Hidden | QDir::NoDotAndDotDot);
-
 }
 
 void Tree::setupTree()
@@ -37,14 +37,15 @@ void Tree::setupTree()
   tree->setIndentation(20);
   tree->setSortingEnabled(false);
   tree->sortByColumn(1, Qt::AscendingOrder);
+  tree->setHeaderHidden(true);
 
-  tree->setContextMenuPolicy(Qt::CustomContextMenu);
-  connect(tree, &QTreeView::customContextMenuRequested, this, &Tree::showContextMenu);
-
-  for (int i = 1; i <= 3; ++i)
+  for (int i = 1; i <= model->columnCount(); ++i)
   {
     tree->setColumnHidden(i, true);
   }
+
+  tree->setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(tree, &QTreeView::customContextMenuRequested, this, &Tree::showContextMenu);
 }
 
 QString Tree::getDirectoryPath()
