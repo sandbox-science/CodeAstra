@@ -10,7 +10,6 @@
 #include <QAction>
 #include <QIcon>
 #include <QKeySequence>
-#include <QDesktopServices>
 
 class MainWindow : public QMainWindow
 {
@@ -20,6 +19,7 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     virtual ~MainWindow();
     void loadFileInEditor(const QString &filePath);
+    void initTree();
 
 private slots:
     void newFile();
