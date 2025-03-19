@@ -223,6 +223,7 @@ void MainWindow::loadFileInEditor(const QString &filePath)
     editor->setPlainText(in.readAll());
     file.close();
 
+    editor->setCurrentFileName(filePath);
     currentFileName = filePath;
     setWindowTitle("CodeAstra ~ " + QFileInfo(filePath).fileName());
 }

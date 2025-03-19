@@ -19,6 +19,8 @@ public:
     Mode mode = NORMAL;
     void lineNumberAreaPaintEvent(QPaintEvent *event);
     int lineNumberAreaWidth();
+    QString getCurrentFileName() const { return currentFileName; }
+    void setCurrentFileName(const QString &fileName) { currentFileName = fileName; }
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;
@@ -31,6 +33,10 @@ private slots:
 
 private:
     QWidget *lineNumberArea;
+    QString currentFileName;
+    QString getFileExtension();
+    void addLanguageSymbol(QTextCursor &cursor, const QString commentSymbol);
+	void addComment();
 };
 
 #endif // CODEEDITOR_H
