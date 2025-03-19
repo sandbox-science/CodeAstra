@@ -86,12 +86,21 @@ void MainWindow::newFile()
     // First time save and editor is not empty
     if (!this->editor->toPlainText().isEmpty() && currentFileName.isEmpty())
     {
-        MainWindow::saveFile();
-        // Check that the file has been saved properly
-        if (currentFileName.isEmpty())
+        // Create box to prompt user to save changes to file
+        QMessageBox promptBox;
+        promptBox.setWindowTitle("Save Current File");
+        promptBox.setText("Would you like to save the file?");
+        promptBox.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
+        promptBox.setDefaultButton(QMessageBox::Save);
+
+        int option = promptBox.exec();
+        // return if the user hit Cancel button
+        if (option == QMessageBox::Cancel)
         {
             return;
         }
+
+        MainWindow::saveFile();
     }
     // Check if file has been previously saved
     else if (!currentFileName.isEmpty())
@@ -102,6 +111,7 @@ void MainWindow::newFile()
         if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
             return;
         QTextStream in(&file);
+
         QString savedFileContents = in.readAll();
         if (savedFileContents != this->editor->toPlainText().trimmed())
         {
@@ -112,7 +122,6 @@ void MainWindow::newFile()
             promptBox.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
             promptBox.setDefaultButton(QMessageBox::Save);
             int option = promptBox.exec();
-
             // return if the user hit Cancel button
             if (option == QMessageBox::Cancel)
             {
