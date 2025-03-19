@@ -26,6 +26,11 @@ void CodeEditor::keyPressEvent(QKeyEvent *event)
         moveCursor(QTextCursor::WordLeft, QTextCursor::KeepAnchor);
         return;
     }
+    if (event->modifiers() == Qt::ControlModifier && event->key() == Qt::Key_Slash)
+    {
+        addComment();
+        return;
+    }
 
     if (mode == NORMAL)
     {
@@ -54,6 +59,99 @@ void CodeEditor::keyPressEvent(QKeyEvent *event)
     else
     {
         QPlainTextEdit::keyPressEvent(event);
+    }
+}
+
+QString CodeEditor::getFileExtension()
+{
+    QString filePath = getCurrentFileName();
+    if (!QFile::exists(filePath))
+    {
+        return QString();
+    }
+
+    // Extract the file extension from the file path
+    return QFileInfo(filePath).suffix().toLower();
+}
+
+void CodeEditor::addLanguageSymbol(QTextCursor &cursor, const QString commentSymbol)
+{
+    // If text is selected, comment/uncomment selected text
+    if (cursor.hasSelection())
+    {
+        int start = cursor.selectionStart();
+        int end   = cursor.selectionEnd();
+
+        cursor.setPosition(start);
+        int startBlockNumber = cursor.blockNumber();
+        cursor.setPosition(end);
+        int endBlockNumber = cursor.blockNumber();
+
+        cursor.setPosition(start);
+        for (int i = startBlockNumber; i <= endBlockNumber; ++i)
+        {
+            cursor.movePosition(QTextCursor::StartOfLine);
+            QString lineText = cursor.block().text();
+
+            if (lineText.startsWith(commentSymbol))
+            {
+                cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, 3);
+                cursor.removeSelectedText();
+            }
+            else
+            {
+                cursor.insertText(commentSymbol + " ");
+            }
+
+            cursor.movePosition(QTextCursor::NextBlock);
+        }
+    }
+    else
+    {
+        // If no text is selected, comment/uncomment the current line
+        cursor.select(QTextCursor::LineUnderCursor);
+        QString lineText = cursor.selectedText();
+
+        if (lineText.startsWith(commentSymbol))
+        {
+            lineText.remove(0, 3);
+        }
+        else
+        {
+            lineText.prepend(commentSymbol + " ");
+        }
+
+        cursor.insertText(lineText);
+    }
+}
+
+void CodeEditor::addComment()
+{
+    QTextCursor cursor    = textCursor();
+    QString fileExtension = getFileExtension();
+    qDebug() << "File Extension:" << fileExtension;
+
+    if (fileExtension == "cpp" || fileExtension == "h" ||
+        fileExtension == "hpp" || fileExtension == "c" ||
+        fileExtension == "java" || fileExtension == "go" ||
+        fileExtension == "json")
+    {
+        addLanguageSymbol(cursor, "//");
+    }
+    else if (fileExtension == "py" || fileExtension == "yaml" ||
+             fileExtension == "yml" || fileExtension == "sh" ||
+             fileExtension == "bash")
+    {
+        addLanguageSymbol(cursor, "#");
+    }
+    else if (fileExtension == "sql")
+    {
+        addLanguageSymbol(cursor, "--");
+    }
+    else
+    {
+        qDebug() << "Unsupported file extension for commenting.";
+        return;
     }
 }
 
