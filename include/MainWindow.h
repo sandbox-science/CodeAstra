@@ -37,7 +37,6 @@ private:
                           const QKeySequence &shortcut, const QString &statusTip,
                           void (MainWindow::*slot)());
     CodeEditor *editor;
-    QString currentFileName;
     Syntax *syntax;
     Tree *tree;
 };

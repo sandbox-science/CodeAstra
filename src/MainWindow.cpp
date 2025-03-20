@@ -169,7 +169,7 @@ void MainWindow::openFile()
         }
         file.close();
 
-        currentFileName = fileName;
+        editor->setCurrentFileName(fileName);
 
         setWindowTitle("CodeAstra ~ " + QFileInfo(fileName).fileName());
     }
@@ -177,13 +177,13 @@ void MainWindow::openFile()
 
 void MainWindow::saveFile()
 {
-    if (currentFileName.isEmpty())
+    if (editor->getCurrentFileName().isEmpty())
     {
         saveFileAs();
         return;
     }
 
-    QFile file(currentFileName);
+    QFile file(editor->getCurrentFileName());
     if (!file.open(QFile::WriteOnly | QFile::Text))
     {
         QMessageBox::warning(this, "Error", "Cannot save file: " + file.errorString());
@@ -205,7 +205,7 @@ void MainWindow::saveFileAs()
     QString fileName = QFileDialog::getSaveFileName(this, "Save File As");
     if (!fileName.isEmpty())
     {
-        currentFileName = fileName;
+        editor->setCurrentFileName(fileName);
         saveFile();
     }
 }
@@ -224,6 +224,5 @@ void MainWindow::loadFileInEditor(const QString &filePath)
     file.close();
 
     editor->setCurrentFileName(filePath);
-    currentFileName = filePath;
     setWindowTitle("CodeAstra ~ " + QFileInfo(filePath).fileName());
 }
