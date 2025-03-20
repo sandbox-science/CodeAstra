@@ -35,7 +35,9 @@ private:
     QWidget *lineNumberArea;
     QString currentFileName;
     QString getFileExtension();
-    void addLanguageSymbol(QTextCursor &cursor, const QString commentSymbol);
+    void addLanguageSymbol(QTextCursor &cursor, const QString &commentSymbol);
+    void commentSelection(QTextCursor &cursor, const QString &commentSymbol);
+    void commentLine(QTextCursor &cursor, const QString &commentSymbol);
 	void addComment();
 };
 
