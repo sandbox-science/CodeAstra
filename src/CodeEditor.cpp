@@ -74,55 +74,65 @@ QString CodeEditor::getFileExtension()
     return QFileInfo(filePath).suffix().toLower();
 }
 
-void CodeEditor::addLanguageSymbol(QTextCursor &cursor, const QString commentSymbol)
+void CodeEditor::addLanguageSymbol(QTextCursor &cursor, const QString &commentSymbol)
 {
-    // If text is selected, comment/uncomment selected text
     if (cursor.hasSelection())
     {
-        int start = cursor.selectionStart();
-        int end   = cursor.selectionEnd();
-
-        cursor.setPosition(start);
-        int startBlockNumber = cursor.blockNumber();
-        cursor.setPosition(end);
-        int endBlockNumber = cursor.blockNumber();
-
-        cursor.setPosition(start);
-        for (int i = startBlockNumber; i <= endBlockNumber; ++i)
-        {
-            cursor.movePosition(QTextCursor::StartOfLine);
-            QString lineText = cursor.block().text();
-
-            if (lineText.startsWith(commentSymbol))
-            {
-                cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, 3);
-                cursor.removeSelectedText();
-            }
-            else
-            {
-                cursor.insertText(commentSymbol + " ");
-            }
-
-            cursor.movePosition(QTextCursor::NextBlock);
-        }
+        commentSelection(cursor, commentSymbol);
     }
     else
     {
-        // If no text is selected, comment/uncomment the current line
-        cursor.select(QTextCursor::LineUnderCursor);
-        QString lineText = cursor.selectedText();
+        commentLine(cursor, commentSymbol);
+    }
+}
+
+// Comment/uncomment the selected text or the current line
+void CodeEditor::commentSelection(QTextCursor &cursor, const QString &commentSymbol)
+{
+    int start = cursor.selectionStart();
+    int end   = cursor.selectionEnd();
+
+    cursor.setPosition(start);
+    int startBlockNumber = cursor.blockNumber();
+    cursor.setPosition(end);
+    int endBlockNumber = cursor.blockNumber();
+
+    cursor.setPosition(start);
+    for (int i = startBlockNumber; i <= endBlockNumber; ++i)
+    {
+        cursor.movePosition(QTextCursor::StartOfLine);
+        QString lineText = cursor.block().text();
 
         if (lineText.startsWith(commentSymbol))
         {
-            lineText.remove(0, 3);
+            cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, 3);
+            cursor.removeSelectedText();
         }
         else
         {
-            lineText.prepend(commentSymbol + " ");
+            cursor.insertText(commentSymbol + " ");
         }
 
-        cursor.insertText(lineText);
+        cursor.movePosition(QTextCursor::NextBlock);
     }
+}
+
+// Comment/uncomment the single current line
+void CodeEditor::commentLine(QTextCursor &cursor, const QString &commentSymbol)
+{
+    cursor.select(QTextCursor::LineUnderCursor);
+    QString lineText = cursor.selectedText();
+
+    if (lineText.startsWith(commentSymbol))
+    {
+        lineText.remove(0, 3);
+    }
+    else
+    {
+        lineText.prepend(commentSymbol + " ");
+    }
+
+    cursor.insertText(lineText);
 }
 
 void CodeEditor::addComment()
