@@ -27,9 +27,9 @@ Please, check the [wiki](https://github.com/sandbox-science/CodeAstra/wiki) for 
 - [x] Basic text editing
   - [x] Open a file
   - [x] Save file
-  - [ ] Create a new file
-- [ ] File tree navigation
-- [ ] Syntax highlighting
+  - [ ] Create a new file ~ in progress
+- [x] File tree navigation
+- [ ] Syntax highlighting ~ in progress
 - [ ] Plugin system
 
 ## To-Do

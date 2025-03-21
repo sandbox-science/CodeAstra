@@ -4,75 +4,102 @@
 
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QFileSystemModel>
 #include <QFileIconProvider>
 #include <QTreeView>
 
-Tree::Tree(QSplitter *splitter, MainWindow *mainWindow) : QObject(splitter), mainWindow(mainWindow)
+Tree::Tree(QSplitter *splitter, MainWindow *mainWindow)
+    : QObject(splitter),
+      m_iconProvider(std::make_unique<QFileIconProvider>()),
+      m_model(std::make_unique<QFileSystemModel>()),
+      m_tree(std::make_unique<QTreeView>(splitter)),
+      m_mainWindow(mainWindow)
 {
-  model = new QFileSystemModel();
-  tree  = new QTreeView(splitter);
+    setupModel();
+    setupTree();
 
-  setupModel();
-  setupTree();
-
-  connect(tree, &QTreeView::doubleClicked, this, &Tree::openFile);
+    connect(m_tree.get(), &QTreeView::doubleClicked, this, &Tree::openFile);
 }
 
 Tree::~Tree() {}
 
 void Tree::setupModel()
 {
-  model->setRootPath(getDirectoryPath());
-  model->setIconProvider(new QFileIconProvider);
-  model->setFilter(QDir::AllEntries | QDir::Hidden | QDir::NoDotAndDotDot);
-
+    m_model->setRootPath(getDirectoryPath());
+    m_model->setIconProvider(m_iconProvider.get());
+    m_model->setFilter(QDir::AllEntries | QDir::Hidden | QDir::NoDotAndDotDot);
 }
 
 void Tree::setupTree()
 {
-  tree->setModel(model);
-  tree->setRootIndex(model->index(model->rootPath()));
-  tree->setRootIsDecorated(true);
-  tree->setAnimated(true);
-  tree->setIndentation(20);
-  tree->setSortingEnabled(false);
-  tree->sortByColumn(1, Qt::AscendingOrder);
+    m_tree->setModel(m_model.get());
+    m_tree->setRootIndex(m_model->index(m_model->rootPath()));
+    m_tree->setRootIsDecorated(true);
+    m_tree->setAnimated(true);
+    m_tree->setIndentation(20);
+    m_tree->setSortingEnabled(false);
+    m_tree->sortByColumn(1, Qt::AscendingOrder);
+    m_tree->setHeaderHidden(true);
 
-  tree->setContextMenuPolicy(Qt::CustomContextMenu);
-  connect(tree, &QTreeView::customContextMenuRequested, this, &Tree::showContextMenu);
+    for (int i = 1; i <= m_model->columnCount(); ++i)
+    {
+        m_tree->setColumnHidden(i, true);
+    }
 
-  for (int i = 1; i <= 3; ++i)
-  {
-    tree->setColumnHidden(i, true);
-  }
+    m_tree->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(m_tree.get(), &QTreeView::customContextMenuRequested, this, &Tree::showContextMenu);
 }
 
-QString Tree::getDirectoryPath()
+QString Tree::getDirectoryPath() const
 {
-  return QFileDialog::getExistingDirectory(
-      nullptr, QObject::tr("Open Directory"), QDir::homePath(),
-      QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+    return QFileDialog::getExistingDirectory(
+        nullptr, QObject::tr("Open Directory"), QDir::homePath(),
+        QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 }
 
 void Tree::openFile(const QModelIndex &index)
 {
-  QString filePath = model->filePath(index);
-  QFileInfo fileInfo(filePath);
+    QString filePath = m_model->filePath(index);
+    QFileInfo fileInfo(filePath);
 
-  // Ensure it's a file, not a folder before loading
-  if (fileInfo.isFile())
-  {
-    mainWindow->loadFileInEditor(filePath);
-  }
+    // Ensure it's a file, not a folder before loading
+    if (!fileInfo.exists() || !fileInfo.isFile())
+    {
+        qWarning() << "Selected index is not a valid file:" << filePath;
+        return;
+    }
+
+    m_mainWindow->loadFileInEditor(filePath);
 }
 
+// Context menu for file operations
+// such as creating new files, folders, renaming, and deleting
+// This function is called when the user right-clicks on the tree view
 void Tree::showContextMenu(const QPoint &pos)
 {
-  // TO_DO: Implement delete a file
-  // TO_DO: Implement rename a file
-  // TO_DO: Implement create a new file
-  // TO_DO: Implement create a new folder
+    QMenu contextMenu;
 
-  // use pos param for testing purpose for now
-  tree->indexAt(pos);
+    QAction *newFileAction   = contextMenu.addAction("New File");
+    QAction *newFolderAction = contextMenu.addAction("New Folder");
+    QAction *renameAction    = contextMenu.addAction("Rename");
+    QAction *deleteAction    = contextMenu.addAction("Delete");
+
+    QAction *selectedAction = contextMenu.exec(m_tree->viewport()->mapToGlobal(pos));
+
+    if (selectedAction == newFileAction)
+    {
+        // TO-DO: implement file creation
+    }
+    else if (selectedAction == newFolderAction)
+    {
+        // TO-DO: implement folder creation
+    }
+    else if (selectedAction == renameAction)
+    {
+        // TO-DO: implement rename file/folder
+    }
+    else if (selectedAction == deleteAction)
+    {
+        // TO-DO: implement file deletion
+    }
 }

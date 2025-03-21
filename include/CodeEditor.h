@@ -1,5 +1,4 @@
-#ifndef CODEEDITOR_H
-#define CODEEDITOR_H
+#pragma once
 
 #include <QPlainTextEdit>
 #include <QKeyEvent>
@@ -22,6 +21,12 @@ public:
     QString getCurrentFileName() const { return currentFileName; }
     void setCurrentFileName(const QString &fileName) { currentFileName = fileName; }
 
+signals:
+    void statusMessageChanged(const QString &message);
+
+signals:
+    void statusMessageChanged(const QString &message);
+
 protected:
     void keyPressEvent(QKeyEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
@@ -32,7 +37,7 @@ private slots:
     void updateLineNumberArea(const QRect &rect, int dy);
 
 private:
-    QWidget *lineNumberArea;
+    QWidget *m_lineNumberArea;
     QString currentFileName;
     QString getFileExtension();
     void addLanguageSymbol(QTextCursor &cursor, const QString &commentSymbol);
@@ -40,5 +45,3 @@ private:
     void commentLine(QTextCursor &cursor, const QString &commentSymbol);
 	void addComment();
 };
-
-#endif // CODEEDITOR_H
