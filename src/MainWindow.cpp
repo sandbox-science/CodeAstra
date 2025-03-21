@@ -21,6 +21,12 @@ MainWindow::MainWindow(QWidget *parent)
 {
     setWindowTitle("CodeAstra ~ Code Editor");
 
+    connect(m_editor.get(), &CodeEditor::statusMessageChanged, this, [this](const QString &message)
+    {
+        QString timestamp = QDateTime::currentDateTime().toString("hh:mm:ss");
+        statusBar()->showMessage("[" + timestamp + "] " + message, 4000);
+    });
+
     // Set tab width to 4 spaces
     QFontMetrics metrics(m_editor->font());
     int spaceWidth = metrics.horizontalAdvance(" ");
