@@ -1,5 +1,4 @@
-#ifndef SYNTAX_H
-#define SYNTAX_H
+#pragma once
 
 #include <QTextCharFormat>
 #include <QRegularExpression>
@@ -22,7 +21,7 @@ private:
         QRegularExpression pattern;
         QTextCharFormat format;
     };
-    QList<SyntaxRule> syntaxRules;
+    QVector<SyntaxRule> syntaxRules;
 
     QTextCharFormat keywordFormat;
     QTextCharFormat singleLineCommentFormat;
@@ -30,8 +29,15 @@ private:
     QTextCharFormat functionFormat;
     QTextCharFormat parenthesisFormat;
     QTextCharFormat charFormat;
+    QTextCharFormat iterationFormat;
 
     void addPattern(const QString &pattern, const QTextCharFormat &format);
-};
 
-#endif // SYNTAX_H
+    // Initialization functions for different syntax highlighting rules
+    void initKeywordRules();
+    void initCommentRules();
+    void initFunctionRules();
+    void initParenthesisRules();
+    void initCharRules();
+    void initQuotationRules();
+};
