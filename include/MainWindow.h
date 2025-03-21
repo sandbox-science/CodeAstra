@@ -11,6 +11,7 @@
 class CodeEditor;
 class Syntax;
 class Tree;
+class FileManager;
 
 class MainWindow : public QMainWindow
 {
@@ -19,16 +20,12 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     virtual ~MainWindow();
-    void loadFileInEditor(const QString &filePath);
+
     // Initialize the file tree view and set it as the central widget
     // of the main window, alongside the code editor
     void initTree();
 
 private slots:
-    void newFile();
-    void openFile();
-    void saveFile();
-    void saveFileAs();
     void showAbout();
 
 private:
@@ -38,9 +35,11 @@ private:
     void createAppActions(QMenu *appMenu);
     QAction *createAction(const QIcon &icon, const QString &text,
                           const QKeySequence &shortcut, const QString &statusTip,
-                          void (MainWindow::*slot)());
+                          const std::function<void()> &slot);
+
     std::unique_ptr<CodeEditor> m_editor;
     std::unique_ptr<Syntax> m_syntax;
     std::unique_ptr<Tree> m_tree;
-    QString m_currentFileName;
+
+    FileManager * m_FileManager;
 };
