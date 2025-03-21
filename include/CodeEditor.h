@@ -24,9 +24,6 @@ public:
 signals:
     void statusMessageChanged(const QString &message);
 
-signals:
-    void statusMessageChanged(const QString &message);
-
 protected:
     void keyPressEvent(QKeyEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;

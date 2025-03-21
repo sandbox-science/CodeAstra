@@ -5,6 +5,7 @@
 #include <QPainter>
 #include <QTextBlock>
 #include <QStatusBar>
+#include <QFileInfo>
 
 CodeEditor::CodeEditor(QWidget *parent)
     : QPlainTextEdit(parent),
