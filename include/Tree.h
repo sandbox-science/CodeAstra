@@ -5,17 +5,17 @@
 #include <memory>
 
 // Forward declarations
-class MainWindow;
 class QTreeView;
 class QFileSystemModel;
 class QFileIconProvider;
+class FileManager;
 
 class Tree : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit Tree(QSplitter *splitter, MainWindow *mainWindow);
+    explicit Tree(QSplitter *splitter, FileManager *FileManager);
     ~Tree();
 
 private:
@@ -29,5 +29,5 @@ private:
     std::unique_ptr<QFileSystemModel> m_model;
     std::unique_ptr<QTreeView> m_tree;
 
-    MainWindow *m_mainWindow;
+    FileManager * m_FileManager;
 };
