@@ -1,19 +1,20 @@
 #include "Tree.h"
-#include "MainWindow.h"
 #include "CodeEditor.h"
+#include "FileManager.h"
 
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QFileSystemModel>
 #include <QFileIconProvider>
 #include <QTreeView>
+#include <QMenu>
 
-Tree::Tree(QSplitter *splitter, MainWindow *mainWindow)
+Tree::Tree(QSplitter *splitter, FileManager *FileManager)
     : QObject(splitter),
       m_iconProvider(std::make_unique<QFileIconProvider>()),
       m_model(std::make_unique<QFileSystemModel>()),
       m_tree(std::make_unique<QTreeView>(splitter)),
-      m_mainWindow(mainWindow)
+      m_FileManager(FileManager)
 {
     setupModel();
     setupTree();
@@ -69,7 +70,7 @@ void Tree::openFile(const QModelIndex &index)
         return;
     }
 
-    m_mainWindow->loadFileInEditor(filePath);
+    m_FileManager->loadFileInEditor(filePath);
 }
 
 // Context menu for file operations
