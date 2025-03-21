@@ -60,6 +60,7 @@ add_executable(${TARGET_NAME}
     include/CodeEditor.h
     include/Syntax.h
     include/Tree.h
+    include/LineNumberArea.h
 )
 
 qt_add_resources(APP_RESOURCES resources.qrc)
