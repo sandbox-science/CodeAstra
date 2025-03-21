@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 #include "Syntax.h"
 #include "Tree.h"
+#include "CodeEditor.h"
 
 #include <QMenuBar>
 #include <QFileDialog>
@@ -14,8 +15,8 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
-      editor(new CodeEditor(this)),
-      syntax(new Syntax(editor->document())),
+      editor(std::make_unique<CodeEditor>(this)),
+      syntax(std::make_unique<Syntax>(editor->document())),
       tree(nullptr)
 {
     setWindowTitle("CodeAstra ~ Code Editor");
@@ -38,10 +39,9 @@ void MainWindow::initTree()
     QSplitter *splitter = new QSplitter(Qt::Horizontal, this);
     setCentralWidget(splitter);
 
-    tree = new Tree(splitter, this);
+    tree = std::make_unique<Tree>(splitter, this);
 
-    splitter->addWidget(editor);
-
+    splitter->addWidget(editor.get());
     splitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     splitter->setHandleWidth(5);
     splitter->setSizes(QList<int>() << 150 << 800);
@@ -158,27 +158,7 @@ void MainWindow::openFile()
                                                     "C++ Files (*.cpp *.h);;Text Files (*.txt);;All Files (*)");
     if (!fileName.isEmpty())
     {
-        QFile file(fileName);
-        if (!file.open(QFile::ReadOnly | QFile::Text))
-        {
-            QMessageBox::warning(this, "Error", "Cannot open file: " + file.errorString());
-            return;
-        }
-
-        QTextStream in(&file);
-        if (editor)
-        {
-            editor->setPlainText(in.readAll());
-        }
-        else
-        {
-            QMessageBox::critical(this, "Error", "Editor is not initialized.");
-        }
-        file.close();
-
-        currentFileName = fileName;
-
-        setWindowTitle("CodeAstra ~ " + QFileInfo(fileName).fileName());
+        loadFileInEditor(fileName);
     }
 }
 
@@ -201,6 +181,11 @@ void MainWindow::saveFile()
     if (editor)
     {
         out << editor->toPlainText();
+    }
+    else
+    {
+        QMessageBox::critical(this, "Error", "Editor is not initialized.");
+        return;
     }
     file.close();
 
@@ -229,7 +214,15 @@ void MainWindow::loadFileInEditor(const QString &filePath)
     }
 
     QTextStream in(&file);
-    editor->setPlainText(in.readAll());
+    if (editor)
+    {
+        editor->setPlainText(in.readAll());
+    }
+    else
+    {
+        QMessageBox::critical(this, "Error", "Editor is not initialized.");
+        return;
+    }
     file.close();
 
     currentFileName = filePath;
