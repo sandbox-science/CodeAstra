@@ -195,7 +195,7 @@ void MainWindow::saveFile()
     }
     file.close();
 
-    statusBar()->showMessage("File saved successfully.", 2000);
+    emit m_editor->statusMessageChanged("File saved successfully.");
 }
 
 void MainWindow::saveFileAs()
