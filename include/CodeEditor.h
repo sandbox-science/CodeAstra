@@ -1,5 +1,4 @@
-#ifndef CODEEDITOR_H
-#define CODEEDITOR_H
+#pragma once
 
 #include <QPlainTextEdit>
 #include <QKeyEvent>
@@ -32,5 +31,3 @@ private slots:
 private:
     QWidget *lineNumberArea;
 };
-
-#endif // CODEEDITOR_H
