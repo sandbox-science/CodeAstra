@@ -233,4 +233,5 @@ void MainWindow::loadFileInEditor(const QString &filePath)
 
     m_editor->setCurrentFileName(filePath);
     setWindowTitle("CodeAstra ~ " + QFileInfo(filePath).fileName());
+    emit m_editor->statusMessageChanged("File loaded successfully: " + QFileInfo(filePath).fileName());
 }
