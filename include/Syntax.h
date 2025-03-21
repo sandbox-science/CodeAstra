@@ -18,18 +18,18 @@ protected:
 private:
     struct SyntaxRule
     {
-        QRegularExpression pattern;
-        QTextCharFormat format;
+        QRegularExpression m_pattern;
+        QTextCharFormat m_format;
     };
-    QVector<SyntaxRule> syntaxRules;
+    QVector<SyntaxRule> m_syntaxRules;
 
-    QTextCharFormat keywordFormat;
-    QTextCharFormat singleLineCommentFormat;
-    QTextCharFormat quotationMark;
-    QTextCharFormat functionFormat;
-    QTextCharFormat parenthesisFormat;
-    QTextCharFormat charFormat;
-    QTextCharFormat iterationFormat;
+    QTextCharFormat m_keywordFormat;
+    QTextCharFormat m_singleLineCommentFormat;
+    QTextCharFormat m_quotationMark;
+    QTextCharFormat m_functionFormat;
+    QTextCharFormat m_parenthesisFormat;
+    QTextCharFormat m_charFormat;
+    QTextCharFormat m_iterationFormat;
 
     void addPattern(const QString &pattern, const QTextCharFormat &format);
 

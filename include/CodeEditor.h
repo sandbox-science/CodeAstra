@@ -29,5 +29,5 @@ private slots:
     void updateLineNumberArea(const QRect &rect, int dy);
 
 private:
-    QWidget *lineNumberArea;
+    QWidget *m_lineNumberArea;
 };

@@ -15,17 +15,17 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
-      editor(std::make_unique<CodeEditor>(this)),
-      syntax(std::make_unique<Syntax>(editor->document())),
-      tree(nullptr)
+      m_editor(std::make_unique<CodeEditor>(this)),
+      m_syntax(std::make_unique<Syntax>(m_editor->document())),
+      m_tree(nullptr)
 {
     setWindowTitle("CodeAstra ~ Code Editor");
 
     // Set tab width to 4 spaces
-    QFontMetrics metrics(editor->font());
+    QFontMetrics metrics(m_editor->font());
     int spaceWidth = metrics.horizontalAdvance(" ");
-    editor->setTabStopDistance(spaceWidth * 4);
-    editor->setLineWrapMode(QPlainTextEdit::NoWrap);
+    m_editor->setTabStopDistance(spaceWidth * 4);
+    m_editor->setLineWrapMode(QPlainTextEdit::NoWrap);
 
     initTree();
     createMenuBar();
@@ -39,9 +39,9 @@ void MainWindow::initTree()
     QSplitter *splitter = new QSplitter(Qt::Horizontal, this);
     setCentralWidget(splitter);
 
-    tree = std::make_unique<Tree>(splitter, this);
+    m_tree = std::make_unique<Tree>(splitter, this);
 
-    splitter->addWidget(editor.get());
+    splitter->addWidget(m_editor.get());
     splitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     splitter->setHandleWidth(5);
     splitter->setSizes(QList<int>() << 150 << 800);
@@ -164,13 +164,13 @@ void MainWindow::openFile()
 
 void MainWindow::saveFile()
 {
-    if (currentFileName.isEmpty())
+    if (m_currentFileName.isEmpty())
     {
         saveFileAs();
         return;
     }
 
-    QFile file(currentFileName);
+    QFile file(m_currentFileName);
     if (!file.open(QFile::WriteOnly | QFile::Text))
     {
         QMessageBox::warning(this, "Error", "Cannot save file: " + file.errorString());
@@ -178,9 +178,9 @@ void MainWindow::saveFile()
     }
 
     QTextStream out(&file);
-    if (editor)
+    if (m_editor)
     {
-        out << editor->toPlainText();
+        out << m_editor->toPlainText();
     }
     else
     {
@@ -199,7 +199,7 @@ void MainWindow::saveFileAs()
 
     if (!fileName.isEmpty())
     {
-        currentFileName = fileName;
+        m_currentFileName = fileName;
         saveFile();
     }
 }
@@ -214,9 +214,9 @@ void MainWindow::loadFileInEditor(const QString &filePath)
     }
 
     QTextStream in(&file);
-    if (editor)
+    if (m_editor)
     {
-        editor->setPlainText(in.readAll());
+        m_editor->setPlainText(in.readAll());
     }
     else
     {
@@ -225,6 +225,6 @@ void MainWindow::loadFileInEditor(const QString &filePath)
     }
     file.close();
 
-    currentFileName = filePath;
+    m_currentFileName = filePath;
     setWindowTitle("CodeAstra ~ " + QFileInfo(filePath).fileName());
 }

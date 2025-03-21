@@ -7,7 +7,7 @@
 
 CodeEditor::CodeEditor(QWidget *parent)
     : QPlainTextEdit(parent),
-      lineNumberArea(new LineNumberArea(this))
+      m_lineNumberArea(new LineNumberArea(this))
 {
     connect(this, &CodeEditor::blockCountChanged, this, &CodeEditor::updateLineNumberAreaWidth);
     connect(this, &CodeEditor::updateRequest, this, &CodeEditor::updateLineNumberArea);
@@ -82,11 +82,11 @@ void CodeEditor::updateLineNumberArea(const QRect &rect, int dy)
 {
     if (dy)
     {
-        lineNumberArea->scroll(0, dy);
+        m_lineNumberArea->scroll(0, dy);
     }
     else
     {
-        lineNumberArea->update(0, rect.y(), lineNumberArea->width(), rect.height());
+        m_lineNumberArea->update(0, rect.y(), m_lineNumberArea->width(), rect.height());
     }
 
     if (rect.contains(viewport()->rect()))
@@ -100,7 +100,7 @@ void CodeEditor::resizeEvent(QResizeEvent *e)
     QPlainTextEdit::resizeEvent(e);
 
     QRect cr = contentsRect();
-    lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
+    m_lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
 }
 
 void CodeEditor::highlightCurrentLine()
@@ -128,13 +128,13 @@ void CodeEditor::highlightCurrentLine()
 
 void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
 {
-    QPainter painter(lineNumberArea);
+    QPainter painter(m_lineNumberArea);
 
     // Match the background color of the editor
     painter.fillRect(event->rect(), palette().color(QPalette::Base));
 
     // Draw a separating line between the number area and the text editor
-    int separatorX = lineNumberArea->width() - 4;
+    int separatorX = m_lineNumberArea->width() - 4;
     painter.drawLine(separatorX, event->rect().top(), separatorX, event->rect().bottom());
 
     QTextBlock block = firstVisibleBlock();
@@ -152,7 +152,7 @@ void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
             QString number = QString::number(blockNumber + 1);
             painter.setPen(Qt::darkGray);
 
-            painter.drawText(0, top + padding, lineNumberArea->width(), lineHeight,
+            painter.drawText(0, top + padding, m_lineNumberArea->width(), lineHeight,
                              Qt::AlignCenter, number);
         }
 

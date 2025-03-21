@@ -39,8 +39,8 @@ private:
     QAction *createAction(const QIcon &icon, const QString &text,
                           const QKeySequence &shortcut, const QString &statusTip,
                           void (MainWindow::*slot)());
-    std::unique_ptr<CodeEditor> editor;
-    QString currentFileName;
-    std::unique_ptr<Syntax> syntax;
-    std::unique_ptr<Tree> tree;
+    std::unique_ptr<CodeEditor> m_editor;
+    std::unique_ptr<Syntax> m_syntax;
+    std::unique_ptr<Tree> m_tree;
+    QString m_currentFileName;
 };

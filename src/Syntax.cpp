@@ -19,8 +19,8 @@ Syntax::Syntax(QTextDocument *parent)
 void Syntax::initKeywordRules()
 {
     // Keyword format
-    keywordFormat.setForeground(Qt::blue);
-    keywordFormat.setFontWeight(QFont::Bold);
+    m_keywordFormat.setForeground(Qt::blue);
+    m_keywordFormat.setFontWeight(QFont::Bold);
 
     QStringList keywordPatterns = {
         "\\bchar\\b", "\\bclass\\b", "\\bconst\\b",
@@ -36,24 +36,23 @@ void Syntax::initKeywordRules()
 
     for (const QString &pattern : keywordPatterns)
     {
-        addPattern(pattern, keywordFormat);
+        addPattern(pattern, m_keywordFormat);
     }
 
-    iterationFormat.setForeground(Qt::darkMagenta);
-    iterationFormat.setFontWeight(QFont::Bold);
-    QStringList iterationPatterns = {
-        "\\bfor\\b", "\\bwhile\\b", "\\bdo\\b", "\\bif\\b", "\\belse\\b"};
+    m_iterationFormat.setForeground(Qt::darkMagenta);
+    m_iterationFormat.setFontWeight(QFont::Bold);
+    QStringList iterationPatterns = {"\\bfor\\b", "\\bwhile\\b", "\\bdo\\b", "\\bif\\b", "\\belse\\b"};
     for (const QString &pattern : iterationPatterns)
     {
-        addPattern(pattern, iterationFormat);
+        addPattern(pattern, m_iterationFormat);
     }
 }
 
 void Syntax::initCommentRules()
 {
     // Single line comment format expression
-    singleLineCommentFormat.setForeground(Qt::darkGray);
-    addPattern("//[^\n]*", singleLineCommentFormat);
+    m_singleLineCommentFormat.setForeground(Qt::darkGray);
+    addPattern("//[^\n]*", m_singleLineCommentFormat);
 
     // TO-DO: Add multi-line comment support
 }
@@ -61,8 +60,8 @@ void Syntax::initCommentRules()
 void Syntax::initQuotationRules()
 {
     // Double quotation mark for string
-    quotationMark.setForeground(Qt::darkGreen);
-    addPattern("\"(\\\\.|[^\"\\\\])*\"", quotationMark);
+    m_quotationMark.setForeground(Qt::darkGreen);
+    addPattern("\"(\\\\.|[^\"\\\\])*\"", m_quotationMark);
 
     //  TO-DO: Add single quotation mark for character
 }
@@ -70,43 +69,43 @@ void Syntax::initQuotationRules()
 void Syntax::initFunctionRules()
 {
     // Function format expression
-    functionFormat.setFontItalic(true);
-    functionFormat.setForeground(Qt::darkYellow);
-    addPattern("\\b(?!for\\b|if\\b|else\\b|while\\b|do\\b)[a-zA-Z_][a-zA-Z0-9_]*(?=\\s*\\()", functionFormat);
+    m_functionFormat.setFontItalic(true);
+    m_functionFormat.setForeground(Qt::darkYellow);
+    addPattern("\\b(?!for\\b|if\\b|else\\b|while\\b|do\\b)[a-zA-Z_][a-zA-Z0-9_]*(?=\\s*\\()", m_functionFormat);
 }
 
 void Syntax::initParenthesisRules()
 {
     // Color pattern for parenthesis
     QColor parenthesisColor("#6495ED");
-    parenthesisFormat.setForeground(parenthesisColor);
-    addPattern("[()]", parenthesisFormat);
+    m_parenthesisFormat.setForeground(parenthesisColor);
+    addPattern("[()]", m_parenthesisFormat);
 }
 
 // Regex for single character format 'a', '\n', etc.
 void Syntax::initCharRules()
 {
-    charFormat.setForeground(Qt::darkCyan);
-    addPattern("'(\\\\.|[^'])'", charFormat);
+    m_charFormat.setForeground(Qt::darkCyan);
+    addPattern("'(\\\\.|[^'])'", m_charFormat);
 }
 
 void Syntax::addPattern(const QString &pattern, const QTextCharFormat &format)
 {
     SyntaxRule rule;
-    rule.pattern = QRegularExpression(pattern);
-    rule.format  = format;
-    syntaxRules.append(rule);
+    rule.m_pattern = QRegularExpression(pattern);
+    rule.m_format  = format;
+    m_syntaxRules.append(rule);
 }
 
 void Syntax::highlightBlock(const QString &text)
 {
-    for (const SyntaxRule &rule : syntaxRules)
+    for (const SyntaxRule &rule : m_syntaxRules)
     {
-        QRegularExpressionMatchIterator matchIterator = rule.pattern.globalMatch(text);
+        QRegularExpressionMatchIterator matchIterator = rule.m_pattern.globalMatch(text);
         while (matchIterator.hasNext())
         {
             QRegularExpressionMatch match = matchIterator.next();
-            setFormat(match.capturedStart(), match.capturedLength(), rule.format);
+            setFormat(match.capturedStart(), match.capturedLength(), rule.m_format);
         }
     }
 }
