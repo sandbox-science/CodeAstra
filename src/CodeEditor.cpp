@@ -4,6 +4,7 @@
 
 #include <QPainter>
 #include <QTextBlock>
+#include <QStatusBar>
 
 CodeEditor::CodeEditor(QWidget *parent)
     : QPlainTextEdit(parent),
@@ -33,6 +34,7 @@ void CodeEditor::keyPressEvent(QKeyEvent *event)
         {
         case Qt::Key_I:
             mode = INSERT;
+            emit statusMessageChanged("Insert mode activated");
             break;
         case Qt::Key_A:
             moveCursor(QTextCursor::Left);
@@ -46,14 +48,22 @@ void CodeEditor::keyPressEvent(QKeyEvent *event)
         case Qt::Key_W:
             moveCursor(QTextCursor::Up);
             break;
-        case Qt::Key_Escape:
-            mode = NORMAL;
+        default:
+            emit statusMessageChanged("Insert mode is not active. Press 'i' to enter insert mode.");
             break;
         }
     }
-    else
+    else if (mode == INSERT)
     {
-        QPlainTextEdit::keyPressEvent(event);
+        if (event->key() == Qt::Key_Escape)
+        {
+            mode = NORMAL;
+            emit statusMessageChanged("Normal mode activated. Press 'escape' to return to normal mode.");
+        }
+        else
+        {
+            QPlainTextEdit::keyPressEvent(event);
+        }
     }
 }
 
