@@ -1,5 +1,4 @@
-#ifndef LINENUMBER_H
-#define LINENUMBER_H
+#pragma once
 
 #include "CodeEditor.h"
 
@@ -10,21 +9,19 @@
 class LineNumberArea : public QWidget
 {
 public:
-  LineNumberArea(CodeEditor *editor) : QWidget(editor), codeEditor(editor) {}
+    LineNumberArea(CodeEditor *editor) : QWidget(editor), codeEditor(editor) {}
 
-  QSize sizeHint() const override
-  {
-    return QSize(codeEditor->lineNumberAreaWidth(), 0);
-  }
+    QSize sizeHint() const override
+    {
+        return QSize(codeEditor->lineNumberAreaWidth(), 0);
+    }
 
 protected:
-  void paintEvent(QPaintEvent *event) override
-  {
-    codeEditor->lineNumberAreaPaintEvent(event);
-  }
+    void paintEvent(QPaintEvent *event) override
+    {
+        codeEditor->lineNumberAreaPaintEvent(event);
+    }
 
 private:
-  CodeEditor *codeEditor;
+    CodeEditor *codeEditor;
 };
-
-#endif // LINENUMBER_H

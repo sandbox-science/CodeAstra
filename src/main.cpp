@@ -13,19 +13,22 @@
 QIcon createRoundIcon(const QString &iconPath)
 {
     QPixmap pixmap(iconPath);
+    if (pixmap.isNull())
+    {
+        qWarning() << "Failed to load icon:" << iconPath;
+        return QIcon();
+    }
 
-    // Create a round mask
-    QBitmap mask(pixmap.size());
-    mask.fill(Qt::white);
+    QPixmap roundPixmap(pixmap.size());
+    roundPixmap.fill(Qt::transparent);
 
-    QPainter painter(&mask);
-    painter.setBrush(Qt::black);
+    QPainter painter(&roundPixmap);
+    painter.setRenderHint(QPainter::Antialiasing, true);
+    painter.setBrush(QBrush(pixmap));
     painter.setPen(Qt::NoPen);
     painter.drawEllipse(0, 0, pixmap.width(), pixmap.height());
 
-    pixmap.setMask(mask);
-
-    return QIcon(pixmap);
+    return QIcon(roundPixmap);
 }
 
 int main(int argc, char *argv[])
@@ -33,17 +36,26 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
     QIcon roundIcon = createRoundIcon(":/resources/app_icon.png");
-    QFont font      = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+    if (roundIcon.isNull())
+    {
+        qWarning() << "Failed to load round icon!";
+    }
+
+    QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     font.setPointSize(12);
-    
+
     app.setFont(font);
     app.setWindowIcon(roundIcon);
-    app.setApplicationVersion("0.0.1");
-    app.setOrganizationName("Chris Dedman");
-    app.setApplicationName("CodeAstra");
 
-    MainWindow window;
-    window.show();
+    app.setApplicationVersion(QStringLiteral("0.1.0"));
+    app.setOrganizationName(QStringLiteral("Chris Dedman"));
+    app.setApplicationName(QStringLiteral("CodeAstra"));
+    app.setApplicationDisplayName(QStringLiteral("CodeAstra"));
+
+    app.setStyle("Fusion");
+
+    QScopedPointer<MainWindow> window(new MainWindow);
+    window->show();
 
     return app.exec();
 }

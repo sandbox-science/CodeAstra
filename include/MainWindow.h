@@ -1,16 +1,16 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
-
-#include "CodeEditor.h"
-#include "Syntax.h"
-#include "Tree.h"
+#pragma once
 
 #include <QMainWindow>
 #include <QMenu>
 #include <QAction>
 #include <QIcon>
 #include <QKeySequence>
-#include <QDesktopServices>
+#include <memory>
+#include <QFile>
+
+class CodeEditor;
+class Syntax;
+class Tree;
 
 class MainWindow : public QMainWindow
 {
@@ -20,6 +20,9 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     virtual ~MainWindow();
     void loadFileInEditor(const QString &filePath);
+    // Initialize the file tree view and set it as the central widget
+    // of the main window, alongside the code editor
+    void initTree();
 
 private slots:
     void newFile();
@@ -36,10 +39,8 @@ private:
     QAction *createAction(const QIcon &icon, const QString &text,
                           const QKeySequence &shortcut, const QString &statusTip,
                           void (MainWindow::*slot)());
-    CodeEditor *editor;
-    QString currentFileName;
-    Syntax *syntax;
-    Tree *tree;
+    std::unique_ptr<CodeEditor> m_editor;
+    std::unique_ptr<Syntax> m_syntax;
+    std::unique_ptr<Tree> m_tree;
+    QString m_currentFileName;
 };
-
-#endif // MAINWINDOW_H

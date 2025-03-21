@@ -1,5 +1,4 @@
-#ifndef CODEEDITOR_H
-#define CODEEDITOR_H
+#pragma once
 
 #include <QPlainTextEdit>
 #include <QKeyEvent>
@@ -20,6 +19,9 @@ public:
     void lineNumberAreaPaintEvent(QPaintEvent *event);
     int lineNumberAreaWidth();
 
+signals:
+    void statusMessageChanged(const QString &message);
+
 protected:
     void keyPressEvent(QKeyEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
@@ -30,7 +32,5 @@ private slots:
     void updateLineNumberArea(const QRect &rect, int dy);
 
 private:
-    QWidget *lineNumberArea;
+    QWidget *m_lineNumberArea;
 };
-
-#endif // CODEEDITOR_H
