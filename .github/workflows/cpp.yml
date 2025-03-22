@@ -52,6 +52,8 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       run: |
         sudo apt-get install -y qt6-base-dev
+        echo 'export PATH="/usr/lib/qt6/bin:$PATH"' >> ~/.bashrc
+        source ~/.bashrc
 
     - name: Install Qt6 (macOS)
       if: matrix.os == 'macos-latest'
@@ -59,13 +61,16 @@ jobs:
         brew install qt6
         echo 'export PATH="/opt/homebrew/opt/qt6/bin:$PATH"' >> ~/.bash_profile
         source ~/.bash_profile
+        qmake --version
 
     - name: Install Qt6 (Windows)
       if: matrix.os == 'windows-latest'
       run: |
-        choco install qt6 --version=6.2.4
-        echo C:\Qt\6.2.4\msvc2019_64\bin | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        Invoke-WebRequest -Uri "https://download.qt.io/official_releases/online_installers/qt-unified-windows-x64-online.exe" -OutFile "qt-installer.exe"
+        Start-Process -FilePath ".\qt-installer.exe" -ArgumentList "--silent", "--platform minimal", "--accept-licenses", "--default-answer" -NoNewWindow -Wait
+        echo C:\Qt\6.6.0\msvc2019_64\bin | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        qmake --version
 
     # Build the Project
     - name: Build project
-      run: make
+      run: make build
