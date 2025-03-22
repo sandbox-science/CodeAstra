@@ -19,6 +19,13 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    # Set up Python 3.10 or later
+    - name: Set up Python 3.10 (Windows)
+      if: matrix.os == 'windows-latest'
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.10'
+
     # Install C++ Compiler & Build Tools
     - name: Set up C++ environment (Ubuntu)
       if: matrix.os == 'ubuntu-latest'
@@ -77,5 +84,12 @@ jobs:
       run: make build
 
     # Install the Project with desktop shortcut
-    - name: Install project
+    - name: Install project (Mac/Windows)
+      if: matrix.os != 'ubuntu-latest'
       run: echo "y" | make install
+
+    # Install the Project without desktop shortcut (Linux)
+    # This is a work around for Linux shortcut bug
+    - name: Install project (Linux)
+      if: matrix.os == 'ubuntu-latest'
+      run: echo "n" | make install
