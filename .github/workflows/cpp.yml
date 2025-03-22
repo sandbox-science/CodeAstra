@@ -66,11 +66,15 @@ jobs:
     - name: Install Qt6 (Windows)
       if: matrix.os == 'windows-latest'
       run: |
-        Invoke-WebRequest -Uri "https://download.qt.io/official_releases/online_installers/qt-unified-windows-x64-online.exe" -OutFile "qt-installer.exe"
-        Start-Process -FilePath ".\qt-installer.exe" -ArgumentList "--silent", "--platform minimal", "--accept-licenses", "--default-answer" -NoNewWindow -Wait
-        echo C:\Qt\6.6.0\msvc2019_64\bin | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        python -m pip install aqtinstall
+        python -m aqt install-qt windows desktop 6.6.0 win64_mingw --outputdir C:\Qt
+        echo C:\Qt\6.6.0\mingw_64\bin | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
         qmake --version
 
     # Build the Project
     - name: Build project
       run: make build
+
+    # Install the Project with desktop shortcut
+    - name: Install project
+      run: echo "y" | make install
