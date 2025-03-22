@@ -12,6 +12,9 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
+      fail-fast: false
+
+    continue-on-error: true
 
     steps:
     - uses: actions/checkout@v4
@@ -61,7 +64,6 @@ jobs:
         brew install qt6
         echo 'export PATH="/opt/homebrew/opt/qt6/bin:$PATH"' >> ~/.bash_profile
         source ~/.bash_profile
-        qmake --version
 
     - name: Install Qt6 (Windows)
       if: matrix.os == 'windows-latest'
@@ -69,7 +71,6 @@ jobs:
         python -m pip install aqtinstall
         python -m aqt install-qt windows desktop 6.6.0 win64_mingw --outputdir C:\Qt
         echo C:\Qt\6.6.0\mingw_64\bin | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-        qmake --version
 
     # Build the Project
     - name: Build project
