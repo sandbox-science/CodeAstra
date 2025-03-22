@@ -1,0 +1,72 @@
+name: C++ CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    # Install C++ Compiler & Build Tools
+    - name: Set up C++ environment (Ubuntu)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y g++ make cmake
+        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-10 100
+        g++ --version
+        cmake --version
+        make --version
+
+    - name: Set up C++ environment (macOS)
+      if: matrix.os == 'macos-latest'
+      run: |
+        brew install gcc make cmake
+        echo 'export PATH="/usr/local/opt/gcc/bin:$PATH"' >> ~/.bash_profile
+        source ~/.bash_profile
+        g++ --version
+        cmake --version
+        make --version
+
+    - name: Set up C++ environment (Windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        choco install mingw --version=8.1.0-1
+        choco install make cmake
+        echo C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        echo C:\ProgramData\chocolatey\lib\cmake\bin | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        g++ --version
+        cmake --version
+        make --version
+
+    # Install Qt6
+    - name: Install Qt6 (Ubuntu)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get install -y qt6-base-dev
+
+    - name: Install Qt6 (macOS)
+      if: matrix.os == 'macos-latest'
+      run: |
+        brew install qt6
+        echo 'export PATH="/opt/homebrew/opt/qt6/bin:$PATH"' >> ~/.bash_profile
+        source ~/.bash_profile
+
+    - name: Install Qt6 (Windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        choco install qt6 --version=6.2.4
+        echo C:\Qt\6.2.4\msvc2019_64\bin | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+    # Build the Project
+    - name: Build project
+      run: make
