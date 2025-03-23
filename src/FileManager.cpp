@@ -1,11 +1,11 @@
-#include "FileManager.h"
+#include "../include/FileManager.h"
+#include "../include/CodeEditor.h"
+#include "../include/MainWindow.h"
 
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QTextStream>
 #include <QFileInfo>
-#include "CodeEditor.h"
-#include "MainWindow.h"
 
 FileManager::FileManager(CodeEditor *editor, MainWindow *mainWindow)
     : m_editor(editor), m_mainWindow(mainWindow)

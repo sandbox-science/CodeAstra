@@ -1,6 +1,7 @@
+#include "../include/Syntax.h"
+
 #include <QColor>
 #include <QFont>
-#include "../include/Syntax.h"
 
 Syntax::Syntax(QTextDocument *parent) : QSyntaxHighlighter(parent)
 {
