@@ -5,6 +5,17 @@
 #include <QSyntaxHighlighter>
 #include <QTextDocument>
 
+/**
+ * @class Syntax
+ * @brief A class for syntax highlighting in a QTextDocument.
+ *
+ * This class inherits from QSyntaxHighlighter and provides functionality
+ * to highlight different syntax elements such as keywords, comments,
+ * functions, parentheses, characters, and quotations in a QTextDocument.
+ *
+ * The Syntax class uses regular expressions to define patterns for different
+ * syntax elements and applies corresponding text formats to them.
+ */
 class Syntax : public QSyntaxHighlighter
 {
     Q_OBJECT

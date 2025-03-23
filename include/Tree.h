@@ -10,6 +10,13 @@ class QFileSystemModel;
 class QFileIconProvider;
 class FileManager;
 
+/**
+ * @class Tree
+ * @brief A class that represents a tree view for displaying the file system.
+ *
+ * The Tree class is responsible for creating and managing a tree view that displays
+ * the file system.
+ */
 class Tree : public QObject
 {
     Q_OBJECT
@@ -23,6 +30,7 @@ private:
     void setupModel();
     void setupTree();
     void openFile(const QModelIndex &index);
+
     QString getDirectoryPath() const;
 
     std::unique_ptr<QFileIconProvider> m_iconProvider;

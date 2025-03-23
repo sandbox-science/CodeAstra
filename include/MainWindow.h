@@ -12,6 +12,13 @@ class Syntax;
 class Tree;
 class FileManager;
 
+/**
+ * @class MainWindow
+ * @brief The MainWindow class represents the main UI window of the application.
+ * 
+ * This class is responsible for initializing and managing the main components
+ * of the application, including the file tree view, code editor, and menu bar.
+ */
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -32,6 +39,7 @@ private:
     void createFileActions(QMenu *fileMenu);
     void createHelpActions(QMenu *helpMenu);
     void createAppActions(QMenu *appMenu);
+
     QAction *createAction(const QIcon &icon, const QString &text,
                           const QKeySequence &shortcut, const QString &statusTip,
                           const std::function<void()> &slot);

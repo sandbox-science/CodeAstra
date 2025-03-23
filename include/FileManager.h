@@ -9,6 +9,12 @@ class MainWindow;
 /**
  * @class FileManager
  * @brief Manages file operations such as creating, saving, and opening files.
+ * 
+ * The FileManager class is a singleton that handles multiple file-related operations
+ * within the application. It interacts with the CodeEditor and MainWindow classes
+ * to perform tasks such as creating new files, saving existing files, and opening
+ * files from the filesystem. The class ensures that only one instance of FileManager
+ * exists and provides a global point of access to it.
  */
 class FileManager : public QObject
 {
