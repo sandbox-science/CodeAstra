@@ -1,14 +1,18 @@
 #include "CodeEditor.h"
 #include "MainWindow.h"
 #include "LineNumberArea.h"
+#include "FileManager.h"
 
 #include <QPainter>
 #include <QTextBlock>
+#include <QStatusBar>
+#include <QFileInfo>
 
-CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
+CodeEditor::CodeEditor(QWidget *parent)
+    : QPlainTextEdit(parent),
+      m_lineNumberArea(new LineNumberArea(this)),
+      m_fileManager(&FileManager::getInstance())
 {
-    lineNumberArea = new LineNumberArea(this);
-
     connect(this, &CodeEditor::blockCountChanged, this, &CodeEditor::updateLineNumberAreaWidth);
     connect(this, &CodeEditor::updateRequest, this, &CodeEditor::updateLineNumberArea);
     connect(this, &CodeEditor::cursorPositionChanged, this, &CodeEditor::highlightCurrentLine);
@@ -26,6 +30,11 @@ void CodeEditor::keyPressEvent(QKeyEvent *event)
         moveCursor(QTextCursor::WordLeft, QTextCursor::KeepAnchor);
         return;
     }
+    if (event->modifiers() == Qt::ControlModifier && event->key() == Qt::Key_Slash)
+    {
+        addComment();
+        return;
+    }
 
     if (mode == NORMAL)
     {
@@ -33,6 +42,7 @@ void CodeEditor::keyPressEvent(QKeyEvent *event)
         {
         case Qt::Key_I:
             mode = INSERT;
+            emit statusMessageChanged("Insert mode activated");
             break;
         case Qt::Key_A:
             moveCursor(QTextCursor::Left);
@@ -46,14 +56,112 @@ void CodeEditor::keyPressEvent(QKeyEvent *event)
         case Qt::Key_W:
             moveCursor(QTextCursor::Up);
             break;
-        case Qt::Key_Escape:
-            mode = NORMAL;
+        default:
+            emit statusMessageChanged("Insert mode is not active. Press 'i' to enter insert mode.");
             break;
         }
     }
+    else if (mode == INSERT)
+    {
+        if (event->key() == Qt::Key_Escape)
+        {
+            mode = NORMAL;
+            emit statusMessageChanged("Normal mode activated. Press 'escape' to return to normal mode.");
+        }
+        else
+        {
+            QPlainTextEdit::keyPressEvent(event);
+        }
+    }
+}
+
+void CodeEditor::addLanguageSymbol(QTextCursor &cursor, const QString &commentSymbol)
+{
+    if (cursor.hasSelection())
+    {
+        commentSelection(cursor, commentSymbol);
+    }
     else
     {
-        QPlainTextEdit::keyPressEvent(event);
+        commentLine(cursor, commentSymbol);
+    }
+}
+
+// Comment/uncomment the selected text or the current line
+void CodeEditor::commentSelection(QTextCursor &cursor, const QString &commentSymbol)
+{
+    int start = cursor.selectionStart();
+    int end   = cursor.selectionEnd();
+
+    cursor.setPosition(start);
+    int startBlockNumber = cursor.blockNumber();
+    cursor.setPosition(end);
+    int endBlockNumber = cursor.blockNumber();
+
+    cursor.setPosition(start);
+    for (int i = startBlockNumber; i <= endBlockNumber; ++i)
+    {
+        cursor.movePosition(QTextCursor::StartOfLine);
+        QString lineText = cursor.block().text();
+
+        if (lineText.startsWith(commentSymbol))
+        {
+            cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, commentSymbol.length() + 1);
+            cursor.removeSelectedText();
+        }
+        else
+        {
+            cursor.insertText(commentSymbol + " ");
+        }
+
+        cursor.movePosition(QTextCursor::NextBlock);
+    }
+}
+
+// Comment/uncomment the single current line
+void CodeEditor::commentLine(QTextCursor &cursor, const QString &commentSymbol)
+{
+    cursor.select(QTextCursor::LineUnderCursor);
+    QString lineText = cursor.selectedText();
+
+    if (lineText.startsWith(commentSymbol))
+    {
+        lineText.remove(0, commentSymbol.length() + 1);
+    }
+    else
+    {
+        lineText.prepend(commentSymbol + " ");
+    }
+
+    cursor.insertText(lineText);
+}
+
+void CodeEditor::addComment()
+{
+    QTextCursor cursor    = textCursor();
+    QString fileExtension = m_fileManager->getFileExtension();
+    qDebug() << "File Extension:" << fileExtension;
+
+    if (fileExtension == "cpp" || fileExtension == "h" ||
+        fileExtension == "hpp" || fileExtension == "c" ||
+        fileExtension == "java" || fileExtension == "go" ||
+        fileExtension == "json")
+    {
+        addLanguageSymbol(cursor, "//");
+    }
+    else if (fileExtension == "py" || fileExtension == "yaml" ||
+             fileExtension == "yml" || fileExtension == "sh" ||
+             fileExtension == "bash")
+    {
+        addLanguageSymbol(cursor, "#");
+    }
+    else if (fileExtension == "sql")
+    {
+        addLanguageSymbol(cursor, "--");
+    }
+    else
+    {
+        qDebug() << "Unsupported file extension for commenting.";
     }
 }
 
@@ -82,11 +190,11 @@ void CodeEditor::updateLineNumberArea(const QRect &rect, int dy)
 {
     if (dy)
     {
-        lineNumberArea->scroll(0, dy);
+        m_lineNumberArea->scroll(0, dy);
     }
     else
     {
-        lineNumberArea->update(0, rect.y(), lineNumberArea->width(), rect.height());
+        m_lineNumberArea->update(0, rect.y(), m_lineNumberArea->width(), rect.height());
     }
 
     if (rect.contains(viewport()->rect()))
@@ -100,7 +208,7 @@ void CodeEditor::resizeEvent(QResizeEvent *e)
     QPlainTextEdit::resizeEvent(e);
 
     QRect cr = contentsRect();
-    lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
+    m_lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
 }
 
 void CodeEditor::highlightCurrentLine()
@@ -128,13 +236,13 @@ void CodeEditor::highlightCurrentLine()
 
 void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
 {
-    QPainter painter(lineNumberArea);
+    QPainter painter(m_lineNumberArea);
 
     // Match the background color of the editor
     painter.fillRect(event->rect(), palette().color(QPalette::Base));
 
     // Draw a separating line between the number area and the text editor
-    int separatorX = lineNumberArea->width() - 4;
+    int separatorX = m_lineNumberArea->width() - 4;
     painter.drawLine(separatorX, event->rect().top(), separatorX, event->rect().bottom());
 
     QTextBlock block = firstVisibleBlock();
@@ -152,7 +260,7 @@ void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
             QString number = QString::number(blockNumber + 1);
             painter.setPen(Qt::darkGray);
 
-            painter.drawText(0, top + padding, lineNumberArea->width(), lineHeight,
+            painter.drawText(0, top + padding, m_lineNumberArea->width(), lineHeight,
                              Qt::AlignCenter, number);
         }
 

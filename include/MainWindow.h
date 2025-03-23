@@ -1,17 +1,24 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
-
-#include "CodeEditor.h"
-#include "Syntax.h"
-#include "Tree.h"
+#pragma once
 
 #include <QMainWindow>
 #include <QMenu>
 #include <QAction>
 #include <QIcon>
 #include <QKeySequence>
-#include <QDesktopServices>
+#include <memory>
 
+class CodeEditor;
+class Syntax;
+class Tree;
+class FileManager;
+
+/**
+ * @class MainWindow
+ * @brief The MainWindow class represents the main UI window of the application.
+ * 
+ * This class is responsible for initializing and managing the main components
+ * of the application, including the file tree view, code editor, and menu bar.
+ */
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -19,13 +26,12 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     virtual ~MainWindow();
-    void loadFileInEditor(const QString &filePath);
+
+    // Initialize the file tree view and set it as the central widget
+    // of the main window, alongside the code editor
+    void initTree();
 
 private slots:
-    void newFile();
-    void openFile();
-    void saveFile();
-    void saveFileAs();
     void showAbout();
 
 private:
@@ -33,13 +39,14 @@ private:
     void createFileActions(QMenu *fileMenu);
     void createHelpActions(QMenu *helpMenu);
     void createAppActions(QMenu *appMenu);
+
     QAction *createAction(const QIcon &icon, const QString &text,
                           const QKeySequence &shortcut, const QString &statusTip,
-                          void (MainWindow::*slot)());
-    CodeEditor *editor;
-    QString currentFileName;
-    Syntax *syntax;
-    Tree *tree;
-};
+                          const std::function<void()> &slot);
 
-#endif // MAINWINDOW_H
+    std::unique_ptr<CodeEditor> m_editor;
+    std::unique_ptr<Syntax> m_syntax;
+    std::unique_ptr<Tree> m_tree;
+
+    FileManager *m_fileManager;
+};
