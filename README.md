@@ -14,7 +14,7 @@
 
   <!-- C++ Version Badge (with official C++ blue color) -->
   <a href="https://isocpp.org/">
-    <img src="https://img.shields.io/badge/C%2B%2B-v17%2B-%2300599C" alt="C++ Version 17+">
+    <img src="https://img.shields.io/badge/C%2B%2B-v20%2B-%2300599C" alt="C++ Version 20+">
   </a>
 
   <!-- Qt Version Badge (with official Qt green color) -->
