@@ -102,7 +102,6 @@ void FileManager::openFile()
     }
 }
 
-
 void FileManager::loadFileInEditor(const QString &filePath)
 {
     qDebug() << "Loading file:" << filePath;

@@ -2,8 +2,7 @@
 #include <QColor>
 #include <QFont>
 
-Syntax::Syntax(QTextDocument *parent)
-    : QSyntaxHighlighter(parent)
+Syntax::Syntax(QTextDocument *parent) : QSyntaxHighlighter(parent)
 {
     initKeywordRules();
     initFunctionRules();
