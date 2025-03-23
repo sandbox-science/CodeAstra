@@ -70,7 +70,8 @@ void Tree::openFile(const QModelIndex &index)
         return;
     }
 
-    m_FileManager->loadFileInEditor(filePath);
+    FileManager::getInstance().setCurrentFileName(filePath);
+    FileManager::getInstance().loadFileInEditor(filePath);
 }
 
 // Context menu for file operations
