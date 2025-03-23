@@ -2,6 +2,27 @@
   <img src="resources/app_icon.png" alt="CodeAstra Logo" width="200">
 </p>
 
+<div align="center">
+  
+  <!-- C++ CI Badge -->
+  [![C++ CI](https://github.com/sandbox-science/CodeAstra/actions/workflows/cpp.yml/badge.svg)](https://github.com/sandbox-science/CodeAstra/actions/workflows/cpp.yml)
+
+  <!-- CodeAstra Latest Release Badge -->
+  <a href="https://github.com/sandbox-science/CodeAstra/releases">
+    <img src="https://img.shields.io/github/v/tag/sandbox-science/CodeAstra?label=CodeAstra&color=lightblue" alt="CodeAstra Latest Release">
+  </a>
+
+  <!-- C++ Version Badge (with official C++ blue color) -->
+  <a href="https://isocpp.org/">
+    <img src="https://img.shields.io/badge/C%2B%2B-v17%2B-%2300599C" alt="C++ Version 17+">
+  </a>
+
+  <!-- Qt Version Badge (with official Qt green color) -->
+  <a href="https://doc.qt.io/qt-6/gettingstarted.html">
+    <img src="https://img.shields.io/badge/Qt-6.8-%2343B02A" alt="Qt Version 6.8">
+  </a>
+</div>
+
 <h1 align="center">CodeAstra ~ Modern Code Editor</h1>
 
 CodeAstra is a modern, extensible, and lightweight code editor built using C++ and Qt6, designed to offer a fast, customizable, and feature-rich development experience. Inspired by NeoVim and VSCode, it **will** provide efficient file navigation, syntax highlighting, and a powerful plugin system, making it an ideal choice for developers who need speed, flexibility, and control. With a focus on performance and usability, the editor **will** support split views, an integrated terminal, customizable key bindings, and seamless Git integration, catering to both beginners and power users.
@@ -27,9 +48,9 @@ Please, check the [wiki](https://github.com/sandbox-science/CodeAstra/wiki) for 
 - [x] Basic text editing
   - [x] Open a file
   - [x] Save file
-  - [ ] Create a new file
-- [ ] File tree navigation
-- [ ] Syntax highlighting
+  - [ ] Create a new file ~ in progress
+- [x] File tree navigation
+- [ ] Syntax highlighting ~ in progress
 - [ ] Plugin system
 
 ## To-Do
