@@ -6,7 +6,6 @@
 #include <QIcon>
 #include <QKeySequence>
 #include <memory>
-#include <QFile>
 
 class CodeEditor;
 class Syntax;
@@ -41,5 +40,5 @@ private:
     std::unique_ptr<Syntax> m_syntax;
     std::unique_ptr<Tree> m_tree;
 
-    FileManager * m_FileManager;
+    FileManager *m_fileManager;
 };
