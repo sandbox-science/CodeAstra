@@ -6,21 +6,19 @@
 
 #include <QMenuBar>
 #include <QFileDialog>
-#include <QFile>
-#include <QTextStream>
 #include <QMessageBox>
 #include <QStatusBar>
 #include <QApplication>
 #include <QDesktopServices>
-#include <QVBoxLayout>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       m_editor(std::make_unique<CodeEditor>(this)),
       m_syntax(std::make_unique<Syntax>(m_editor->document())),
       m_tree(nullptr),
-      m_FileManager(new FileManager(m_editor.get(), this))
+      m_fileManager(&FileManager::getInstance())
 {
+    m_fileManager->initialize(m_editor.get(), this);
     setWindowTitle("CodeAstra ~ Code Editor");
 
     connect(m_editor.get(), &CodeEditor::statusMessageChanged, this, [this](const QString &message)
@@ -47,7 +45,7 @@ void MainWindow::initTree()
     QSplitter *splitter = new QSplitter(Qt::Horizontal, this);
     setCentralWidget(splitter);
 
-    m_tree = std::make_unique<Tree>(splitter, m_FileManager);
+    m_tree = std::make_unique<Tree>(splitter, m_fileManager);
 
     splitter->addWidget(m_editor.get());
     splitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -76,18 +74,21 @@ void MainWindow::createMenuBar()
 
 void MainWindow::createFileActions(QMenu *fileMenu)
 {
-    fileMenu->addAction(createAction(QIcon(), tr("&New"), QKeySequence::New, tr("Create a new file"), [this]() { m_FileManager->newFile(); }));
-    fileMenu->addAction(createAction(QIcon(), tr("&Open"), QKeySequence::Open, tr("Open an existing file"), [this]() { m_FileManager->openFile(); }));
+    fileMenu->addAction(createAction(QIcon(), tr("&New"), QKeySequence::New, tr("Create a new file"), [this]() { m_fileManager->newFile(); }));
+    fileMenu->addAction(createAction(QIcon(), tr("&Open"), QKeySequence::Open, tr("Open an existing file"), [this]() { m_fileManager->openFile(); }));
     fileMenu->addSeparator();
-    fileMenu->addAction(createAction(QIcon(), tr("&Save"), QKeySequence::Save, tr("Save the current file"), [this]() { m_FileManager->saveFile(); }));
-    fileMenu->addAction(createAction(QIcon(), tr("Save &As"), QKeySequence::SaveAs, tr("Save the file with a new name"), [this]() { m_FileManager->saveFileAs(); }));
+    fileMenu->addAction(createAction(QIcon(), tr("&Save"), QKeySequence::Save, tr("Save the current file"), [this]() { m_fileManager->saveFile(); }));
+    fileMenu->addAction(createAction(QIcon(), tr("Save &As"), QKeySequence::SaveAs, tr("Save the file with a new name"), [this]() { m_fileManager->saveFileAs(); }));
 }
 
 void MainWindow::createHelpActions(QMenu *helpMenu)
 {
     QAction *helpDoc = new QAction(tr("Documentation"), this);
     connect(helpDoc, &QAction::triggered, this, []()
-            { QDesktopServices::openUrl(QUrl("https://github.com/sandbox-science/CodeAstra/wiki")); });
+    {
+        QDesktopServices::openUrl(QUrl("https://github.com/sandbox-science/CodeAstra/wiki"));
+    });
+
     helpDoc->setStatusTip(tr("Open Wiki"));
     helpMenu->addAction(helpDoc);
 }
