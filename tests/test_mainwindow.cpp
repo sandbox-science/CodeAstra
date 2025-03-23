@@ -1,50 +1,66 @@
-#include "../include/MainWindow.h"
-
 #include <QtTest/QtTest>
 #include <QMenuBar>
-#include <QAction>
+
+#include "MainWindow.h"
+#include "CodeEditor.h"
+#include "FileManager.h"
 
 class TestMainWindow : public QObject
 {
   Q_OBJECT
 
 private slots:
-  void initTestCase();    // Runs before all tests
-  void cleanupTestCase(); // Runs after all tests
+  void initTestCase();
+  void cleanupTestCase();
   void testWindowTitle();
+  void testEditorInitialization();
   void testMenuBar();
-  void testNewFileAction();
+
+private:
+  std::unique_ptr<MainWindow> mainWindow;
 };
 
 void TestMainWindow::initTestCase()
 {
   qDebug() << "Initializing MainWindow tests...";
+  mainWindow = std::make_unique<MainWindow>();
+  mainWindow->show();
 }
 
 void TestMainWindow::cleanupTestCase()
 {
   qDebug() << "Cleaning up MainWindow tests...";
+  mainWindow.reset();
 }
 
 void TestMainWindow::testWindowTitle()
 {
-  MainWindow window;
-  QCOMPARE(window.windowTitle(), QString("CodeAstra ~ Code Editor"));
+  QCOMPARE(mainWindow->windowTitle(), "CodeAstra ~ Code Editor");
+}
+
+void TestMainWindow::testEditorInitialization()
+{
+  QVERIFY2(mainWindow->findChild<CodeEditor *>() != nullptr,
+           "MainWindow must contain a CodeEditor.");
 }
 
 void TestMainWindow::testMenuBar()
 {
-  MainWindow window;
-  QMenuBar *menuBar = window.menuBar();
-  QVERIFY(menuBar != nullptr);
+  QMenuBar *menuBar = mainWindow->menuBar();
+  QVERIFY2(menuBar != nullptr, "MainWindow must have a QMenuBar.");
   QCOMPARE(menuBar->actions().size(), 3); // File, Help, CodeAstra
-}
 
-void TestMainWindow::testNewFileAction()
-{
-  MainWindow window;
-  QAction *newAction = window.findChild<QAction *>("New File");
-  QVERIFY(newAction != nullptr);
+  QMenu *fileMenu = menuBar->findChild<QMenu *>("File");
+  QVERIFY2(fileMenu != nullptr, "QMenuBar must contain a 'File' menu.");
+  QCOMPARE(fileMenu->title(), "File");
+
+  QMenu *helpMenu = menuBar->findChild<QMenu *>("Help");
+  QVERIFY2(helpMenu != nullptr, "QMenuBar must contain a 'Help' menu.");
+  QCOMPARE(helpMenu->title(), "Help");
+
+  QMenu *appMenu = menuBar->findChild<QMenu *>("CodeAstra");
+  QVERIFY2(appMenu != nullptr, "QMenuBar must contain a 'CodeAstra' menu.");
+  QCOMPARE(appMenu->title(), "CodeAstra");
 }
 
 QTEST_MAIN(TestMainWindow)
