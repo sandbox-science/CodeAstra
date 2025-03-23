@@ -1,6 +1,7 @@
 #include "CodeEditor.h"
 #include "MainWindow.h"
 #include "LineNumberArea.h"
+#include "FileManager.h"
 
 #include <QPainter>
 #include <QTextBlock>
@@ -9,7 +10,8 @@
 
 CodeEditor::CodeEditor(QWidget *parent)
     : QPlainTextEdit(parent),
-      m_lineNumberArea(new LineNumberArea(this))
+      m_lineNumberArea(new LineNumberArea(this)),
+      m_fileManager(&FileManager::getInstance())
 {
     connect(this, &CodeEditor::blockCountChanged, this, &CodeEditor::updateLineNumberAreaWidth);
     connect(this, &CodeEditor::updateRequest, this, &CodeEditor::updateLineNumberArea);
@@ -73,18 +75,6 @@ void CodeEditor::keyPressEvent(QKeyEvent *event)
     }
 }
 
-QString CodeEditor::getFileExtension()
-{
-    QString filePath = getCurrentFileName();
-    if (!QFile::exists(filePath))
-    {
-        return QString();
-    }
-
-    // Extract the file extension from the file path
-    return QFileInfo(filePath).suffix().toLower();
-}
-
 void CodeEditor::addLanguageSymbol(QTextCursor &cursor, const QString &commentSymbol)
 {
     if (cursor.hasSelection())
@@ -116,7 +106,7 @@ void CodeEditor::commentSelection(QTextCursor &cursor, const QString &commentSym
 
         if (lineText.startsWith(commentSymbol))
         {
-            cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, 3);
+            cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, commentSymbol.length() + 1);
             cursor.removeSelectedText();
         }
         else
@@ -136,7 +126,7 @@ void CodeEditor::commentLine(QTextCursor &cursor, const QString &commentSymbol)
 
     if (lineText.startsWith(commentSymbol))
     {
-        lineText.remove(0, 3);
+        lineText.remove(0, commentSymbol.length() + 1);
     }
     else
     {
@@ -149,7 +139,7 @@ void CodeEditor::commentLine(QTextCursor &cursor, const QString &commentSymbol)
 void CodeEditor::addComment()
 {
     QTextCursor cursor    = textCursor();
-    QString fileExtension = getFileExtension();
+    QString fileExtension = m_fileManager->getFileExtension();
     qDebug() << "File Extension:" << fileExtension;
 
     if (fileExtension == "cpp" || fileExtension == "h" ||
@@ -172,7 +162,6 @@ void CodeEditor::addComment()
     else
     {
         qDebug() << "Unsupported file extension for commenting.";
-        return;
     }
 }
 
