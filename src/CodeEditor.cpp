@@ -1,7 +1,7 @@
-#include "../include/CodeEditor.h"
-#include "../include/MainWindow.h"
-#include "../include/LineNumberArea.h"
-#include "../include/FileManager.h"
+#include "CodeEditor.h"
+#include "MainWindow.h"
+#include "LineNumberArea.h"
+#include "FileManager.h"
 
 #include <QPainter>
 #include <QTextBlock>

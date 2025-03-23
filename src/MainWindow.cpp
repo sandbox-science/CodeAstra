@@ -1,8 +1,8 @@
-#include "../include/MainWindow.h"
-#include "../include/Syntax.h"
-#include "../include/Tree.h"
-#include "../include/CodeEditor.h"
-#include "../include/FileManager.h"
+#include "MainWindow.h"
+#include "Syntax.h"
+#include "Tree.h"
+#include "CodeEditor.h"
+#include "FileManager.h"
 
 #include <QMenuBar>
 #include <QFileDialog>

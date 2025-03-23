@@ -1,6 +1,6 @@
-#include "../include/FileManager.h"
-#include "../include/CodeEditor.h"
-#include "../include/MainWindow.h"
+#include "FileManager.h"
+#include "CodeEditor.h"
+#include "MainWindow.h"
 
 #include <QFileDialog>
 #include <QMessageBox>
