@@ -3,6 +3,8 @@
 #include <QPlainTextEdit>
 #include <QKeyEvent>
 
+class FileManager; // Forward declaration
+
 class CodeEditor : public QPlainTextEdit
 {
     Q_OBJECT
@@ -18,8 +20,6 @@ public:
     Mode mode = NORMAL;
     void lineNumberAreaPaintEvent(QPaintEvent *event);
     int lineNumberAreaWidth();
-    QString getCurrentFileName() const { return m_currentFileName; }
-    void setCurrentFileName(const QString &fileName) { m_currentFileName = fileName; }
 
 signals:
     void statusMessageChanged(const QString &message);
@@ -35,9 +35,8 @@ private slots:
 
 private:
     QWidget *m_lineNumberArea;
-    QString m_currentFileName;
+    FileManager *m_fileManager;
 
-    QString getFileExtension();
     void addLanguageSymbol(QTextCursor &cursor, const QString &commentSymbol);
     void commentSelection(QTextCursor &cursor, const QString &commentSymbol);
     void commentLine(QTextCursor &cursor, const QString &commentSymbol);
