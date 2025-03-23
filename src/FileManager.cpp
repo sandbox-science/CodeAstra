@@ -8,21 +8,28 @@
 #include "MainWindow.h"
 
 FileManager::FileManager(CodeEditor *editor, MainWindow *mainWindow)
-    : m_editor(editor),
-      m_currentFileName(""),
-      m_mainWindow(mainWindow)
+    : m_editor(editor), m_mainWindow(mainWindow)
 {
-    if (!m_editor)
-    {
-        qWarning() << "Editor is NOT initialized in FileManager!";
-    }
-    else
-    {
-        qDebug() << "Editor is properly initialized in FileManager.";
-    }
+    qDebug() << "FileManager initialized.";
 }
 
 FileManager::~FileManager() {}
+
+void FileManager::initialize(CodeEditor *editor, MainWindow *mainWindow)
+{
+    m_editor     = editor;
+    m_mainWindow = mainWindow;
+}
+
+QString FileManager::getCurrentFileName() const
+{
+    return m_currentFileName;
+}
+
+void FileManager::setCurrentFileName(const QString fileName)
+{
+    m_currentFileName = fileName;
+}
 
 void FileManager::newFile()
 {
@@ -31,12 +38,13 @@ void FileManager::newFile()
 
 void FileManager::saveFile()
 {
-    qDebug() << "Saving file:" << m_currentFileName;
     if (m_currentFileName.isEmpty())
     {
         saveFileAs();
         return;
     }
+
+    qDebug() << "Saving file:" << m_currentFileName;
 
     QFile file(m_currentFileName);
     if (!file.open(QFile::WriteOnly | QFile::Text))
@@ -62,8 +70,14 @@ void FileManager::saveFile()
 
 void FileManager::saveFileAs()
 {
-    QString fileName = QFileDialog::getSaveFileName(nullptr, "Save File As", QString(),
-                                                    "C++ Files (*.cpp *.h);;Text Files (*.txt);;All Files (*)");
+    QString fileExtension = getFileExtension();
+    QString filter        = "All Files (*);;C++ Files (*.cpp *.h);;Text Files (*.txt)";
+    if (!fileExtension.isEmpty())
+    {
+        filter = QString("%1 Files (*.%2);;%3").arg(fileExtension.toUpper(), fileExtension, filter);
+    }
+
+    QString fileName = QFileDialog::getSaveFileName(nullptr, "Save File As", QString(), filter);
 
     if (!fileName.isEmpty())
     {
@@ -75,12 +89,19 @@ void FileManager::saveFileAs()
 void FileManager::openFile()
 {
     QString fileName = QFileDialog::getOpenFileName(nullptr, "Open File", QString(),
-                                                    "C++ Files (*.cpp *.h);;Text Files (*.txt);;All Files (*)");
+                                                    "All Files (*);;C++ Files (*.cpp *.h);;Text Files (*.txt)");
     if (!fileName.isEmpty())
     {
+        qDebug() << "Opening file: " << fileName;
+        m_currentFileName = fileName;
         loadFileInEditor(fileName);
     }
+    else
+    {
+        qDebug() << "No file selected.";
+    }
 }
+
 
 void FileManager::loadFileInEditor(const QString &filePath)
 {
@@ -104,6 +125,23 @@ void FileManager::loadFileInEditor(const QString &filePath)
     }
     file.close();
 
-    m_currentFileName = filePath;
-    m_mainWindow->setWindowTitle("CodeAstra ~ " + QFileInfo(filePath).fileName());
+    if (m_mainWindow)
+    {
+        m_mainWindow->setWindowTitle("CodeAstra ~ " + QFileInfo(filePath).fileName());
+    }
+    else
+    {
+        qWarning() << "MainWindow is initialized in FileManager.";
+    }
+}
+
+QString FileManager::getFileExtension() const
+{
+    if (m_currentFileName.isEmpty())
+    {
+        qDebug() << "Error: No File name set!";
+        return QString();
+    }
+
+    return QFileInfo(m_currentFileName).suffix().toLower();
 }
