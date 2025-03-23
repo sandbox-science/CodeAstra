@@ -76,7 +76,7 @@ target_link_libraries(${EXECUTABLE_NAME} PRIVATE ${TARGET_NAME} Qt${QT_MAJOR_VER
 # Add the tests subdirectory
 add_subdirectory(tests)
 
-# Qt resource files (if any)
+# Qt resource files
 qt_add_resources(APP_RESOURCES resources.qrc)
 target_sources(${EXECUTABLE_NAME} PRIVATE ${APP_RESOURCES})
 
