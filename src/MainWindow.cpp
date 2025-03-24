@@ -111,6 +111,63 @@ QAction *MainWindow::createAction(const QIcon &icon, const QString &text, const 
     return action;
 }
 
+void MainWindow::newFile()
+{
+    // First time save and editor is not empty
+    if (!this->m_editor->toPlainText().isEmpty() && m_currentFileName.isEmpty())
+    {
+        // Create box to prompt user to save changes to file
+        QMessageBox promptBox;
+        promptBox.setWindowTitle("Save Current File");
+        promptBox.setText("Would you like to save the file?");
+        promptBox.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
+        promptBox.setDefaultButton(QMessageBox::Save);
+
+        int option = promptBox.exec();
+        // return if the user hit Cancel button
+        if (option == QMessageBox::Cancel)
+        {
+            return;
+        }
+
+        saveFile();
+    }
+    // Check if file has been previously saved
+    else if (!m_currentFileName.isEmpty())
+    {
+        // Read from saved file and compare to current file
+        QFile file(m_currentFileName);
+
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+            return;
+        QTextStream in(&file);
+
+        QString savedFileContents = in.readAll();
+        if (savedFileContents != this->m_editor->toPlainText().trimmed())
+        {
+            // Create box to prompt user to save changes to file
+            QMessageBox promptBox;
+            promptBox.setWindowTitle("Changes Detected");
+            promptBox.setText("Would you like to save the current changes to the file?");
+            promptBox.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
+            promptBox.setDefaultButton(QMessageBox::Save);
+            int option = promptBox.exec();
+            // return if the user hit Cancel button
+            if (option == QMessageBox::Cancel)
+            {
+                return;
+            }
+
+            saveFile();
+        }
+    }
+
+    // New window will be created with the untitled name
+    MainWindow *newWindow = new MainWindow();
+    newWindow->setWindowTitle("Code Astra ~ untitled");
+    newWindow->show();
+}
+
 void MainWindow::showAbout()
 {
     // Extract the C++ version from the __cplusplus macro
