@@ -1,4 +1,4 @@
-FROM ubuntu:22.04 AS builder
+FROM ubuntu:24.04 AS builder
 WORKDIR /
 
 # Add dependencies
@@ -21,6 +21,6 @@ COPY . /CodeAstra
 WORKDIR /CodeAstra
 
 # Run dockerized tests script
-RUN chmod +x ./run_dockerized_tests.sh
+RUN chmod +x ./test_with_xvbf.sh
 
-CMD ["./run_dockerized_tests.sh"]
+CMD ["./test_with_xvbf.sh"]
