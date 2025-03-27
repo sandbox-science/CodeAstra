@@ -51,6 +51,13 @@ Please, check the [wiki](https://github.com/sandbox-science/CodeAstra/wiki) for 
   - [ ] Create a new file ~ in progress
 - [x] File tree navigation
 - [ ] Syntax highlighting ~ in progress
+  - Supported Languagues:
+    - [ ] C/C++ (**in progress**)
+    - [ ] Golang (**in progress**)
+    - [ ] Python (**Backlog**)
+    - [ ] Elixir (**Backlog**)
+    - more to come ... ([contribution welcomed](https://github.com/sandbox-science/CodeAstra/issues/4))
+
 - [ ] Plugin system
 
 ## To-Do
