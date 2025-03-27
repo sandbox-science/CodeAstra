@@ -31,6 +31,10 @@ public:
     // of the main window, alongside the code editor
     void initTree();
 
+    QAction *createAction(const QIcon &icon, const QString &text,
+                          const QKeySequence &shortcut, const QString &statusTip,
+                          const std::function<void()> &slot);
+
 private slots:
     void showAbout();
 
@@ -39,10 +43,6 @@ private:
     void createFileActions(QMenu *fileMenu);
     void createHelpActions(QMenu *helpMenu);
     void createAppActions(QMenu *appMenu);
-
-    QAction *createAction(const QIcon &icon, const QString &text,
-                          const QKeySequence &shortcut, const QString &statusTip,
-                          const std::function<void()> &slot);
 
     std::unique_ptr<CodeEditor> m_editor;
     std::unique_ptr<Syntax> m_syntax;
