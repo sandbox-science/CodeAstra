@@ -1,5 +1,4 @@
 #include "MainWindow.h"
-#include "Syntax.h"
 #include "Tree.h"
 #include "CodeEditor.h"
 #include "FileManager.h"
@@ -13,10 +12,9 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
-      m_editor(std::make_unique<CodeEditor>(this)),
-      m_syntax(std::make_unique<Syntax>(m_editor->document())),
-      m_tree(nullptr),
-      m_fileManager(&FileManager::getInstance())
+    m_editor(std::make_unique<CodeEditor>(this)),
+    m_tree(nullptr),
+    m_fileManager(&FileManager::getInstance())
 {
     m_fileManager->initialize(m_editor.get(), this);
     setWindowTitle("CodeAstra ~ Code Editor");

@@ -45,7 +45,6 @@ private:
     void createAppActions(QMenu *appMenu);
 
     std::unique_ptr<CodeEditor> m_editor;
-    std::unique_ptr<Syntax> m_syntax;
     std::unique_ptr<Tree> m_tree;
 
     FileManager *m_fileManager;
