@@ -1,0 +1,94 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  native:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest] # TODO: Add windows-latest when officially supported
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Set up Python 3.10 or later
+      - name: Set up Python 3.10 (Windows)
+        if: matrix.os == 'windows-latest'
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+  
+      # Install C++ Compiler & Build Tools
+      - name: Set up C++ environment (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++ make cmake
+          g++ --version
+          cmake --version
+          make --version
+  
+      - name: Set up C++ environment (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          brew install make cmake
+          echo 'export PATH="/usr/local/opt/gcc/bin:$PATH"' >> ~/.bash_profile
+          source ~/.bash_profile
+          g++ --version
+          cmake --version
+          make --version
+  
+      - name: Set up C++ environment (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          choco install mingw --version=8.1.0-1
+          choco install make cmake
+          echo C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          echo C:\ProgramData\chocolatey\lib\cmake\bin | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          g++ --version
+          cmake --version
+          make --version
+  
+      # Install Qt6
+      - name: Install Qt6 (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get install -y qt6-base-dev
+          echo 'export PATH="/usr/lib/qt6/bin:$PATH"' >> ~/.bashrc
+          source ~/.bashrc
+  
+      - name: Install Qt6 (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          brew install qt6
+          echo 'export PATH="/opt/homebrew/opt/qt6/bin:$PATH"' >> ~/.bash_profile
+          source ~/.bash_profile
+  
+      - name: Install Qt6 (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          python -m pip install aqtinstall
+          python -m aqt install-qt windows desktop 6.6.0 win64_mingw --outputdir C:\Qt
+          echo C:\Qt\6.6.0\mingw_64\bin | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+  
+      # Build the Project
+      - name: Build project
+        run: make build
+
+      - name: Run Unit Tests
+        run: make test
+
+  docker:
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Run Docker Test
+        run: |
+          chmod +x ./run_docker.sh
+          ./run_docker.sh
