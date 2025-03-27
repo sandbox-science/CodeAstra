@@ -1,5 +1,5 @@
 PROJECT    = CodeAstra
-BUILD_DIR  = build
+BUILD_DIR  = $(PWD)/build
 EXECUTABLE = $(PROJECT)
 
 # Set CMake options
@@ -45,7 +45,7 @@ uninstall: clean
 	fi
 
 # Install the project
-install:
+install: build
 	@echo "Installing $(PROJECT)..."
 	@cd $(BUILD_DIR) && make
 	@echo "Do you want to create a shortcut on the desktop? (Y/n)"
@@ -76,7 +76,10 @@ install:
 	fi
 	@echo "$(PROJECT) installed."
 
-test:
+build_tests: build
+	@cd $(BUILD_DIR)/tests/ && make
+
+test: build_tests
 	@for test in ./build/tests/test_*; do \
 		if [ -f $$test ]; then \
 			echo "Running $$test..."; \
