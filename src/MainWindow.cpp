@@ -62,8 +62,13 @@ void MainWindow::createMenuBar()
     QMenuBar *menuBar = new QMenuBar(this);
 
     QMenu *fileMenu = menuBar->addMenu("File");
+    fileMenu->setObjectName("File");
+
     QMenu *helpMenu = menuBar->addMenu("Help");
-    QMenu *appMenu  = menuBar->addMenu("CodeAstra");
+    helpMenu->setObjectName("Help");
+
+    QMenu *appMenu = menuBar->addMenu("CodeAstra");
+    appMenu->setObjectName("CodeAstra");
 
     createFileActions(fileMenu);
     createHelpActions(helpMenu);

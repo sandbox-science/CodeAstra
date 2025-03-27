@@ -1,4 +1,5 @@
 #include "Syntax.h"
+
 #include <QColor>
 #include <QFont>
 
