@@ -144,3 +144,10 @@ QString FileManager::getFileExtension() const
 
     return QFileInfo(m_currentFileName).suffix().toLower();
 }
+
+QString FileManager::getDirectoryPath() const
+{
+    return QFileDialog::getExistingDirectory(
+        nullptr, QObject::tr("Open Directory"), QDir::homePath(),
+        QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+}
