@@ -54,15 +54,20 @@ find_package(Qt${QT_MAJOR_VERSION} COMPONENTS Widgets Test REQUIRED)
 add_library(${TARGET_NAME}
     src/MainWindow.cpp
     src/CodeEditor.cpp
-    src/Syntax.cpp
     src/Tree.cpp
     src/FileManager.cpp
+    src/Syntax/Syntax.cpp
+    src/Syntax/SyntaxCpp.cpp
+    src/Syntax/SyntaxGo.cpp
     include/MainWindow.h
     include/CodeEditor.h
-    include/Syntax.h
     include/Tree.h
     include/LineNumberArea.h
     include/FileManager.h
+    include/SyntaxManager.h
+    include/Syntax/SyntaxCpp.h
+    include/Syntax/SyntaxGo.h
+    include/Syntax/Syntax.h
 )
 
 # Create the executable for the application
