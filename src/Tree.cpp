@@ -9,24 +9,26 @@
 #include <QTreeView>
 #include <QMenu>
 
-Tree::Tree(QSplitter *splitter, FileManager *FileManager)
+Tree::Tree(QSplitter *splitter)
     : QObject(splitter),
       m_iconProvider(std::make_unique<QFileIconProvider>()),
       m_model(std::make_unique<QFileSystemModel>()),
-      m_tree(std::make_unique<QTreeView>(splitter)),
-      m_FileManager(FileManager)
+      m_tree(std::make_unique<QTreeView>(splitter))
 {
-    setupModel();
-    setupTree();
-
     connect(m_tree.get(), &QTreeView::doubleClicked, this, &Tree::openFile);
 }
 
 Tree::~Tree() {}
 
-void Tree::setupModel()
+void Tree::initialize(const QString &directory)
 {
-    m_model->setRootPath(getDirectoryPath());
+    setupModel(directory);
+    setupTree();
+}
+
+void Tree::setupModel(const QString &directory)
+{
+    m_model->setRootPath(directory);
     m_model->setIconProvider(m_iconProvider.get());
     m_model->setFilter(QDir::AllEntries | QDir::Hidden | QDir::NoDotAndDotDot);
 }
@@ -49,13 +51,6 @@ void Tree::setupTree()
 
     m_tree->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(m_tree.get(), &QTreeView::customContextMenuRequested, this, &Tree::showContextMenu);
-}
-
-QString Tree::getDirectoryPath() const
-{
-    return QFileDialog::getExistingDirectory(
-        nullptr, QObject::tr("Open Directory"), QDir::homePath(),
-        QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 }
 
 void Tree::openFile(const QModelIndex &index)
