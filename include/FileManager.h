@@ -43,6 +43,8 @@ public slots:
     void openFile();
     void loadFileInEditor(const QString &filePath);
 
+    QString getDirectoryPath() const;
+
 private:
     FileManager(CodeEditor *editor, MainWindow *mainWindow);
     ~FileManager();

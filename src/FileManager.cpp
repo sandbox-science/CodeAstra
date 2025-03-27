@@ -1,11 +1,11 @@
 #include "FileManager.h"
+#include "CodeEditor.h"
+#include "MainWindow.h"
 
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QTextStream>
 #include <QFileInfo>
-#include "CodeEditor.h"
-#include "MainWindow.h"
 
 FileManager::FileManager(CodeEditor *editor, MainWindow *mainWindow)
     : m_editor(editor), m_mainWindow(mainWindow)
@@ -143,4 +143,11 @@ QString FileManager::getFileExtension() const
     }
 
     return QFileInfo(m_currentFileName).suffix().toLower();
+}
+
+QString FileManager::getDirectoryPath() const
+{
+    return QFileDialog::getExistingDirectory(
+        nullptr, QObject::tr("Open Directory"), QDir::homePath(),
+        QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 }

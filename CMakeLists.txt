@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 
 # Project name
-set(TARGET_NAME CodeAstra)
+set(TARGET_NAME CodeAstraApp)
+set(EXECUTABLE_NAME CodeAstra)
 
 set(QT_MAJOR_VERSION 6)
 
@@ -47,11 +48,10 @@ endif()
 set(CMAKE_PREFIX_PATH ${Qt_DIR})
 
 # Find Qt Widgets
-find_package(Qt${QT_MAJOR_VERSION} COMPONENTS Widgets REQUIRED)
+find_package(Qt${QT_MAJOR_VERSION} COMPONENTS Widgets Test REQUIRED)
 
-# Add executable and source files
-add_executable(${TARGET_NAME}
-    src/main.cpp
+# Create the CodeAstra library
+add_library(${TARGET_NAME}
     src/MainWindow.cpp
     src/CodeEditor.cpp
     src/Syntax.cpp
@@ -65,29 +65,42 @@ add_executable(${TARGET_NAME}
     include/FileManager.h
 )
 
+# Create the executable for the application
+add_executable(${EXECUTABLE_NAME}
+    src/main.cpp
+)
+
+# Link the main executable with the CodeAstra library and Qt libraries
+target_link_libraries(${EXECUTABLE_NAME} PRIVATE ${TARGET_NAME} Qt${QT_MAJOR_VERSION}::Widgets)
+
+# Add the tests subdirectory
+add_subdirectory(tests)
+
+# Qt resource files
 qt_add_resources(APP_RESOURCES resources.qrc)
-target_sources(${TARGET_NAME} PRIVATE ${APP_RESOURCES})
+target_sources(${EXECUTABLE_NAME} PRIVATE ${APP_RESOURCES})
 
 # Compiler flags per OS
 if(MSVC)
-    target_compile_options(${TARGET_NAME} PRIVATE /W4 /WX)
+    target_compile_options(${EXECUTABLE_NAME} PRIVATE /W4 /WX)
 elseif(APPLE)
-    target_compile_options(${TARGET_NAME} PRIVATE -Wall -Wextra -pedantic -Werror)
-    set_target_properties(${TARGET_NAME} PROPERTIES MACOSX_BUNDLE TRUE)
+    target_compile_options(${EXECUTABLE_NAME} PRIVATE -Wall -Wextra -pedantic -Werror)
+    set_target_properties(${EXECUTABLE_NAME} PROPERTIES MACOSX_BUNDLE TRUE)
 else()
-    target_compile_options(${TARGET_NAME} PRIVATE -Wall -Wextra -pedantic -Werror)
+    target_compile_options(${EXECUTABLE_NAME} PRIVATE -Wall -Wextra -pedantic -Werror)
 endif()
 
 # Include directories
-target_include_directories(${TARGET_NAME} PRIVATE ${Qt${QT_MAJOR_VERSION}_INCLUDE_DIRS})
+target_include_directories(${EXECUTABLE_NAME} PRIVATE ${Qt${QT_MAJOR_VERSION}_INCLUDE_DIRS})
+target_include_directories(${EXECUTABLE_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/include)
 target_include_directories(${TARGET_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/include)
 
 # Set output names properly for Debug and Release
-set_target_properties(${TARGET_NAME} PROPERTIES 
+set_target_properties(${EXECUTABLE_NAME} PROPERTIES 
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}" 
-    DEBUG_OUTPUT_NAME "${TARGET_NAME}d" 
-    RELEASE_OUTPUT_NAME ${TARGET_NAME}
+    DEBUG_OUTPUT_NAME "${EXECUTABLE_NAME}d" 
+    RELEASE_OUTPUT_NAME ${EXECUTABLE_NAME}
 )
 
-# Link necessary Qt libraries
+# Link necessary Qt libraries to CodeAstra library
 target_link_libraries(${TARGET_NAME} PRIVATE Qt${QT_MAJOR_VERSION}::Widgets)

@@ -45,7 +45,7 @@ void MainWindow::initTree()
     QSplitter *splitter = new QSplitter(Qt::Horizontal, this);
     setCentralWidget(splitter);
 
-    m_tree = std::make_unique<Tree>(splitter, m_fileManager);
+    m_tree = std::make_unique<Tree>(splitter);
 
     splitter->addWidget(m_editor.get());
     splitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -62,8 +62,13 @@ void MainWindow::createMenuBar()
     QMenuBar *menuBar = new QMenuBar(this);
 
     QMenu *fileMenu = menuBar->addMenu("File");
+    fileMenu->setObjectName("File");
+
     QMenu *helpMenu = menuBar->addMenu("Help");
-    QMenu *appMenu  = menuBar->addMenu("CodeAstra");
+    helpMenu->setObjectName("Help");
+
+    QMenu *appMenu = menuBar->addMenu("CodeAstra");
+    appMenu->setObjectName("CodeAstra");
 
     createFileActions(fileMenu);
     createHelpActions(helpMenu);
@@ -75,6 +80,15 @@ void MainWindow::createMenuBar()
 void MainWindow::createFileActions(QMenu *fileMenu)
 {
     fileMenu->addAction(createAction(QIcon(), tr("&New"), QKeySequence::New, tr("Create a new file"), [this]() { m_fileManager->newFile(); }));
+    fileMenu->addSeparator();
+    fileMenu->addAction(createAction(QIcon(), tr("&Open &Project"), QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_O), tr("Open a project"), [this]()
+    { 
+        QString projectPath = m_fileManager->getDirectoryPath(); 
+        if (!projectPath.isEmpty())
+        { 
+            m_tree->initialize(projectPath);
+        }
+    }));
     fileMenu->addAction(createAction(QIcon(), tr("&Open"), QKeySequence::Open, tr("Open an existing file"), [this]() { m_fileManager->openFile(); }));
     fileMenu->addSeparator();
     fileMenu->addAction(createAction(QIcon(), tr("&Save"), QKeySequence::Save, tr("Save the current file"), [this]() { m_fileManager->saveFile(); }));

@@ -22,20 +22,18 @@ class Tree : public QObject
     Q_OBJECT
 
 public:
-    explicit Tree(QSplitter *splitter, FileManager *FileManager);
+    explicit Tree(QSplitter *splitter);
     ~Tree();
 
-private:
-    void showContextMenu(const QPoint &pos);
-    void setupModel();
+    void initialize(const QString &directory);
+    void setupModel(const QString &directory);
     void setupTree();
     void openFile(const QModelIndex &index);
 
-    QString getDirectoryPath() const;
+private:
+    void showContextMenu(const QPoint &pos);
 
     std::unique_ptr<QFileIconProvider> m_iconProvider;
     std::unique_ptr<QFileSystemModel> m_model;
     std::unique_ptr<QTreeView> m_tree;
-
-    FileManager * m_FileManager;
 };
