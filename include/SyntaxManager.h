@@ -1,6 +1,6 @@
 #pragma once
 
-#include "syntax/Syntax.h"
+#include "Syntax.h"
 
 #include <QString>
 #include <QTextDocument>

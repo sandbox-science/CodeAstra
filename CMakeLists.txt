@@ -80,8 +80,8 @@ add_library(${TARGET_NAME}
     include/Tree.h
     include/LineNumberArea.h
     include/FileManager.h
-    include/syntaxManager.h
-    include/syntax/Syntax.h
+    include/SyntaxManager.h
+    include/Syntax.h
 )
 
 # Link YAML-CPP to the CodeAstra library

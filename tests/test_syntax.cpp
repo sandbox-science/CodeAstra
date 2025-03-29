@@ -1,5 +1,5 @@
 #include <QtTest>
-#include "syntax/Syntax.h"
+#include "Syntax.h"
 
 #include <QTextDocument>
 #include <QColor>
