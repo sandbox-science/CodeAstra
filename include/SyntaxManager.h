@@ -1,53 +1,34 @@
 #pragma once
 
-#include "Syntax/SyntaxCpp.h"
-#include "Syntax/SyntaxGo.h"
-// #include "Syntax/SyntaxPy.h"  // Uncomment when implemented
-// #include "Syntax/SyntaxEx.h" // Uncomment when implemented
+#include "syntax/Syntax.h"
 
 #include <QString>
 #include <QTextDocument>
 #include <memory>
 
+#include <yaml-cpp/yaml.h>
+
 /**
  * @class SyntaxManager
- * @brief A utility class for creating syntax highlighters based on file extensions.
+ * @brief Manages the creation of syntax highlighters for different file types.
  *
- * This class provides a static method to create appropriate syntax highlighters
- * for different programming languages based on the file extension. If a syntax
- * highlighter for a specific file type is not implemented, it returns a nullptr.
+ * The SyntaxManager class provides functionality to create syntax highlighters
+ * based on file extensions. It supports dynamic creation of highlighters by
+ * utilizing configuration data and applies them to QTextDocument objects.
+ *
+ * @note This class is designed to work with the Qt framework and YAML configuration.
  */
 class SyntaxManager
 {
 public:
-    static std::unique_ptr<QSyntaxHighlighter> createSyntaxHighlighter(const QString &extension, QTextDocument *doc)
-    {
-        qDebug() << "Creating highlighter for extension:" << extension;
-        if (extension == "cpp" || extension == "h" || extension == "c")
-        {
-            qDebug() << "C/C++ syntax highlighter selected.";
-            return std::make_unique<SyntaxCpp>(doc);
-        }
-        else if (extension == "py")
-        {
-            qDebug() << "Python syntax highlighter not implemented.";
-            // return std::make_unique<SyntaxPy>(doc);
-        }
-        else if (extension == "go")
-        {
-            qDebug() << "Go syntax highlighter selected.";
-            return std::make_unique<SyntaxGo>(doc);
-        }
-        else if (extension == "ex")
-        {
-            qDebug() << "Elixir syntax highlighter not implemented.";
-            // return std::make_unique<SyntaxEx>(doc);
-        }
-        else
-        {
-            qDebug() << "No syntax highlighter available for" << extension << "file type.";
-        }
+    /**
+     * @brief Creates a syntax highlighter based on the file extension.
+     * @param extension The file extension (e.g., "cpp", "py").
+     * @param doc The QTextDocument to which the highlighter will be applied.
+     * @return A unique pointer to the appropriate syntax highlighter, or nullptr if not available.
+     */
+    static std::unique_ptr<QSyntaxHighlighter> createSyntaxHighlighter(const QString &extension, QTextDocument *doc);
 
-        return nullptr;
-    }
+private:
+    static std::unique_ptr<QSyntaxHighlighter> createHighlighter(QTextDocument *doc, const std::vector<YAML::Node> &config, const QString &extension);
 };
