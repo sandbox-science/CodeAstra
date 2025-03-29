@@ -3,17 +3,33 @@ extensions: [yaml, yml]
 keywords:
   comment:
     - regex: "#[^\n]*"
-      color: "#336934"
+      color: "#336934" # Dark Green
       italic: "true"
+
   keyword:
-    - regex: "\\b\\w+(?=\\s*:)"
-      color: "#003478"
     - regex: "\\[([^\\]]*)\\]"
-      color: "#DD9042"
+      color: "#DD9042" # Brownish Orange
     - regex: "\\[|\\]"
-      color: "#E6B400"
+      color: "#E6B400" # Golden Yellow
+
+  number:
+    - regex: "\\b[+-]?([0-9]*[.])?[0-9]+([eE][+-]?[0-9]+)?\\b"
+      color: "#BA68C8" # Purple
+
+  boolean:
+    - regex: "\\b(true|false)\\b"
+      color: "#4CAF50" # Green
+
+  null:
+    - regex: "\\b(null)\\b"
+      color: "#9E9E9E" # Gray
+
+  key:
+    - regex: "(?<=^|\\s)([a-zA-Z0-9_-]+)(?=:)"
+      color: "#009688" # Teal
+
   string:
     - regex: "\"(\\\\.|[^\"\\\\])*\""
-      color: "#E37100"
+      color: "#E37100" # Orange
     - regex: "\\\\"
-      color: "#FFDE00"
+      color: "#FFDE00" # Yellow
