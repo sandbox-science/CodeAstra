@@ -3,10 +3,12 @@ extensions: [go]
 keywords:
   comment:
     - regex: "\"(\\\\.|[^\"\\\\])*\""
-      color: "#808080"
+      color: "#808080" # Gray
+
   string:
     - regex: "\"(\\\\.|[^\"\\\\])*\""
-      color: "#E37100"
+      color: "#E37100" # Orange
+
   number:
     - regex: "\\b\\d+\\b"
-      color: "#0000FF"
+      color: "#0000FF" # Blue

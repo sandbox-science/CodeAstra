@@ -3,30 +3,36 @@ extensions: [cpp, c, h, hpp]
 keywords:
   keyword:
     - regex: "\\b(char|class|const|double|enum|explicit|friend|inline|int|long|namespace|operator|private|protected|public|short|signals|signed|slots|static|struct|template|typedef|typename|union|unsigned|virtual|void|volatile|foreach)\\b"
-      color: "#003478"
+      color: "#003478" # Dark Blue
       bold: "true"
     - regex: "\\b(for|while|do|if|else)\\b"
-      color: "#D9001D"
+      color: "#D9001D" # Bright Red
     - regex: "(?<!\\w)#include(?!\\w)"
-      color: "#800080"
+      color: "#800080" # Purple
+
   comment:
     - regex: "//[^\n]*"
-      color: "#336934"
+      color: "#336934" # Dark Green
       italic: "true"
+
   string:
     - regex: "\"(\\\\.|[^\"\\\\])*\""
-      color: "#E37100"
+      color: "#E37100" # Orange
     - regex: "\\\\"
-      color: "#FFDE00"
+      color: "#FFDE00" # Yellow
+
   number:
     - regex: "\\b\\d+\\b"
-      color: "#0000FF"
+      color: "#0000FF" # Blue
+
   parenthesis:
     - regex: "[()]"
-      color: "#6495ED"
+      color: "#6495ED" # Cornflower Blue
+
   function:
     - regex: "\\b(?!for\\b|if\\b|else\\b|while\\b|do\\b)[a-zA-Z_][a-zA-Z0-9_]*(?=\\s*\\()"
-      color: "#DBA800"
+      color: "#DBA800" # Golden Yellow
+
   qualifiedName:
     - regex: "\\b\\w+(?=\\s*::)"
-      color: "#309676"
+      color: "#309676" # Teal Green
