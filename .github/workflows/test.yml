@@ -84,6 +84,7 @@ jobs:
         run: make test
 
   docker:
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
