@@ -1,0 +1,24 @@
+extensions: [py]
+
+keywords:
+  keyword:
+    - regex: "\\bimport\\b"
+      color: "#FF1493" # Deep Pink
+    - regex: "\\bdef\\b"
+      color: "#800080" # Purple
+    - regex: "\\bclass\\b"
+      color: "#008000" # Green
+      bold: "true"
+
+  comment:
+    - regex: "#[^\n]*"
+      color: "#808080" # Gray
+      italic: "true"
+
+  string:
+    - regex: "\"(\\\\.|[^\"\\\\])*\""
+      color: "#E37100" # Orange
+
+  number:
+    - regex: "\\b\\d+\\b"
+      color: "#0000FF" # Blue

@@ -1,0 +1,47 @@
+extensions: [md]
+
+keywords:
+  comment:
+    - regex: "#[^\n]*"
+      color: "#336934" # Dark Green
+      italic: "true"
+
+  heading:
+    - regex: "^#{1,6}\\s+.*"
+      color: "#003478" # Dark Blue
+      bold: "true"
+
+  bold:
+    - regex: "(?<!\\*)\\*\\*([^*]+)\\*\\*(?!\\*)|(?<!_)__([^_]+)__(?!_)"
+      color: "#D9001D" # Bright Red
+      bold: "true"
+
+  italic:
+    - regex: "(?<!\\*)\\*([^*]+)\\*(?!\\*)|(?<!_)_([^_]+)_(?!_)"
+      color: "#D97706" # Orange
+      italic: "true"
+
+  link:
+    - regex: "\\[([^\\]]+)\\]\\(([^\\)]+)\\)"
+      color: "#005FFF" # Bright Blue
+
+  inline_code:
+    - regex: "`([^`]+)`"
+      color: "#E37100" # Orange
+
+  list:
+    - regex: "^(\\s*[-+*]\\s+|\\s*\\d+\\.\\s+)"
+      color: "#309676" # Teal Green
+
+  blockquote:
+    - regex: "^>\\s+.*"
+      color: "#B48EAD" # Light Purple
+      italic: "true"
+
+  todo:
+    - regex: "- \\[ \\]"
+      color: "#FF8C00" # Orange for unchecked tasks
+    - regex: "- \\[x\\]"
+      color: "#32CD32" # Green for completed tasks
+    - regex: "(?<=\\[)[^\\]]*(?=\\])"
+      color: "#E37100"

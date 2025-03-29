@@ -1,54 +1,63 @@
 #pragma once
 
+#include <QSyntaxHighlighter>
 #include <QTextCharFormat>
 #include <QRegularExpression>
-#include <QSyntaxHighlighter>
-#include <QTextDocument>
+#include <yaml-cpp/yaml.h>
 
 /**
  * @class Syntax
- * @brief A class for syntax highlighting in a QTextDocument.
+ * @brief A custom syntax highlighter class that extends QSyntaxHighlighter to provide
+ *        syntax highlighting functionality based on user-defined rules.
  *
- * This class inherits from QSyntaxHighlighter and provides functionality
- * to highlight different syntax elements such as keywords, comments,
- * functions, parentheses, characters, and quotations in a QTextDocument.
+ * This class allows you to define syntax highlighting rules using regular expressions
+ * and associated text formats. It applies these rules to text blocks to highlight
+ * specific patterns.
  *
- * The Syntax class uses regular expressions to define patterns for different
- * syntax elements and applies corresponding text formats to them.
+ * @note This class inherits the constructor from QSyntaxHighlighter.
  */
 class Syntax : public QSyntaxHighlighter
 {
     Q_OBJECT
 
 public:
-    Syntax(QTextDocument *parent = nullptr);
+    Syntax(QTextDocument *parent, const YAML::Node &config);
+    ~Syntax() = default;
 
 protected:
+    /**
+     * @brief Highlights the given text block based on the defined syntax rules.
+     *
+     * @param text The text block to be highlighted.
+     */
     void highlightBlock(const QString &text) override;
 
-private:
+public:
+    /**
+     * @struct SyntaxRule
+     * @brief Represents a single syntax highlighting rule.
+     *
+     * A syntax rule consists of a regular expression pattern and a text format
+     * to apply to matching text.
+     */
     struct SyntaxRule
     {
         QRegularExpression m_pattern;
         QTextCharFormat m_format;
     };
+
     QVector<SyntaxRule> m_syntaxRules;
 
-    QTextCharFormat m_keywordFormat;
-    QTextCharFormat m_singleLineCommentFormat;
-    QTextCharFormat m_quotationMark;
-    QTextCharFormat m_functionFormat;
-    QTextCharFormat m_parenthesisFormat;
-    QTextCharFormat m_charFormat;
-    QTextCharFormat m_iterationFormat;
-
+    /**
+     * @brief Adds a new syntax highlighting rule.
+     *
+     * This method allows you to define a new rule by specifying a regular expression
+     * pattern and the corresponding text format.
+     *
+     * @param pattern The regular expression pattern for the rule.
+     * @param format The text format to apply to matches of the pattern.
+     */
     void addPattern(const QString &pattern, const QTextCharFormat &format);
 
-    // Initialization functions for different syntax highlighting rules
-    void initKeywordRules();
-    void initCommentRules();
-    void initFunctionRules();
-    void initParenthesisRules();
-    void initCharRules();
-    void initQuotationRules();
+    void loadSyntaxRules(const YAML::Node &config);
 };

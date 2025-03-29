@@ -6,6 +6,7 @@
   
   <!-- C++ CI Badge -->
   [![C++ CI](https://github.com/sandbox-science/CodeAstra/actions/workflows/cpp.yml/badge.svg)](https://github.com/sandbox-science/CodeAstra/actions/workflows/cpp.yml)
+  [![Test CI](https://github.com/sandbox-science/CodeAstra/actions/workflows/test.yml/badge.svg)](https://github.com/sandbox-science/CodeAstra/actions/workflows/test.yml)
 
   <!-- CodeAstra Latest Release Badge -->
   <a href="https://github.com/sandbox-science/CodeAstra/releases">
@@ -51,6 +52,14 @@ Please, check the [wiki](https://github.com/sandbox-science/CodeAstra/wiki) for 
   - [ ] Create a new file ~ in progress
 - [x] File tree navigation
 - [ ] Syntax highlighting ~ in progress
+  - Supported Languagues:
+    - [x] Markdown (**foundation**)
+    - [x] YAML (**foundation**)
+    - [ ] C/C++ (**in progress**)
+    - [ ] Golang (**in progress**)
+    - [ ] Python (**Backlog**)
+    - [ ] Elixir (**Backlog**)
+    - more to come ... ([contribution welcomed](https://github.com/sandbox-science/CodeAstra/issues/4))
 - [ ] Plugin system
 
 ## To-Do

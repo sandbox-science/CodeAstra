@@ -31,7 +31,7 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       run: |
         sudo apt-get update
-        sudo apt-get install -y g++ make cmake
+        sudo apt-get install -y g++ make cmake libyaml-cpp-dev
         g++ --version
         cmake --version
         make --version
@@ -39,7 +39,7 @@ jobs:
     - name: Set up C++ environment (macOS)
       if: matrix.os == 'macos-latest'
       run: |
-        brew install make cmake
+        brew install make cmake yaml-cpp
         echo 'export PATH="/usr/local/opt/gcc/bin:$PATH"' >> ~/.bash_profile
         source ~/.bash_profile
         g++ --version
@@ -83,15 +83,8 @@ jobs:
     - name: Build project
       run: make build
 
-    # Install the Project with desktop shortcut
-    - name: Install project (Mac/Windows)
-      if: matrix.os != 'ubuntu-latest'
+    # Install the Project
+    - name: Install project
       run: |
         cd ${{ github.workspace }}
-        echo "y" | make install
-
-    # Install the Project without desktop shortcut (Linux)
-    # This is a work around for Linux shortcut bug
-    - name: Install project (Linux)
-      if: matrix.os == 'ubuntu-latest'
-      run: echo "n" | make install
+        make install

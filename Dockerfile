@@ -13,7 +13,8 @@ RUN apt-get install -y --no-install-recommends \
     qt6-base-dev \
     x11-utils \
     x11-xserver-utils \
-    xvfb
+    xvfb \
+    libyaml-cpp-dev
 RUN rm -rf /var/lib/apt/lists/*
 
 # Copy CodeAstra into the container

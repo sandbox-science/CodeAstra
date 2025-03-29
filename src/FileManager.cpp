@@ -1,6 +1,7 @@
 #include "FileManager.h"
 #include "CodeEditor.h"
 #include "MainWindow.h"
+#include "SyntaxManager.h"
 
 #include <QFileDialog>
 #include <QMessageBox>
@@ -116,6 +117,11 @@ void FileManager::loadFileInEditor(const QString &filePath)
     if (m_editor)
     {
         m_editor->setPlainText(in.readAll());
+
+        delete m_currentHighlighter;
+
+        // Create and assign a new syntax highlighter based on language extension
+        m_currentHighlighter = SyntaxManager::createSyntaxHighlighter(getFileExtension(), m_editor->document()).release();
     }
     else
     {
@@ -130,7 +136,7 @@ void FileManager::loadFileInEditor(const QString &filePath)
     }
     else
     {
-        qWarning() << "MainWindow is initialized in FileManager.";
+        qWarning() << "MainWindow is not initialized in FileManager.";
     }
 }
 

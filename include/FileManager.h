@@ -2,6 +2,7 @@
 
 #include <QObject>
 #include <memory>
+#include <QSyntaxHighlighter>
 
 class CodeEditor;
 class MainWindow;
@@ -51,5 +52,6 @@ private:
 
     CodeEditor *m_editor;
     MainWindow *m_mainWindow;
+    QSyntaxHighlighter *m_currentHighlighter = nullptr;
     QString m_currentFileName;
 };
