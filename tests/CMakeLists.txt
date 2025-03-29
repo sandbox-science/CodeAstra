@@ -45,5 +45,3 @@ target_link_directories(test_mainwindow PRIVATE /opt/homebrew/lib)
 target_link_directories(test_tree PRIVATE /opt/homebrew/lib)
 target_link_directories(test_syntax PRIVATE /opt/homebrew/lib)
 
-# Link the libraries explicitly for both main executable and tests
-target_link_libraries(test_syntax PRIVATE /opt/homebrew/lib/libyaml-cpp.dylib)
