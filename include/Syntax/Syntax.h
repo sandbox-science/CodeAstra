@@ -3,6 +3,7 @@
 #include <QSyntaxHighlighter>
 #include <QTextCharFormat>
 #include <QRegularExpression>
+#include <yaml-cpp/yaml.h>
 
 /**
  * @class Syntax
@@ -20,9 +21,8 @@ class Syntax : public QSyntaxHighlighter
     Q_OBJECT
 
 public:
-    using QSyntaxHighlighter::QSyntaxHighlighter;
-
-    virtual ~Syntax() = default;
+    Syntax(QTextDocument *parent, const YAML::Node &config);
+    ~Syntax() = default;
 
 protected:
     /**
@@ -58,4 +58,6 @@ public:
      * @param format The text format to apply to matches of the pattern.
      */
     void addPattern(const QString &pattern, const QTextCharFormat &format);
+
+    void loadSyntaxRules(const YAML::Node &config);
 };
