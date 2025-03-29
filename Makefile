@@ -10,7 +10,7 @@ all: build install
 
 # Run CMake to build the project
 build:
-	@echo "Building project with CMake..."
+	@echo "Building $(PROJECT) with CMake..."
 	@mkdir -p $(BUILD_DIR)
 	@cd $(BUILD_DIR) && cmake $(CMAKE_OPTIONS)
 
@@ -21,7 +21,7 @@ clean:
 
 # Uninstalling the software
 uninstall: clean
-	@echo "Uninstalling the software..."
+	@echo "Uninstalling $(PROJECT)..."
 	@rm -rf $(EXECUTABLE).app $(EXECUTABLE)d.app
 	@OS_NAME=$(shell uname -s 2>/dev/null || echo "Windows"); \
 	if [ "$$OS_NAME" = "Darwin" ]; then \
