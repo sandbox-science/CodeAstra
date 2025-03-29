@@ -4,22 +4,22 @@ keywords:
   comment:
     - regex: "#[^\n]*"
       color: "#336934" # Dark Green
-      italic: "true"
+      italic: true
 
   heading:
     - regex: "^#{1,6}\\s+.*"
       color: "#003478" # Dark Blue
-      bold: "true"
+      bold: true
 
   bold:
     - regex: "(?<!\\*)\\*\\*([^*]+)\\*\\*(?!\\*)|(?<!_)__([^_]+)__(?!_)"
       color: "#D9001D" # Bright Red
-      bold: "true"
+      bold: true
 
   italic:
     - regex: "(?<!\\*)\\*([^*]+)\\*(?!\\*)|(?<!_)_([^_]+)_(?!_)"
       color: "#D97706" # Orange
-      italic: "true"
+      italic: true
 
   link:
     - regex: "\\[([^\\]]+)\\]\\(([^\\)]+)\\)"
@@ -36,7 +36,7 @@ keywords:
   blockquote:
     - regex: "^>\\s+.*"
       color: "#B48EAD" # Light Purple
-      italic: "true"
+      italic: true
 
   todo:
     - regex: "- \\[ \\]"

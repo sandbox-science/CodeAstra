@@ -4,7 +4,7 @@ keywords:
   keyword:
     - regex: "\\b(char|class|const|double|enum|explicit|friend|inline|int|long|namespace|operator|private|protected|public|short|signals|signed|slots|static|struct|template|typedef|typename|union|unsigned|virtual|void|volatile|foreach)\\b"
       color: "#003478" # Dark Blue
-      bold: "true"
+      bold: true
     - regex: "\\b(for|while|do|if|else)\\b"
       color: "#D9001D" # Bright Red
     - regex: "(?<!\\w)#include(?!\\w)"
@@ -13,7 +13,7 @@ keywords:
   comment:
     - regex: "//[^\n]*"
       color: "#336934" # Dark Green
-      italic: "true"
+      italic: true
 
   string:
     - regex: "\"(\\\\.|[^\"\\\\])*\""

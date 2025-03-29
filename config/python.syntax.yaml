@@ -8,12 +8,12 @@ keywords:
       color: "#800080" # Purple
     - regex: "\\bclass\\b"
       color: "#008000" # Green
-      bold: "true"
+      bold: true
 
   comment:
     - regex: "#[^\n]*"
       color: "#808080" # Gray
-      italic: "true"
+      italic: true
 
   string:
     - regex: "\"(\\\\.|[^\"\\\\])*\""

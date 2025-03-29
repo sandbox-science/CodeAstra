@@ -4,7 +4,7 @@ keywords:
   comment:
     - regex: "#[^\n]*"
       color: "#336934" # Dark Green
-      italic: "true"
+      italic: true
 
   keyword:
     - regex: "\\[([^\\]]*)\\]"
