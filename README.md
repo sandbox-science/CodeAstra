@@ -59,7 +59,7 @@ Please, check the [wiki](https://github.com/sandbox-science/CodeAstra/wiki) for 
     - [ ] Golang (**in progress**)
     - [ ] Python (**Backlog**)
     - [ ] Elixir (**Backlog**)
-    - more to come ... ([contribution welcomed](https://github.com/sandbox-science/CodeAstra/issues/4))
+    - more to come ... ([contribution welcomed](https://github.com/sandbox-science/CodeAstra/issues/4)) Read our [wiki](https://github.com/sandbox-science/CodeAstra/wiki/Config) for more information
 - [ ] Plugin system
 
 ## To-Do
