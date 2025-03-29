@@ -83,8 +83,8 @@ jobs:
     - name: Build project
       run: make build
 
-    # Install the Project without desktop shortcut
+    # Install the Project
     - name: Install project
       run: |
         cd ${{ github.workspace }}
-        echo "n" | make install
+        make install
