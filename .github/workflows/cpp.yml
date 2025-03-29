@@ -83,15 +83,9 @@ jobs:
     - name: Build project
       run: make build
 
-    # Install the Project with desktop shortcut
+    # Install the Project without desktop shortcut
     - name: Install project (Mac/Windows)
       if: matrix.os != 'ubuntu-latest'
       run: |
         cd ${{ github.workspace }}
-        echo "y" | make install
-
-    # Install the Project without desktop shortcut (Linux)
-    # This is a work around for Linux shortcut bug
-    - name: Install project (Linux)
-      if: matrix.os == 'ubuntu-latest'
-      run: echo "n" | make install
+        echo "n" | make install
