@@ -1,6 +1,6 @@
 # Enable testing
 enable_testing()
-
+find_package(yaml-cpp REQUIRED)
 # Add individual test executables
 add_executable(test_mainwindow test_mainwindow.cpp)
 add_executable(test_tree test_tree.cpp)
@@ -46,6 +46,4 @@ target_link_directories(test_tree PRIVATE /opt/homebrew/lib)
 target_link_directories(test_syntax PRIVATE /opt/homebrew/lib)
 
 # Link the libraries explicitly for both main executable and tests
-target_link_libraries(test_mainwindow PRIVATE /opt/homebrew/lib/libyaml-cpp.dylib)
-target_link_libraries(test_tree PRIVATE /opt/homebrew/lib/libyaml-cpp.dylib)
 target_link_libraries(test_syntax PRIVATE /opt/homebrew/lib/libyaml-cpp.dylib)
