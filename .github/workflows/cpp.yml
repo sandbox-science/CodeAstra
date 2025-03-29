@@ -84,8 +84,7 @@ jobs:
       run: make build
 
     # Install the Project without desktop shortcut
-    - name: Install project (Mac/Windows)
-      if: matrix.os != 'ubuntu-latest'
+    - name: Install project
       run: |
         cd ${{ github.workspace }}
         echo "n" | make install
