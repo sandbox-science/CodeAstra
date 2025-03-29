@@ -6,6 +6,7 @@
   
   <!-- C++ CI Badge -->
   [![C++ CI](https://github.com/sandbox-science/CodeAstra/actions/workflows/cpp.yml/badge.svg)](https://github.com/sandbox-science/CodeAstra/actions/workflows/cpp.yml)
+  [![Test CI](https://github.com/sandbox-science/CodeAstra/actions/workflows/test.yml/badge.svg)](https://github.com/sandbox-science/CodeAstra/actions/workflows/test.yml)
 
   <!-- CodeAstra Latest Release Badge -->
   <a href="https://github.com/sandbox-science/CodeAstra/releases">
