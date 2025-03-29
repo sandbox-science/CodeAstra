@@ -1,0 +1,19 @@
+extensions: [yaml, yml]
+
+keywords:
+  comment:
+    - regex: "#[^\n]*"
+      color: "#336934"
+      italic: "true"
+  keyword:
+    - regex: "\\b\\w+(?=\\s*:)"
+      color: "#003478"
+    - regex: "\\[([^\\]]*)\\]"
+      color: "#DD9042"
+    - regex: "\\[|\\]"
+      color: "#E6B400"
+  string:
+    - regex: "\"(\\\\.|[^\"\\\\])*\""
+      color: "#E37100"
+    - regex: "\\\\"
+      color: "#FFDE00"

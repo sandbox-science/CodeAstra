@@ -1,0 +1,12 @@
+extensions: [go]
+
+keywords:
+  comment:
+    - regex: "\"(\\\\.|[^\"\\\\])*\""
+      color: "#808080"
+  string:
+    - regex: "\"(\\\\.|[^\"\\\\])*\""
+      color: "#E37100"
+  number:
+    - regex: "\\b\\d+\\b"
+      color: "#0000FF"

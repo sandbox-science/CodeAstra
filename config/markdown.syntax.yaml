@@ -1,0 +1,7 @@
+extensions: [md]
+
+keywords:
+  comment:
+    - regex: "#[^\n]*"
+      color: "#336934"
+      italic: "true"
