@@ -53,12 +53,13 @@ Please, check the [wiki](https://github.com/sandbox-science/CodeAstra/wiki) for 
 - [x] File tree navigation
 - [ ] Syntax highlighting ~ in progress
   - Supported Languagues:
+    - [x] Markdown (**foundation**)
+    - [x] YAML (**foundation**)
     - [ ] C/C++ (**in progress**)
     - [ ] Golang (**in progress**)
     - [ ] Python (**Backlog**)
     - [ ] Elixir (**Backlog**)
     - more to come ... ([contribution welcomed](https://github.com/sandbox-science/CodeAstra/issues/4))
-
 - [ ] Plugin system
 
 ## To-Do
