@@ -8,6 +8,8 @@
 #include <QFileIconProvider>
 #include <QTreeView>
 #include <QMenu>
+#include <filesystem>
+#include <QMessageBox>
 
 Tree::Tree(QSplitter *splitter)
     : QObject(splitter),
@@ -69,6 +71,13 @@ void Tree::openFile(const QModelIndex &index)
     FileManager::getInstance().loadFileInEditor(filePath);
 }
 
+QFileSystemModel *Tree::getModel() const
+{
+    if (!m_model)
+        throw std::runtime_error("Tree model is not initialized!");
+    return m_model.get();
+}
+
 // Context menu for file operations
 // such as creating new files, folders, renaming, and deleting
 // This function is called when the user right-clicks on the tree view
@@ -97,6 +106,78 @@ void Tree::showContextMenu(const QPoint &pos)
     }
     else if (selectedAction == deleteAction)
     {
-        // TO-DO: implement file deletion
+        QFileInfo pathInfo = getPathInfo();
+        if (!pathInfo.exists())
+        {
+            qWarning() << "File does not exist: " << pathInfo.fileName();
+            return;
+        }
+        QMessageBox::StandardButton reply = QMessageBox::question(nullptr, "Confirm Deletion",
+                                                                  "Are you sure you want to delete\n'" + pathInfo.fileName() + "'?",
+                                                                  QMessageBox::Yes | QMessageBox::No);
+        if (reply == QMessageBox::No)
+        {
+            qInfo() << "Deletion cancelled.";
+        }
+        else
+        {
+            deleteFile(pathInfo);
+        }
     }
+}
+
+QFileInfo Tree::getPathInfo()
+{
+    QModelIndex index = m_tree->currentIndex();
+    if (!index.isValid())
+    {
+        qWarning() << "Invalid index.";
+        return QFileInfo();
+    }
+
+    return QFileInfo(m_model->filePath(index));
+}
+
+bool Tree::deleteFile(const QFileInfo &pathInfo)
+{
+    std::error_code err;
+    QString filePath = pathInfo.absoluteFilePath();
+
+    if (pathInfo.isDir())
+    {
+        if (std::filesystem::remove_all(filePath.toStdString(), err))
+        {
+            qInfo() << "Successfully deleted" << pathInfo.fileName();
+        }
+        else
+        {
+            qWarning() << "Failed to delete" << pathInfo.fileName() << "- Error:" << QString::fromStdString(err.message());
+            return false;
+        }
+    }
+    else
+    {
+        if (std::filesystem::remove(filePath.toStdString(), err))
+        {
+            qInfo() << "Successfully deleted" << pathInfo.fileName();
+        }
+        else
+        {
+            qWarning() << "Failed to delete" << pathInfo.fileName() << "- Error:" << QString::fromStdString(err.message());
+            return false;
+        }
+    }
+    return true;
+}
+
+bool Tree::renameFile(const QFileInfo &filePath, QString newFileName)
+{
+    qWarning() << "renamedFile Function not yet implemented";
+    return false;
+}
+
+bool Tree::newFile(QString newFilePath)
+{
+    qWarning() << "newFile Function not yet implemented";
+    return false;
 }
