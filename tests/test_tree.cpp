@@ -26,7 +26,8 @@ private slots:
     void cleanupTestCase();
     void testOpenFile_invalid();
     void testDeleteFile();
-    void testRenameFile();
+    void testDeleteDir();
+    void testRenamePath();
     void testNewFile();
 };
 
@@ -37,14 +38,16 @@ void TestTree::initTestCase()
     tree     = new Tree(splitter);
 
     // Create a temporary test file for the Unit Tests
-    testFilePath = QDir::temp().filePath("test_file.cpp");
+    testFilePath = "test_file.cpp";
     QFile testFile(testFilePath);
-    if (!testFile.open(QIODevice::WriteOnly))
+    if (!testFile.exists())
     {
-        qDebug() << "Failed to create test file at" << testFilePath;
-        QFAIL("Failed to create test file.");
+        if (!testFile.open(QIODevice::WriteOnly))
+        {
+            QFAIL("Failed to create test file.");
+        }
+        testFile.close();
     }
-    testFile.close();
 
     QFileSystemModel *model = tree->getModel();
     if (model)
@@ -74,6 +77,30 @@ void TestTree::testOpenFile_invalid()
     QVERIFY2(FileManager::getInstance().getCurrentFileName().isEmpty(), "FileManager should not process an invalid file.");
 }
 
+void TestTree::testRenamePath()
+{
+    QString originalFileName = "test_file.cpp";
+    QString newFileName      = "renamed_file.cpp";
+
+    QFile originalFile(originalFileName);
+    if (!originalFile.exists())
+    {
+        if (!originalFile.open(QIODevice::WriteOnly))
+        {
+            QFAIL("Failed to create test file.");
+        }
+        originalFile.close();
+    }
+
+    bool fileRenamed = FileManager::getInstance().renamePath(QFileInfo(originalFileName), newFileName);
+
+    QVERIFY2(fileRenamed, "File should be renamed successfully.");
+    QVERIFY2(QFile::exists(newFileName), "Renamed file should exist.");
+    QVERIFY2(!QFile::exists(originalFileName), "Original file should no longer exist.");
+
+    QFile::remove(newFileName);
+}
+
 void TestTree::testDeleteFile()
 {
     QVERIFY2(QFile::exists(testFilePath), "Test file should exist before deletion.");
@@ -85,24 +112,42 @@ void TestTree::testDeleteFile()
     QVERIFY2(index.isValid(), "QModelIndex should be valid for the test file.");
 
     QString filePath = model->filePath(index);
-    tree->deleteFile(QFileInfo(filePath));
+    FileManager::getInstance().deleteFile(QFileInfo(filePath));
 
     QVERIFY2(!QFile::exists(testFilePath), "File should be deleted.");
 }
 
-void TestTree::testRenameFile()
+void TestTree::testDeleteDir()
 {
-    QString newFilePath = QDir::temp().filePath("renamed_file.cpp");
-    bool fileRenamed    = tree->renameFile(QFileInfo(testFilePath), newFilePath);
+    // Temporary directory for deletion test
+    QString directory = QDir::temp().absolutePath() + "/testDeleteDir";
+    QDir tempDir(directory);
+    if (!tempDir.exists())
+    {
+        if (!tempDir.mkpath("."))
+        {
+            QFAIL("Failed to create test directory.");
+        }
+    }
 
-    QVERIFY2(fileRenamed, "File should be renamed successfully.");
-    QVERIFY2(QFile::exists(newFilePath), "Renamed file should exist.");
+    QVERIFY2(QFile::exists(directory), "Test directory should exist before deletion.");
+
+    QFileSystemModel *model = tree->getModel();
+    QVERIFY2(model != nullptr, "getModel() should not return nullptr.");
+
+    QModelIndex index = model->index(directory);
+    QVERIFY2(index.isValid(), "QModelIndex should be valid for the test directory.");
+
+    QString dirPath = model->filePath(index);
+    FileManager::getInstance().deleteFolder(QFileInfo(dirPath));
+
+    QVERIFY2(!QFile::exists(directory), "Directory should be deleted.");
 }
 
 void TestTree::testNewFile()
 {
     QString newFilePath = QDir::temp().filePath("new_test_file.cpp");
-    bool fileCreated    = tree->newFile(newFilePath);
+    bool fileCreated    = FileManager::getInstance().newFile(newFilePath);
 
     QVERIFY2(fileCreated, "New file should be created.");
     QVERIFY2(QFile::exists(newFilePath), "Newly created file should exist.");
