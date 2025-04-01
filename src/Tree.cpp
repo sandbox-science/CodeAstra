@@ -10,6 +10,7 @@
 #include <QMenu>
 #include <filesystem>
 #include <QMessageBox>
+#include <QInputDialog>
 
 Tree::Tree(QSplitter *splitter)
     : QObject(splitter),
@@ -87,7 +88,10 @@ void Tree::showContextMenu(const QPoint &pos)
 
     QAction *newFileAction   = contextMenu.addAction("New File");
     QAction *newFolderAction = contextMenu.addAction("New Folder");
+    contextMenu.addSeparator();
     QAction *renameAction    = contextMenu.addAction("Rename");
+    QAction *duplicateAction = contextMenu.addAction("Duplicate");
+    contextMenu.addSeparator();
     QAction *deleteAction    = contextMenu.addAction("Delete");
 
     QAction *selectedAction = contextMenu.exec(m_tree->viewport()->mapToGlobal(pos));
@@ -100,9 +104,35 @@ void Tree::showContextMenu(const QPoint &pos)
     {
         // TO-DO: implement folder creation
     }
+    else if (selectedAction == duplicateAction)
+    {
+        // TO-DO: implement folder creation
+    }
     else if (selectedAction == renameAction)
     {
-        // TO-DO: implement rename file/folder
+        QFileInfo oldPathInfo = getPathInfo();
+        if (!oldPathInfo.exists())
+        {
+            qWarning() << "File does not exist: " << oldPathInfo.fileName();
+            return;
+        }
+
+        bool ok;
+        QString newFileName = QInputDialog::getText(
+            nullptr,
+            "Rename File",
+            "Enter new file name:",
+            QLineEdit::Normal,
+            oldPathInfo.fileName(),
+            &ok);
+
+        if (ok && !newFileName.isEmpty())
+        {
+            if (FileManager::getInstance().renamePath(oldPathInfo, newFileName))
+            {
+                qInfo() << "Renamed successfully!";
+            }
+        }
     }
     else if (selectedAction == deleteAction)
     {
@@ -121,13 +151,25 @@ void Tree::showContextMenu(const QPoint &pos)
         }
         else
         {
-            if(pathInfo.isDir())
+            bool isDeleted   = false;
+            QString itemType = pathInfo.isDir() ? "Folder" : "File";
+
+            if (pathInfo.isDir())
             {
-                deleteFolder(pathInfo);
+                isDeleted = FileManager::getInstance().deleteFolder(pathInfo);
             }
             else
             {
-                deleteFile(pathInfo);
+                isDeleted = FileManager::getInstance().deleteFile(pathInfo);
+            }
+
+            if (isDeleted)
+            {
+                qInfo() << itemType << "successfully deleted!";
+            }
+            else
+            {
+                QMessageBox::critical(nullptr, "Error", QString("%1 failed to delete.").arg(itemType));
             }
         }
     }
@@ -143,51 +185,4 @@ QFileInfo Tree::getPathInfo()
     }
 
     return QFileInfo(m_model->filePath(index));
-}
-
-bool Tree::deleteFile(const QFileInfo &pathInfo)
-{
-    std::error_code err;
-    QString filePath = pathInfo.absoluteFilePath();
-
-    if (std::filesystem::remove(filePath.toStdString(), err))
-    {
-        qInfo() << "Successfully deleted" << pathInfo.fileName();
-    }
-    else
-    {
-        qWarning() << "Failed to delete" << pathInfo.fileName() << "- Error:" << QString::fromStdString(err.message());
-        return false;
-    }
-
-    return true;
-}
-
-bool Tree::deleteFolder(const QFileInfo &pathInfo)
-{
-    std::error_code err;
-    QString filePath = pathInfo.absoluteFilePath();
-
-    if (std::filesystem::remove_all(filePath.toStdString(), err))
-    {
-        qInfo() << "Successfully deleted" << pathInfo.fileName();
-    }
-    else
-    {
-        qWarning() << "Failed to delete" << pathInfo.fileName() << "- Error:" << QString::fromStdString(err.message());
-        return false;
-    }
-    return true;
-}
-
-bool Tree::renameFile(const QFileInfo &filePath, QString newFileName)
-{
-    qWarning() << "renamedFile Function not yet implemented";
-    return false;
-}
-
-bool Tree::newFile(QString newFilePath)
-{
-    qWarning() << "newFile Function not yet implemented";
-    return false;
 }
