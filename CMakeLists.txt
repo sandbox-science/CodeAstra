@@ -6,7 +6,7 @@ set(EXECUTABLE_NAME CodeAstra)
 
 set(QT_MAJOR_VERSION 6)
 
-project(${TARGET_NAME} VERSION 0.0.1 DESCRIPTION "Code Editor written in C++ using Qt6")
+project(${TARGET_NAME} VERSION 0.1.0 DESCRIPTION "Code Editor written in C++ using Qt6")
 
 # Enable automatic MOC (Meta-Object Compiler) handling for Qt
 set(CMAKE_AUTOMOC ON)
