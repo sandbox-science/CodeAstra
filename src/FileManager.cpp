@@ -7,6 +7,8 @@
 #include <QMessageBox>
 #include <QTextStream>
 #include <QFileInfo>
+#include <filesystem>
+#include <iostream>
 
 FileManager::FileManager(CodeEditor *editor, MainWindow *mainWindow)
     : m_editor(editor), m_mainWindow(mainWindow)
@@ -156,4 +158,75 @@ QString FileManager::getDirectoryPath() const
     return QFileDialog::getExistingDirectory(
         nullptr, QObject::tr("Open Directory"), QDir::homePath(),
         QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+}
+
+bool FileManager::renamePath(const QFileInfo &pathInfo, const QString &newName)
+{
+    if (!pathInfo.exists())
+    {
+        qWarning() << "Path does not exist: " << pathInfo.fileName();
+        return false;
+    }
+
+    std::filesystem::path oldPath = pathInfo.absoluteFilePath().toStdString();
+    std::filesystem::path newPath = oldPath.parent_path() / newName.toStdString();
+
+    if (QFileInfo(newPath).exists())
+    {
+        QMessageBox::critical(nullptr, "Error", QString("%1 already takken.").arg(QString::fromStdString(newPath.filename())));
+        return false;
+    }
+
+    try
+    {
+        std::filesystem::rename(oldPath, newPath);
+        return true;
+    }
+    catch (const std::filesystem::filesystem_error &e)
+    {
+        QMessageBox::critical(nullptr, "Error", QString(e.what()));
+        return false;
+    }
+}
+
+bool FileManager::deleteFile(const QFileInfo &pathInfo)
+{
+    std::error_code err;
+    std::filesystem::path filePath = pathInfo.absoluteFilePath().toStdString();
+
+    try
+    {
+        std::filesystem::remove(filePath, err);
+    }
+    catch (const std::filesystem::filesystem_error &e)
+    {
+        qWarning() << "Failed to delete: " << e.what();
+        return false;
+    }
+
+    return true;
+}
+
+bool FileManager::deleteFolder(const QFileInfo &pathInfo)
+{
+    std::error_code err;
+    std::filesystem::path dirPath = pathInfo.absoluteFilePath().toStdString();
+
+    try
+    {
+        std::filesystem::remove_all(dirPath, err);
+    }
+    catch (const std::filesystem::filesystem_error &e)
+    {
+        qWarning() << "Failed to delete: " << e.what();
+        return false;
+    }
+
+    return true;
+}
+
+bool FileManager::newFile(QString newFilePath)
+{
+    qWarning() << "newFile Function not yet implemented";
+    return false;
 }
