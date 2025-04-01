@@ -30,12 +30,7 @@ void CodeEditor::keyPressEvent(QKeyEvent *event)
         moveCursor(QTextCursor::WordLeft, QTextCursor::KeepAnchor);
         return;
     }
-    if (event->modifiers() == Qt::ControlModifier && event->key() == Qt::Key_Slash)
-    {
-        addComment();
-        return;
-    }
-
+    
     if (mode == NORMAL)
     {
         switch (event->key())
@@ -61,6 +56,7 @@ void CodeEditor::keyPressEvent(QKeyEvent *event)
             break;
         }
     }
+
     else if (mode == INSERT)
     {
         if (event->key() == Qt::Key_Escape)
@@ -68,11 +64,58 @@ void CodeEditor::keyPressEvent(QKeyEvent *event)
             mode = NORMAL;
             emit statusMessageChanged("Normal mode activated. Press 'escape' to return to normal mode.");
         }
+        else if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
+        {
+            autoIndentation();
+            return;
+        }
+        else if (event->modifiers() == Qt::ControlModifier && event->key() == Qt::Key_Slash)
+        {
+        	addComment();
+            return;
+        }
+        else if (event->modifiers() == Qt::ControlModifier && event->key() == Qt::Key_Backspace)
+   		{
+			moveCursor(QTextCursor::WordLeft, QTextCursor::KeepAnchor);
+			textCursor().removeSelectedText();
+			textCursor().deletePreviousChar();
+			return;
+	    }
         else
         {
             QPlainTextEdit::keyPressEvent(event);
         }
     }
+}
+
+// Add auto indentation when writing code and pressing enter keyboard key
+void CodeEditor::autoIndentation()
+{
+    auto cursor         = textCursor();
+    auto currentBlock   = cursor.block();
+    QString currentText = currentBlock.text();
+
+    int indentLevel = 0;
+    for (int i = 0; i < currentText.size(); ++i)
+    {
+        if (currentText.at(i) == ' ')
+        {
+            ++indentLevel;
+        }
+
+        else if (currentText.at(i) == '\t')
+        {
+            indentLevel += 4;
+        }
+
+        else
+        {
+            break;
+        }
+    }
+
+    cursor.insertText("\n" + QString(indentLevel, ' '));
+    setTextCursor(cursor);
 }
 
 void CodeEditor::addLanguageSymbol(QTextCursor &cursor, const QString &commentSymbol)
