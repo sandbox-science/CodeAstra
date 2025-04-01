@@ -121,7 +121,14 @@ void Tree::showContextMenu(const QPoint &pos)
         }
         else
         {
-            deleteFile(pathInfo);
+            if(pathInfo.isDir())
+            {
+                deleteFolder(pathInfo);
+            }
+            else
+            {
+                deleteFile(pathInfo);
+            }
         }
     }
 }
@@ -143,29 +150,32 @@ bool Tree::deleteFile(const QFileInfo &pathInfo)
     std::error_code err;
     QString filePath = pathInfo.absoluteFilePath();
 
-    if (pathInfo.isDir())
+    if (std::filesystem::remove(filePath.toStdString(), err))
     {
-        if (std::filesystem::remove_all(filePath.toStdString(), err))
-        {
-            qInfo() << "Successfully deleted" << pathInfo.fileName();
-        }
-        else
-        {
-            qWarning() << "Failed to delete" << pathInfo.fileName() << "- Error:" << QString::fromStdString(err.message());
-            return false;
-        }
+        qInfo() << "Successfully deleted" << pathInfo.fileName();
     }
     else
     {
-        if (std::filesystem::remove(filePath.toStdString(), err))
-        {
-            qInfo() << "Successfully deleted" << pathInfo.fileName();
-        }
-        else
-        {
-            qWarning() << "Failed to delete" << pathInfo.fileName() << "- Error:" << QString::fromStdString(err.message());
-            return false;
-        }
+        qWarning() << "Failed to delete" << pathInfo.fileName() << "- Error:" << QString::fromStdString(err.message());
+        return false;
+    }
+
+    return true;
+}
+
+bool Tree::deleteFolder(const QFileInfo &pathInfo)
+{
+    std::error_code err;
+    QString filePath = pathInfo.absoluteFilePath();
+
+    if (std::filesystem::remove_all(filePath.toStdString(), err))
+    {
+        qInfo() << "Successfully deleted" << pathInfo.fileName();
+    }
+    else
+    {
+        qWarning() << "Failed to delete" << pathInfo.fileName() << "- Error:" << QString::fromStdString(err.message());
+        return false;
     }
     return true;
 }

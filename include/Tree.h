@@ -32,6 +32,7 @@ public:
     void openFile(const QModelIndex &index);
 
     bool deleteFile(const QFileInfo &filePath);
+    bool deleteFolder(const QFileInfo &folderPath);
     bool renameFile(const QFileInfo &filePath, QString newFileName);
     bool newFile(QString newFilePath);
 
