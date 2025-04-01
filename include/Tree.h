@@ -31,11 +31,6 @@ public:
     void setupTree();
     void openFile(const QModelIndex &index);
 
-    bool deleteFile(const QFileInfo &filePath);
-    bool deleteFolder(const QFileInfo &folderPath);
-    bool renameFile(const QFileInfo &filePath, QString newFileName);
-    bool newFile(QString newFilePath);
-
     QFileSystemModel* getModel() const;
 
 private:

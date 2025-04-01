@@ -3,6 +3,7 @@
 #include <QObject>
 #include <memory>
 #include <QSyntaxHighlighter>
+#include <QFileInfo>
 
 class CodeEditor;
 class MainWindow;
@@ -36,6 +37,13 @@ public:
 
     void setCurrentFileName(const QString fileName);
     void initialize(CodeEditor *editor, MainWindow *mainWindow);
+
+
+    bool deleteFile(const QFileInfo &pathInfo);
+    bool deleteFolder(const QFileInfo &pathInfo);
+
+    bool renamePath(const QFileInfo &pathInfo, const QString &newName);
+    bool newFile(QString newFilePath);
 
 public slots:
     void newFile();
