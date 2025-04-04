@@ -81,8 +81,8 @@ void TestTree::testOpenFile_invalid()
 
 void TestTree::testRenamePath()
 {
-    QString originalFileName = "test_file.cpp";
-    QString newFileName      = "renamed_file.cpp";
+    QString originalFileName = QDir::temp().filePath("testFile.cpp");
+    QString newFileName      = QDir::temp().filePath("renamedTestFile.cpp");
 
     QFile originalFile(originalFileName);
     if (!originalFile.exists())
@@ -105,18 +105,28 @@ void TestTree::testRenamePath()
 
 void TestTree::testDeleteFile()
 {
-    QVERIFY2(QFile::exists(testFilePath), "Test file should exist before deletion.");
+    QString tempFilePath = QDir::temp().filePath("testDeleteFile.cpp");
+    QFile tempFile(tempFilePath);
+    if (!tempFile.open(QIODevice::WriteOnly))
+    {
+        QFAIL("Failed to create temporary test file for deletion.");
+    }
+    tempFile.write("// test content");
+    tempFile.close();
+
+    QVERIFY2(QFile::exists(tempFilePath), "Temporary file should exist before deletion.");
 
     QFileSystemModel *model = tree->getModel();
-    QVERIFY2(model != nullptr, "getModel() should not return nullptr.");
+    QVERIFY2(model != nullptr, "Tree model should not be null.");
 
-    QModelIndex index = model->index(testFilePath);
-    QVERIFY2(index.isValid(), "QModelIndex should be valid for the test file.");
+    QModelIndex index = model->index(tempFilePath);
+    QVERIFY2(index.isValid(), "Model index should be valid for the temporary file.");
 
     QString filePath = model->filePath(index);
+
     FileManager::getInstance().deleteFile(QFileInfo(filePath));
 
-    QVERIFY2(!QFile::exists(testFilePath), "File should be deleted.");
+    QVERIFY2(!QFile::exists(tempFilePath), "Temporary file should be deleted.");
 }
 
 void TestTree::testDeleteDir()
@@ -153,6 +163,9 @@ void TestTree::testNewFile()
 
     QVERIFY2(fileCreated, "New file should be created.");
     QVERIFY2(QFile::exists(newFilePath), "Newly created file should exist.");
+
+    // Cleanup
+    QFile::remove(newFilePath);
 }
 
 void TestTree::testNewFolder()
@@ -162,14 +175,34 @@ void TestTree::testNewFolder()
 
     QVERIFY2(folderCreated, "New folder should be created.");
     QVERIFY2(QFile::exists(newFolderPath), "Newly created folder should exist.");
+
+    // Cleanup
+    QDir dir(newFolderPath);
+    dir.removeRecursively();
 }
 
 void TestTree::testDuplicatePath()
 {
-    QString dupPath     = QDir::temp().absolutePath() + "/testNewDir";
-    bool pathDuplicated = FileManager::getInstance().duplicatePath(QFileInfo(dupPath));
+    QString basePath = QDir::temp().absolutePath() + "/testDuplicateDir";
+    QDir().mkpath(basePath);
 
-    QVERIFY2(pathDuplicated, "New folder should be created.");
+    bool pathDuplicated = FileManager::getInstance().duplicatePath(QFileInfo(basePath));
+
+    QVERIFY2(pathDuplicated, "Path should be duplicated successfully.");
+
+    // Find the duplicated path created for this test and clean it up
+    QDir tempDir(QDir::tempPath());
+    QStringList entries = tempDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+    for (const QString &entry : entries)
+    {
+        if (entry.startsWith("testDuplicateDir_copy"))
+        {
+            QDir(tempDir.absoluteFilePath(entry)).removeRecursively();
+        }
+    }
+
+    // Clean up the original path
+    QDir(basePath).removeRecursively();
 }
 
 QTEST_MAIN(TestTree)
