@@ -26,6 +26,9 @@ public:
     static FileManager &getInstance(CodeEditor *editor = nullptr, MainWindow *mainWindow = nullptr)
     {
         static FileManager instance(editor, mainWindow);
+        if (editor && mainWindow) {
+            instance.initialize(editor, mainWindow);
+        }
         return instance;
     }
 
@@ -44,6 +47,8 @@ public:
 
     bool renamePath(const QFileInfo &pathInfo, const QString &newName);
     bool newFile(QString newFilePath);
+    bool newFolder(QString newFolderPath);
+    bool duplicatePath(const QFileInfo &pathInfo);
 
 public slots:
     void newFile();

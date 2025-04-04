@@ -9,7 +9,6 @@
 class QTreeView;
 class QFileSystemModel;
 class QFileIconProvider;
-class FileManager;
 
 /**
  * @class Tree
