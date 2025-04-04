@@ -90,15 +90,6 @@ target_link_libraries(${TARGET_NAME} PRIVATE yaml-cpp)
 # Create the executable for the application
 add_executable(${EXECUTABLE_NAME} src/main.cpp)
 
-# Ensure YAML config files are copied into macOS app bundle
-# if(APPLE)
-#     add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD
-#         COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_BUNDLE_DIR:${EXECUTABLE_NAME}>/Contents/Resources/config"
-#         COMMAND ${CMAKE_COMMAND} -E copy_directory "${YAML_SOURCE_DIR}" "$<TARGET_BUNDLE_DIR:${EXECUTABLE_NAME}>/Contents/Resources/config"
-#         COMMENT "Copying YAML config files into macOS app bundle..."
-#     )
-# endif()
-
 # Link the main executable with the CodeAstra library and Qt libraries
 target_link_libraries(${EXECUTABLE_NAME} PRIVATE ${TARGET_NAME} Qt${QT_MAJOR_VERSION}::Core Qt${QT_MAJOR_VERSION}::Widgets)
 
@@ -111,12 +102,14 @@ target_sources(${EXECUTABLE_NAME} PRIVATE ${APP_RESOURCES})
 
 # Compiler flags per OS
 if(MSVC)
-    target_compile_options(${EXECUTABLE_NAME} PRIVATE /W4 /WX)
+    target_compile_options(${EXECUTABLE_NAME} PRIVATE /W4 /WX /analyze /sdl /guard:cf)
 elseif(APPLE)
-    target_compile_options(${EXECUTABLE_NAME} PRIVATE -Wall -Wextra -pedantic -Werror)
+    target_compile_options(${EXECUTABLE_NAME} PRIVATE -Wall -Wextra -Wpedantic -Werror -Wshadow -Wconversion -Wsign-conversion -fsanitize=address,undefined -fstack-protector)
+    target_link_libraries(${EXECUTABLE_NAME} PRIVATE -fsanitize=address,undefined)
     # set_target_properties(${EXECUTABLE_NAME} PROPERTIES MACOSX_BUNDLE TRUE)
 else()
-    target_compile_options(${EXECUTABLE_NAME} PRIVATE -Wall -Wextra -pedantic -Werror)
+    target_compile_options(${EXECUTABLE_NAME} PRIVATE -Wall -Wextra -Wpedantic -Werror -Wshadow -Wconversion -Wsign-conversion -fsanitize=address,undefined -fstack-protector)
+    target_link_libraries(${EXECUTABLE_NAME} PRIVATE -fsanitize=address,undefined)
 endif()
 
 # Include directories
@@ -125,9 +118,9 @@ target_include_directories(${EXECUTABLE_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/includ
 target_include_directories(${TARGET_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/include)
 
 # Set output names properly for Debug and Release
-set_target_properties(${EXECUTABLE_NAME} PROPERTIES 
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}" 
-    DEBUG_OUTPUT_NAME "${EXECUTABLE_NAME}d" 
+set_target_properties(${EXECUTABLE_NAME} PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}"
+    DEBUG_OUTPUT_NAME "${EXECUTABLE_NAME}d"
     RELEASE_OUTPUT_NAME ${EXECUTABLE_NAME}
 )
 
