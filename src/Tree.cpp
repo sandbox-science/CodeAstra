@@ -107,6 +107,17 @@ void Tree::showContextMenu(const QPoint &pos)
     else if (selectedAction == duplicateAction)
     {
         // TO-DO: implement folder creation
+        QFileInfo oldPathInfo = getPathInfo();
+        if (!oldPathInfo.exists())
+        {
+            qWarning() << "File does not exist: " << oldPathInfo.fileName();
+            return;
+        }
+
+        if (FileManager::getInstance().duplicatePath(oldPathInfo))
+        {
+            qInfo() << "Duplicated successfully!";
+        }
     }
     else if (selectedAction == renameAction)
     {
