@@ -29,6 +29,8 @@ private slots:
     void testDeleteDir();
     void testRenamePath();
     void testNewFile();
+    void testNewFolder();
+    void testDuplicatePath();
 };
 
 void TestTree::initTestCase()
@@ -151,6 +153,23 @@ void TestTree::testNewFile()
 
     QVERIFY2(fileCreated, "New file should be created.");
     QVERIFY2(QFile::exists(newFilePath), "Newly created file should exist.");
+}
+
+void TestTree::testNewFolder()
+{
+    QString newFolderPath = QDir::temp().absolutePath() + "/testNewDir";
+    bool folderCreated    = FileManager::getInstance().newFolder(newFolderPath);
+
+    QVERIFY2(folderCreated, "New folder should be created.");
+    QVERIFY2(QFile::exists(newFolderPath), "Newly created folder should exist.");
+}
+
+void TestTree::testDuplicatePath()
+{
+    QString dupPath     = QDir::temp().absolutePath() + "/testNewDir";
+    bool pathDuplicated = FileManager::getInstance().duplicatePath(QFileInfo(dupPath));
+
+    QVERIFY2(pathDuplicated, "New folder should be created.");
 }
 
 QTEST_MAIN(TestTree)
