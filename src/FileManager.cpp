@@ -160,7 +160,7 @@ QString FileManager::getDirectoryPath() const
         QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 }
 
-// Check for invalid char or pattern to prevent path traversal attack
+// Check path to prevent path traversal attack
 bool isValidPath(const std::filesystem::path &path)
 {
     std::string pathStr = path.string();
@@ -209,12 +209,38 @@ bool FileManager::renamePath(const QFileInfo &pathInfo, const QString &newName)
     }
 }
 
-// TO-DO: use QFile moveToTrash instead
-// to avoid permanently deleting files and folders
-// by moving them to recycling bin
+// Check if the path is a valid directory
+// and not a system or home directory
+bool isAValidDirectory(const QFileInfo &pathInfo)
+{
+    if (!pathInfo.exists())
+    {
+        qWarning() << "Path does not exist: " << pathInfo.fileName();
+        return false;
+    }
+
+    if (pathInfo.absolutePath() == "/" || pathInfo.absolutePath() == QDir::homePath())
+    {
+        QMessageBox::critical(nullptr, "Error", "Cannot delete system or home directory.");
+        return false;
+    }
+
+    if (pathInfo.isDir())
+    {
+        return true;
+    }
+
+    return false;
+}
+
 bool FileManager::deleteFile(const QFileInfo &pathInfo)
 {
-    std::error_code err;
+    if (isAValidDirectory(pathInfo))
+    {
+        QMessageBox::critical(nullptr, "Error", "Invalid folder path.");
+        return false;
+    }
+
     std::filesystem::path filePath = pathInfo.absoluteFilePath().toStdString();
 
     // Validate the input path
@@ -224,13 +250,9 @@ bool FileManager::deleteFile(const QFileInfo &pathInfo)
         return false;
     }
 
-    try
+    if (!QFile::moveToTrash(filePath))
     {
-        std::filesystem::remove(filePath, err);
-    }
-    catch (const std::filesystem::filesystem_error &e)
-    {
-        qWarning() << "Failed to delete: " << e.what();
+        QMessageBox::warning(nullptr, "Error", "Failed to move folder to trash: " + pathInfo.absoluteFilePath());
         return false;
     }
 
@@ -239,7 +261,12 @@ bool FileManager::deleteFile(const QFileInfo &pathInfo)
 
 bool FileManager::deleteFolder(const QFileInfo &pathInfo)
 {
-    std::error_code err;
+    if (!isAValidDirectory(pathInfo))
+    {
+        QMessageBox::critical(nullptr, "Error", "Invalid folder path.");
+        return false;
+    }
+
     std::filesystem::path dirPath = pathInfo.absolutePath().toStdString();
 
     // Validate the input path
@@ -249,13 +276,9 @@ bool FileManager::deleteFolder(const QFileInfo &pathInfo)
         return false;
     }
 
-    try
+    if (!QFile::moveToTrash(pathInfo.absoluteFilePath()))
     {
-        std::filesystem::remove_all(dirPath, err);
-    }
-    catch (const std::filesystem::filesystem_error &e)
-    {
-        qWarning() << "Failed to delete: " << e.what();
+        QMessageBox::warning(nullptr, "Error", "Failed to move folder to trash: " + pathInfo.absoluteFilePath());
         return false;
     }
 
@@ -306,6 +329,13 @@ bool FileManager::duplicatePath(const QFileInfo &pathInfo)
     catch (const std::filesystem::filesystem_error &e)
     {
         QMessageBox::critical(nullptr, "Error", QString("Failed to duplicate: ") + e.what());
+        return false;
+    }
+
+    qDebug() << "Duplicated file to:" << QString::fromStdString(dupPath.string());
+    if (err)
+    {
+        QMessageBox::critical(nullptr, "Error", QString("Failed to duplicate: ") + err.message().c_str());
         return false;
     }
 
