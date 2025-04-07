@@ -8,6 +8,12 @@
 class CodeEditor;
 class MainWindow;
 
+struct OperationResult
+{
+    bool success;
+    std::string message;
+};
+
 /**
  * @class FileManager
  * @brief Manages file operations such as creating, saving, and opening files.
@@ -31,7 +37,6 @@ public:
         }
         return instance;
     }
-
     FileManager(const FileManager &) = delete;
     FileManager &operator=(const FileManager &) = delete;
 
@@ -41,14 +46,11 @@ public:
     void setCurrentFileName(const QString fileName);
     void initialize(CodeEditor *editor, MainWindow *mainWindow);
 
-
-    bool deleteFile(const QFileInfo &pathInfo);
-    bool deleteFolder(const QFileInfo &pathInfo);
-
     bool renamePath(const QFileInfo &pathInfo, const QString &newName);
-    bool newFile(QString newFilePath);
-    bool newFolder(QString newFolderPath);
-    bool duplicatePath(const QFileInfo &pathInfo);
+    bool newFile(const QFileInfo &pathInfo, QString newFilePath);
+    static OperationResult newFolder(const QFileInfo &pathInfo, QString newFolderPath);
+    static OperationResult duplicatePath(const QFileInfo &pathInfo);
+    bool deletePath(const QFileInfo &pathInfo);
 
 public slots:
     void newFile();
