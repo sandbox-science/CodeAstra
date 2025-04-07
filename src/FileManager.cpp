@@ -9,6 +9,7 @@
 #include <QFileInfo>
 #include <filesystem>
 #include <iostream>
+#include <fstream>
 
 FileManager::FileManager(CodeEditor *editor, MainWindow *mainWindow)
     : m_editor(editor), m_mainWindow(mainWindow)
@@ -200,13 +201,14 @@ bool FileManager::renamePath(const QFileInfo &pathInfo, const QString &newName)
     try
     {
         std::filesystem::rename(oldPath, newPath);
-        return true;
     }
     catch (const std::filesystem::filesystem_error &e)
     {
         QMessageBox::critical(nullptr, "Error", QString(e.what()));
         return false;
     }
+
+    return true;
 }
 
 // Check if the path is a valid directory
@@ -225,41 +227,10 @@ bool isAValidDirectory(const QFileInfo &pathInfo)
         return false;
     }
 
-    if (pathInfo.isDir())
-    {
-        return true;
-    }
-
-    return false;
-}
-
-bool FileManager::deleteFile(const QFileInfo &pathInfo)
-{
-    if (isAValidDirectory(pathInfo))
-    {
-        QMessageBox::critical(nullptr, "Error", "Invalid folder path.");
-        return false;
-    }
-
-    std::filesystem::path filePath = pathInfo.absoluteFilePath().toStdString();
-
-    // Validate the input path
-    if (!isValidPath(filePath))
-    {
-        QMessageBox::critical(nullptr, "Error", "Invalid file path.");
-        return false;
-    }
-
-    if (!QFile::moveToTrash(filePath))
-    {
-        QMessageBox::warning(nullptr, "Error", "Failed to move folder to trash: " + pathInfo.absoluteFilePath());
-        return false;
-    }
-
     return true;
 }
 
-bool FileManager::deleteFolder(const QFileInfo &pathInfo)
+bool FileManager::deletePath(const QFileInfo &pathInfo)
 {
     if (!isAValidDirectory(pathInfo))
     {
@@ -267,52 +238,100 @@ bool FileManager::deleteFolder(const QFileInfo &pathInfo)
         return false;
     }
 
-    std::filesystem::path dirPath = pathInfo.absolutePath().toStdString();
+    std::filesystem::path pathToDelete = pathInfo.absoluteFilePath().toStdString();
 
     // Validate the input path
-    if (!isValidPath(dirPath))
+    if (!isValidPath(pathToDelete))
     {
         QMessageBox::critical(nullptr, "Error", "Invalid file path.");
         return false;
     }
 
-    if (!QFile::moveToTrash(pathInfo.absoluteFilePath()))
+    if (!QFile::moveToTrash(pathToDelete))
     {
-        QMessageBox::warning(nullptr, "Error", "Failed to move folder to trash: " + pathInfo.absoluteFilePath());
+        QMessageBox::warning(nullptr, "Error", "Failed to delete: " + QString::fromStdString(pathToDelete));
         return false;
     }
 
     return true;
 }
 
-bool FileManager::newFile(QString newFilePath)
+bool FileManager::newFile(const QFileInfo &pathInfo, QString newFilePath)
 {
-    qWarning() << "newFile Function not yet implemented";
-    return false;
-}
+    std::filesystem::path dirPath = pathInfo.absolutePath().toStdString();
 
-bool FileManager::newFolder(QString newFolderPath)
-{
-    qWarning() << "newFolder Function not yet implemented";
-    return false;
-}
+    if (pathInfo.isDir())
+    {
+        dirPath = pathInfo.absoluteFilePath().toStdString();
+    }
 
-bool FileManager::duplicatePath(const QFileInfo &pathInfo)
-{
-    std::error_code err;
-    std::filesystem::path filePath = pathInfo.absoluteFilePath().toStdString();
-
-    // Validate the input path
-    if (!isValidPath(filePath))
+    if (!isValidPath(dirPath))
     {
         QMessageBox::critical(nullptr, "Error", "Invalid file path.");
         return false;
     }
 
-    std::string fileName           = filePath.filename();
-    size_t extensionPosition       = fileName.find_last_of(".");
-    fileName                       = (std::string::npos == extensionPosition) ? fileName : fileName.substr(0, extensionPosition);
+    std::filesystem::path filePath = dirPath / newFilePath.toStdString();
 
+    if (QFileInfo(filePath).exists())
+    {
+        QMessageBox::critical(nullptr, "Error", "Filename already used " + QFileInfo(filePath).fileName());
+        return false;
+    }
+
+    std::ofstream file(filePath);
+    if (file.is_open())
+    {
+        file.close();
+    }
+    qDebug() << "New file created.";
+
+    m_currentFileName = QString::fromStdString(filePath.string());
+    return true;
+}
+
+OperationResult FileManager::newFolder(const QFileInfo &pathInfo, QString newFolderPath)
+{
+    // TO-DO: look up which is prefered: error_code or exception
+    std::error_code err{};
+    std::filesystem::path dirPath = pathInfo.absolutePath().toStdString();
+
+    // Check if the path is a directory
+    if (pathInfo.isDir())
+    {
+        dirPath = pathInfo.absoluteFilePath().toStdString();
+    }
+
+    // Validate the input path
+    if (!isValidPath(dirPath))
+    {
+        return {false, "Invalid file path."};
+    }
+    std::filesystem::path newPath = dirPath / newFolderPath.toStdString();
+
+    std::filesystem::create_directory(newPath, err);
+    if (err)
+    {
+        qDebug() << "Error creating directory:" << QString::fromStdString(err.message());
+        return {false, err.message().c_str()};
+    }
+
+    qDebug() << "New folder created at:" << QString::fromStdString(newPath.string());
+
+    return {true, newPath.filename().string()};
+}
+
+OperationResult FileManager::duplicatePath(const QFileInfo &pathInfo)
+{
+    std::filesystem::path filePath = pathInfo.absoluteFilePath().toStdString();
+
+    // Validate the input path
+    if (!isValidPath(filePath))
+    {
+        return {false , "Invalid path."};
+    }
+
+    std::string fileName           = filePath.stem().string();
     std::filesystem::path dupPath  = filePath.parent_path() / (fileName + "_copy" + filePath.extension().c_str());
 
     int counter = 1;
@@ -324,20 +343,14 @@ bool FileManager::duplicatePath(const QFileInfo &pathInfo)
 
     try
     {
-        std::filesystem::copy(filePath, dupPath);
+        std::filesystem::copy(filePath, dupPath, std::filesystem::copy_options::recursive); // copy_option is needed for duplicating nested directories
     }
     catch (const std::filesystem::filesystem_error &e)
     {
-        QMessageBox::critical(nullptr, "Error", QString("Failed to duplicate: ") + e.what());
-        return false;
+        return {false, e.what()};
     }
 
     qDebug() << "Duplicated file to:" << QString::fromStdString(dupPath.string());
-    if (err)
-    {
-        QMessageBox::critical(nullptr, "Error", QString("Failed to duplicate: ") + err.message().c_str());
-        return false;
-    }
 
-    return true;
+    return {true, dupPath.filename().string()};
 }
