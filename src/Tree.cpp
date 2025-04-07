@@ -147,7 +147,7 @@ void Tree::showContextMenu(const QPoint &pos)
             OperationResult result = FileManager::getInstance().newFolder(pathInfo, newFolderName);
             if (result.success)
             {
-                qInfo() << result.message << " created successfully.";
+                qInfo() << QString::fromStdString(result.message) << " created successfully.";
             }
             else
             {
@@ -167,7 +167,7 @@ void Tree::showContextMenu(const QPoint &pos)
         OperationResult result = FileManager::getInstance().duplicatePath(pathInfo);
         if (result.success)
         {
-            qInfo() << result.message << " created successfully.";
+            qInfo() << QString::fromStdString(result.message) << " created successfully.";
         }
         else
         {
