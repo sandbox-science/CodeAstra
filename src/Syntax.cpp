@@ -46,9 +46,27 @@ void Syntax::loadSyntaxRules(const YAML::Node &config)
         // Iterate through each rule in the category
         for (const auto &rule : rules)
         {
-            QString regex = QString::fromStdString(rule["regex"].as<std::string>());
-            QColor color(QString::fromStdString(rule["color"].as<std::string>()));
+
+            QString regex;
+            try{
+                std::string regexStr = rule["regex"].as<std::string>(); //will throw exception if the key does not exist 
+                regex = QString::fromStdString(regexStr);
+            }catch(const YAML::Exception e){
+                qWarning() << " YAML exception when parsion the regex in syntax file" << e.what();
+                continue;
+            }
+
             qDebug() << "regex: " << regex;
+
+            QColor color;
+            try{
+                std::string colorStr = rule["color"].as<std::string>();
+                color = QColor(QString::fromStdString(colorStr));
+            }catch(const YAML::Exception e){
+                qWarning() << " YAML exception when parsion the color in syntax file" << e.what();
+                continue;
+            }
+
 
             // Create a QTextCharFormat for the rule
             QTextCharFormat format;
