@@ -67,6 +67,11 @@ void Syntax::loadSyntaxRules(const YAML::Node &config)
                 continue;
             }
 
+            //checks if the color is a valid color
+            if(!color.isValid()){
+                qWarning() << "Invalid COlor : Skipping...";
+                continue;
+            }
 
             // Create a QTextCharFormat for the rule
             QTextCharFormat format;
