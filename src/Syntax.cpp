@@ -48,10 +48,13 @@ void Syntax::loadSyntaxRules(const YAML::Node &config)
         {
 
             QString regex;
-            try{
+            try
+            {
                 std::string regexStr = rule["regex"].as<std::string>(); //will throw exception if the key does not exist 
-                regex = QString::fromStdString(regexStr);
-            }catch(const YAML::Exception e){
+                regex                = QString::fromStdString(regexStr);
+            }
+            catch(const YAML::Exception e)
+            {
                 qWarning() << " YAML exception when parsion the regex in syntax file" << e.what();
                 continue;
             }
@@ -59,16 +62,20 @@ void Syntax::loadSyntaxRules(const YAML::Node &config)
             qDebug() << "regex: " << regex;
 
             QColor color;
-            try{
+            try
+            {
                 std::string colorStr = rule["color"].as<std::string>();
-                color = QColor(QString::fromStdString(colorStr));
-            }catch(const YAML::Exception e){
+                color                = QColor(QString::fromStdString(colorStr));
+            }
+            catch(const YAML::Exception e)
+            {
                 qWarning() << " YAML exception when parsion the color in syntax file" << e.what();
                 continue;
             }
 
             //checks if the color is a valid color
-            if(!color.isValid()){
+            if(!color.isValid())
+            {
                 qWarning() << "Invalid COlor : Skipping...";
                 continue;
             }
