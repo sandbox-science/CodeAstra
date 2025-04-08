@@ -8,6 +8,9 @@
 #include <QFileIconProvider>
 #include <QTreeView>
 #include <QMenu>
+#include <filesystem>
+#include <QMessageBox>
+#include <QInputDialog>
 
 Tree::Tree(QSplitter *splitter)
     : QObject(splitter),
@@ -69,6 +72,13 @@ void Tree::openFile(const QModelIndex &index)
     FileManager::getInstance().loadFileInEditor(filePath);
 }
 
+QFileSystemModel *Tree::getModel() const
+{
+    if (!m_model)
+        throw std::runtime_error("Tree model is not initialized!");
+    return m_model.get();
+}
+
 // Context menu for file operations
 // such as creating new files, folders, renaming, and deleting
 // This function is called when the user right-clicks on the tree view
@@ -78,25 +88,151 @@ void Tree::showContextMenu(const QPoint &pos)
 
     QAction *newFileAction   = contextMenu.addAction("New File");
     QAction *newFolderAction = contextMenu.addAction("New Folder");
+    contextMenu.addSeparator();
     QAction *renameAction    = contextMenu.addAction("Rename");
+    QAction *duplicateAction = contextMenu.addAction("Duplicate");
+    contextMenu.addSeparator();
     QAction *deleteAction    = contextMenu.addAction("Delete");
 
     QAction *selectedAction = contextMenu.exec(m_tree->viewport()->mapToGlobal(pos));
 
     if (selectedAction == newFileAction)
     {
-        // TO-DO: implement file creation
+        QFileInfo pathInfo = getPathInfo();
+        if (!pathInfo.exists())
+        {
+            qWarning() << "Path does not exist: " << pathInfo.fileName();
+            return;
+        }
+
+        bool ok;
+        QString newFileName = QInputDialog::getText(
+            nullptr,
+            "New File",
+            "Enter file name:",
+            QLineEdit::Normal,
+            nullptr,
+            &ok
+        );
+
+        if (ok && !newFileName.isEmpty())
+        {
+            if (FileManager::getInstance().newFile(pathInfo, newFileName))
+            {
+                qInfo() << "File created successfully!";
+            }
+        }
     }
     else if (selectedAction == newFolderAction)
     {
-        // TO-DO: implement folder creation
+        QFileInfo pathInfo = getPathInfo();
+        if (!pathInfo.exists())
+        {
+            qWarning() << "Path does not exist: " << pathInfo.fileName();
+            return;
+        }
+
+        bool ok;
+        QString newFolderName = QInputDialog::getText(
+            nullptr,
+            "New Folder",
+            "Enter folder name:",
+            QLineEdit::Normal,
+            nullptr,
+            &ok
+        );
+
+        if (ok && !newFolderName.isEmpty())
+        {
+            OperationResult result = FileManager::getInstance().newFolder(pathInfo, newFolderName);
+            if (result.success)
+            {
+                qInfo() << QString::fromStdString(result.message) << " created successfully.";
+            }
+            else
+            {
+                QMessageBox::critical(nullptr, "Error", QString::fromStdString(result.message));
+            }
+        }
+    }
+    else if (selectedAction == duplicateAction)
+    {
+        QFileInfo pathInfo = getPathInfo();
+        if (!pathInfo.exists())
+        {
+            qWarning() << "File does not exist: " << pathInfo.fileName();
+            return;
+        }
+
+        OperationResult result = FileManager::getInstance().duplicatePath(pathInfo);
+        if (result.success)
+        {
+            qInfo() << QString::fromStdString(result.message) << " created successfully.";
+        }
+        else
+        {
+            QMessageBox::critical(nullptr, "Error", QString::fromStdString(result.message));
+        }
     }
     else if (selectedAction == renameAction)
     {
-        // TO-DO: implement rename file/folder
+        QFileInfo oldPathInfo = getPathInfo();
+        if (!oldPathInfo.exists())
+        {
+            qWarning() << "File does not exist: " << oldPathInfo.fileName();
+            return;
+        }
+
+        bool ok;
+        QString newFileName = QInputDialog::getText(
+            nullptr,
+            "Rename File",
+            "Enter new file name:",
+            QLineEdit::Normal,
+            oldPathInfo.fileName(),
+            &ok);
+
+        if (ok && !newFileName.isEmpty())
+        {
+            if (FileManager::getInstance().renamePath(oldPathInfo, newFileName))
+            {
+                qInfo() << "Renamed successfully!";
+            }
+        }
     }
     else if (selectedAction == deleteAction)
     {
-        // TO-DO: implement file deletion
+        QFileInfo pathInfo = getPathInfo();
+        if (!pathInfo.exists())
+        {
+            qWarning() << "File does not exist: " << pathInfo.fileName();
+            return;
+        }
+        QMessageBox::StandardButton reply = QMessageBox::question(nullptr, "Confirm Deletion",
+                                                                  "Are you sure you want to delete\n'" + pathInfo.fileName() + "'?",
+                                                                  QMessageBox::Yes | QMessageBox::No);
+        if (reply == QMessageBox::No)
+        {
+            qInfo() << "Deletion cancelled.";
+        }
+        else
+        {
+            if (FileManager::getInstance().deletePath(pathInfo))
+            {
+                qInfo() << "Deleted successfully!";
+            }
+        }
     }
+}
+
+QFileInfo Tree::getPathInfo()
+{
+    QModelIndex index = m_tree->currentIndex();
+    if (!index.isValid())
+    {
+        qWarning() << "Invalid index.";
+        return QFileInfo();
+    }
+
+    return QFileInfo(m_model->filePath(index));
 }

@@ -52,7 +52,7 @@ Please, check the [wiki](https://github.com/sandbox-science/CodeAstra/wiki) for 
   - [ ] Create a new file ~ in progress
 - [x] File tree navigation
 - [ ] Syntax highlighting ~ in progress
-  - Supported Languagues:
+  - Supported Languages:
     - [x] Markdown (**foundation**)
     - [x] YAML (**foundation**)
     - [ ] C/C++ (**in progress**)
@@ -63,4 +63,4 @@ Please, check the [wiki](https://github.com/sandbox-science/CodeAstra/wiki) for 
 - [ ] Plugin system
 
 ## To-Do
-Find tasks to-do on our open [issues](https://github.com/sandbox-science/CodeAstra/issues)
+Find tasks to do on our open [issues](https://github.com/sandbox-science/CodeAstra/issues)

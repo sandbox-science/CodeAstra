@@ -3,12 +3,12 @@
 #include <QSplitter>
 #include <QObject>
 #include <memory>
+#include <QFileInfo>
 
 // Forward declarations
 class QTreeView;
 class QFileSystemModel;
 class QFileIconProvider;
-class FileManager;
 
 /**
  * @class Tree
@@ -30,8 +30,11 @@ public:
     void setupTree();
     void openFile(const QModelIndex &index);
 
+    QFileSystemModel* getModel() const;
+
 private:
     void showContextMenu(const QPoint &pos);
+    QFileInfo getPathInfo();
 
     std::unique_ptr<QFileIconProvider> m_iconProvider;
     std::unique_ptr<QFileSystemModel> m_model;

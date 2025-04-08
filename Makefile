@@ -22,7 +22,7 @@ clean:
 # Uninstalling the software
 uninstall: clean
 	@echo "Uninstalling $(PROJECT)..."
-	@rm -rf $(EXECUTABLE).app $(EXECUTABLE)d.app
+	@rm -f $(EXECUTABLE)
 
 # Install the project
 install: build
