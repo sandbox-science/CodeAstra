@@ -28,6 +28,7 @@ public:
     Mode mode = NORMAL;
     void lineNumberAreaPaintEvent(QPaintEvent *event);
     int lineNumberAreaWidth();
+    void autoIndentation();
 
 signals:
     void statusMessageChanged(const QString &message);

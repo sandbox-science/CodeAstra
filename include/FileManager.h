@@ -3,9 +3,16 @@
 #include <QObject>
 #include <memory>
 #include <QSyntaxHighlighter>
+#include <QFileInfo>
 
 class CodeEditor;
 class MainWindow;
+
+struct OperationResult
+{
+    bool success;
+    std::string message;
+};
 
 /**
  * @class FileManager
@@ -25,9 +32,11 @@ public:
     static FileManager &getInstance(CodeEditor *editor = nullptr, MainWindow *mainWindow = nullptr)
     {
         static FileManager instance(editor, mainWindow);
+        if (editor && mainWindow) {
+            instance.initialize(editor, mainWindow);
+        }
         return instance;
     }
-
     FileManager(const FileManager &) = delete;
     FileManager &operator=(const FileManager &) = delete;
 
@@ -36,6 +45,12 @@ public:
 
     void setCurrentFileName(const QString fileName);
     void initialize(CodeEditor *editor, MainWindow *mainWindow);
+
+    static OperationResult renamePath(const QFileInfo &pathInfo, const QString &newName);
+    static OperationResult newFile(const QFileInfo &pathInfo, QString newFilePath);
+    static OperationResult newFolder(const QFileInfo &pathInfo, QString newFolderPath);
+    static OperationResult duplicatePath(const QFileInfo &pathInfo);
+    static OperationResult deletePath(const QFileInfo &pathInfo);
 
 public slots:
     void newFile();
