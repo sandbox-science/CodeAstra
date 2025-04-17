@@ -1,47 +1,27 @@
-# Enable testing
 enable_testing()
-find_package(yaml-cpp REQUIRED)
-# Add individual test executables
+
+find_package(yaml-cpp REQUIRED CONFIG)
+
+# Add test executables
 add_executable(test_mainwindow test_mainwindow.cpp)
-add_executable(test_tree test_tree.cpp)
+add_executable(test_filemanager test_filemanager.cpp)
 add_executable(test_syntax test_syntax.cpp)
 
-# Make sure the test executables link with the necessary libraries
-target_link_libraries(test_mainwindow PRIVATE ${TARGET_NAME} Qt6::Widgets Qt6::Test yaml-cpp)
-target_link_libraries(test_tree PRIVATE ${TARGET_NAME} Qt6::Widgets Qt6::Test yaml-cpp)
-target_link_libraries(test_syntax PRIVATE ${TARGET_NAME} Qt6::Widgets Qt6::Test yaml-cpp)
+# Link libraries
+foreach(test_target IN ITEMS test_mainwindow test_filemanager test_syntax)
+    target_link_libraries(${test_target} PRIVATE
+        ${EXECUTABLE_NAME}
+        Qt6::Widgets
+        Qt6::Test
+        yaml-cpp::yaml-cpp
+    )
+    target_include_directories(${test_target} PRIVATE
+        ${CMAKE_SOURCE_DIR}/include
+    )
+    set_target_properties(${test_target} PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build/tests
+    )
+    set_property(SOURCE ${test_target}.cpp PROPERTY SKIP_AUTOMOC OFF)
 
-# Register each test with CTest
-add_test(NAME test_mainwindow COMMAND test_mainwindow)
-add_test(NAME test_tree COMMAND test_tree)
-add_test(NAME test_syntax COMMAND test_tree)
-
-# Set the runtime output directory for the test executables
-set_target_properties(test_mainwindow PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build/tests
-)
-set_target_properties(test_tree PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build/tests
-)
-set_target_properties(test_syntax PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build/tests
-)
-
-set_property(SOURCE test_mainwindow.cpp PROPERTY SKIP_AUTOMOC OFF)
-set_property(SOURCE test_tree.cpp PROPERTY SKIP_AUTOMOC OFF)
-set_property(SOURCE test_syntax.cpp PROPERTY SKIP_AUTOMOC OFF)
-
-# Include directories for tests
-target_include_directories(test_mainwindow PRIVATE ${CMAKE_SOURCE_DIR}/include)
-target_include_directories(test_tree PRIVATE ${CMAKE_SOURCE_DIR}/include)
-target_include_directories(test_syntax PRIVATE ${CMAKE_SOURCE_DIR}/include)
-
-# Ensure proper linking directories are set for yaml-cpp
-target_include_directories(test_mainwindow PRIVATE /opt/homebrew/include)
-target_include_directories(test_tree PRIVATE /opt/homebrew/include)
-target_include_directories(test_syntax PRIVATE /opt/homebrew/include)
-
-target_link_directories(test_mainwindow PRIVATE /opt/homebrew/lib)
-target_link_directories(test_tree PRIVATE /opt/homebrew/lib)
-target_link_directories(test_syntax PRIVATE /opt/homebrew/lib)
-
+    add_test(NAME ${test_target} COMMAND ${test_target})
+endforeach()
