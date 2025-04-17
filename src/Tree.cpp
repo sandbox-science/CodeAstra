@@ -1,6 +1,5 @@
 #include "Tree.h"
 #include "CodeEditor.h"
-#include "FileManager.h"
 
 #include <QFileDialog>
 #include <QFileInfo>
@@ -117,10 +116,8 @@ void Tree::showContextMenu(const QPoint &pos)
 
         if (ok && !newFileName.isEmpty())
         {
-            if (FileManager::getInstance().newFile(pathInfo, newFileName))
-            {
-                qInfo() << "File created successfully!";
-            }
+            OperationResult result = FileManager::getInstance().newFile(pathInfo, newFileName);
+            isSuccessful(result);
         }
     }
     else if (selectedAction == newFolderAction)
@@ -145,14 +142,7 @@ void Tree::showContextMenu(const QPoint &pos)
         if (ok && !newFolderName.isEmpty())
         {
             OperationResult result = FileManager::getInstance().newFolder(pathInfo, newFolderName);
-            if (result.success)
-            {
-                qInfo() << QString::fromStdString(result.message) << " created successfully.";
-            }
-            else
-            {
-                QMessageBox::critical(nullptr, "Error", QString::fromStdString(result.message));
-            }
+            isSuccessful(result);
         }
     }
     else if (selectedAction == duplicateAction)
@@ -165,14 +155,7 @@ void Tree::showContextMenu(const QPoint &pos)
         }
 
         OperationResult result = FileManager::getInstance().duplicatePath(pathInfo);
-        if (result.success)
-        {
-            qInfo() << QString::fromStdString(result.message) << " created successfully.";
-        }
-        else
-        {
-            QMessageBox::critical(nullptr, "Error", QString::fromStdString(result.message));
-        }
+        isSuccessful(result);
     }
     else if (selectedAction == renameAction)
     {
@@ -194,10 +177,8 @@ void Tree::showContextMenu(const QPoint &pos)
 
         if (ok && !newFileName.isEmpty())
         {
-            if (FileManager::getInstance().renamePath(oldPathInfo, newFileName))
-            {
-                qInfo() << "Renamed successfully!";
-            }
+            OperationResult result = FileManager::getInstance().renamePath(oldPathInfo, newFileName);
+            isSuccessful(result);
         }
     }
     else if (selectedAction == deleteAction)
@@ -217,10 +198,8 @@ void Tree::showContextMenu(const QPoint &pos)
         }
         else
         {
-            if (FileManager::getInstance().deletePath(pathInfo))
-            {
-                qInfo() << "Deleted successfully!";
-            }
+            OperationResult result = FileManager::getInstance().deletePath(pathInfo);
+            isSuccessful(result);
         }
     }
 }
@@ -235,4 +214,16 @@ QFileInfo Tree::getPathInfo()
     }
 
     return QFileInfo(m_model->filePath(index));
+}
+
+void Tree::isSuccessful(OperationResult result)
+{
+    if (result.success)
+    {
+        qInfo() << QString::fromStdString(result.message) << " created successfully.";
+    }
+    else
+    {
+        QMessageBox::critical(nullptr, "Error", QString::fromStdString(result.message));
+    }
 }
