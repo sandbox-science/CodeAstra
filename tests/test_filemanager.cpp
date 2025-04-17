@@ -56,35 +56,32 @@ void TestFileManager::testOpenFile_invalid()
 
 void TestFileManager::testRenamePath()
 {
-    QString originalFileName = QDir::temp().filePath("testFile.cpp");
-    QString newFileName      = QDir::temp().filePath("renamedTestFile.cpp");
+    QTemporaryDir tempDir;
+    QVERIFY2(tempDir.isValid(), "Temporary directory should be valid.");
 
-    QFile originalFile(originalFileName);
-    if (!originalFile.exists() && !originalFile.open(QIODevice::WriteOnly))
-    {
-        QFAIL("Failed to create test file.");
-    }
-    originalFile.close();
+    QString originalFilePath = tempDir.path() + "/testFile.cpp";
+    QFile file(originalFilePath);
+    QVERIFY2(file.open(QIODevice::WriteOnly), "File should be created successfully.");
+    file.write("// test content");
+    file.close();
 
-    OperationResult fileRenamed = FileManager::getInstance().renamePath(QFileInfo(originalFileName), newFileName);
+    QString newFilePath = tempDir.path() + "/renamedTestFile.cpp";
+    OperationResult fileRenamed = FileManager::getInstance().renamePath(QFileInfo(originalFilePath), newFilePath);
 
-    QVERIFY2(fileRenamed.success, "File should be renamed successfully.");
-    QVERIFY2(QFile::exists(newFileName), "Renamed file should exist.");
-    QVERIFY2(!QFile::exists(originalFileName), "Original file should no longer exist.");
-
-    QFile::remove(newFileName);
+    QVERIFY2(fileRenamed.success, fileRenamed.message.c_str());
+    QVERIFY2(QFile::exists(newFilePath), "Renamed file should exist.");
+    QVERIFY2(!QFile::exists(originalFilePath), "Original file should no longer exist.");
 }
 
 void TestFileManager::testDeleteFile()
 {
-    QString tempFilePath = QDir::temp().filePath("testDeleteFile.cpp");
-    QFile tempFile(tempFilePath);
-    if (!tempFile.open(QIODevice::WriteOnly))
-    {
-        QFAIL("Failed to create temporary test file for deletion.");
-    }
-    tempFile.write("// test content");
-    tempFile.close();
+    QTemporaryDir tempDir;
+    QVERIFY2(tempDir.isValid(), "Temporary directory should be valid.");
+
+    QString tempFilePath = tempDir.path() + "/testDeleteFile.cpp";
+    QFile file(tempFilePath);
+    QVERIFY2(file.open(QIODevice::WriteOnly), "Temporary file should be created.");
+    file.close();
 
     QVERIFY2(QFile::exists(tempFilePath), "Temporary file should exist before deletion.");
 
@@ -101,98 +98,71 @@ void TestFileManager::testDeleteFile()
 
 void TestFileManager::testDeleteDir()
 {
-    QString directory = QDir::temp().absolutePath() + "/testDeleteDir";
-    QDir tempDir(directory);
-    if (!tempDir.exists() && !tempDir.mkpath("."))
-    {
-        QFAIL("Failed to create test directory.");
-    }
+    QTemporaryDir tempDir;
+    QVERIFY2(tempDir.isValid(), "Temporary directory should be valid.");
 
-    QVERIFY2(QFile::exists(directory), "Test directory should exist before deletion.");
+    QString dirPath = tempDir.path() + "/testDeleteDir";
+    QDir().mkdir(dirPath);
+
+    QVERIFY2(QFileInfo(dirPath).exists(), "Test directory should exist before deletion.");
 
     QFileSystemModel *model = tree->getModel();
     QVERIFY2(model, "Tree model should not be null.");
 
-    QModelIndex index = model->index(directory);
+    QModelIndex index = model->index(dirPath);
     QVERIFY2(index.isValid(), "Model index should be valid for the test directory.");
 
     FileManager::getInstance().deletePath(QFileInfo(model->filePath(index)));
 
-    QVERIFY2(!QFile::exists(directory), "Directory should be deleted.");
+    QVERIFY2(!QFile::exists(dirPath), "Directory should be deleted.");
 }
 
 void TestFileManager::testNewFile()
 {
-    QString folderPath = QDir::temp().absolutePath() + "/testNewDir";
-    QDir dir(folderPath);
-    if (!dir.exists())
-    {
-        dir.mkpath(".");
-    }
-    QVERIFY2(QFile::exists(folderPath), "Temporary directory should exist.");
+    QTemporaryDir tempDir;
+    QVERIFY2(tempDir.isValid(), "Temporary directory should be valid.");
 
+    QString folderPath = tempDir.path();
     OperationResult fileCreated = FileManager::getInstance().newFile(QFileInfo(folderPath), "newFileTest1.c");
 
     QVERIFY2(fileCreated.success, "New file should be created.");
     QVERIFY2(QFile::exists(folderPath + "/newFileTest1.c"), "Newly created file should exist.");
-
-    QFile::remove(folderPath + "/newFileTest1.c");
-    QVERIFY2(!QFile::exists(folderPath + "/newFileTest1.c"), "Newly created file should be deleted.");
-
-    dir.removeRecursively();
-    QVERIFY2(!QDir(folderPath).exists(), "Directory should not exist after deletion.");
 }
 
 void TestFileManager::testNewFolder()
 {
-    QString folderPath = QDir::temp().absolutePath() + "/testNewDir";
-    QDir dir(folderPath);
-    if (!dir.exists())
-    {
-        dir.mkpath(".");
-    }
-    QVERIFY2(QFile::exists(folderPath), "Temporary directory should exist.");
+    QTemporaryDir tempDir;
+    QVERIFY2(tempDir.isValid(), "Temporary directory should be valid.");
 
+    QString folderPath = tempDir.path();
     OperationResult folderCreated = FileManager::getInstance().newFolder(QFileInfo(folderPath), "newDirTest");
 
     QVERIFY2(folderCreated.success, "New folder should be created.");
     QVERIFY2(QFile::exists(folderPath + "/newDirTest"), "Newly created folder should exist.");
-
-    dir.removeRecursively();
-    QVERIFY2(!QDir(folderPath).exists(), "Directory should not exist after deletion.");
 }
 
 void TestFileManager::testNewFolderFail()
 {
-    QString folderPath            = QDir::temp().absolutePath() + "../testNewDir";
+    QTemporaryDir tempDir;
+    QVERIFY2(tempDir.isValid(), "Temporary directory should be valid.");
+
+    QString folderPath = tempDir.path();
     OperationResult folderCreated = FileManager::getInstance().newFolder(QFileInfo(folderPath), "");
 
     QVERIFY2(!folderCreated.success, "Folder creation should fail.");
-
-    QDir(folderPath).removeRecursively();
-    QVERIFY2(!QDir(folderPath).exists(), "Directory should not exist after deletion.");
 }
 
 void TestFileManager::testDuplicatePath()
 {
-    QString basePath = QDir::temp().absolutePath() + "/testDuplicateDir";
-    QDir().mkpath(basePath);
+    QTemporaryDir tempDir;
+    QVERIFY2(tempDir.isValid(), "Temporary directory should be valid.");
+
+    QString basePath = tempDir.path() + "/testDuplicateDir";
+    QDir().mkdir(basePath);
 
     OperationResult pathDuplicated = FileManager::getInstance().duplicatePath(QFileInfo(basePath));
 
     QVERIFY2(pathDuplicated.success, "Path should be duplicated successfully.");
-
-    QDir tempDir(QDir::tempPath());
-    QStringList entries = tempDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-    for (const QString &entry : entries)
-    {
-        if (entry.startsWith("testDuplicateDir_copy"))
-        {
-            QDir(tempDir.absoluteFilePath(entry)).removeRecursively();
-        }
-    }
-
-    QDir(basePath).removeRecursively();
 }
 
 QTEST_MAIN(TestFileManager)
