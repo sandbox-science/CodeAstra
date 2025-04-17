@@ -1,5 +1,7 @@
 #pragma once
 
+#include "FileManager.h"
+
 #include <QSplitter>
 #include <QObject>
 #include <memory>
@@ -35,6 +37,7 @@ public:
 private:
     void showContextMenu(const QPoint &pos);
     QFileInfo getPathInfo();
+    void isSuccessful(OperationResult result);
 
     std::unique_ptr<QFileIconProvider> m_iconProvider;
     std::unique_ptr<QFileSystemModel> m_model;
