@@ -37,9 +37,12 @@ void FileManager::setCurrentFileName(const QString fileName)
 
 void FileManager::newFile()
 {
+    QString m_currentFileName = getCurrentFileName();
+    bool isFileSaved = !m_currentFileName.isEmpty();
+    bool isTextEditorEmpty = this->m_editor->toPlainText().isEmpty();
 
-    // First time save and editor is not empty
-    if (!this->m_editor->toPlainText().isEmpty() && m_currentFileName.isEmpty())
+    // File has not been saved and the text editor is not empty
+    if (!isFileSaved && !isTextEditorEmpty)
     {
         // Create box to prompt user to save changes to file
         QMessageBox promptBox;
@@ -57,8 +60,8 @@ void FileManager::newFile()
 
         saveFile();
     }
-    // Check if file has been previously saved
-    else if (!m_currentFileName.isEmpty())
+    // File has been previously saved
+    else if (isFileSaved)
     {
         // Read from saved file and compare to current file
         QFile file(m_currentFileName);
@@ -86,11 +89,16 @@ void FileManager::newFile()
             saveFile();
         }
     }
+    else
+    {
+        MainWindow *newWindow = new MainWindow();
+        newWindow->setWindowTitle("Code Astra ~ untitled");
+        newWindow->show();
+    }
 
-    // New window will be created with the untitled name
-    MainWindow *newWindow = new MainWindow();
-    newWindow->setWindowTitle("Code Astra ~ untitled");
-    newWindow->show();
+    // // New window will be created with the untitled name
+
+    // newWindow->~MainWindow();
 }
 
 void FileManager::saveFile()
@@ -288,17 +296,17 @@ OperationResult FileManager::deletePath(const QFileInfo &pathInfo)
     }
 
     std::filesystem::path pathToDelete = pathInfo.absoluteFilePath().toStdString();
-
+    QString qPathToDelete = QString::fromStdString(pathToDelete.string());
     // Validate the input path
     if (!isValidPath(pathToDelete))
     {
         return {false, "ERROR: invalid file path." + pathToDelete.filename().string()};
     }
 
-    // if (!QFile::moveToTrash(pathToDelete))
-    // {
-    //     return {false, "ERROR: failed to delete: " + pathToDelete.string()};
-    // }
+    if (!QFile::moveToTrash(qPathToDelete))
+    {
+        return {false, "ERROR: failed to delete: " + pathToDelete.string()};
+    }
 
     return {true, pathToDelete.filename().string()};
 }
