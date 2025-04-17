@@ -50,7 +50,7 @@ void TestFileManager::testOpenFile_invalid()
     QModelIndex index;
     tree->openFile(index);
 
-    QVERIFY2(FileManager::getInstance().getCurrentFileName().isEmpty(), 
+    QVERIFY2(FileManager::getInstance().getCurrentFileName().isEmpty(),
              "FileManager should not process an invalid file.");
 }
 
