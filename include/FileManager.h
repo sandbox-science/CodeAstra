@@ -46,11 +46,11 @@ public:
     void setCurrentFileName(const QString fileName);
     void initialize(CodeEditor *editor, MainWindow *mainWindow);
 
-    bool renamePath(const QFileInfo &pathInfo, const QString &newName);
-    bool newFile(const QFileInfo &pathInfo, QString newFilePath);
+    static OperationResult renamePath(const QFileInfo &pathInfo, const QString &newName);
+    static OperationResult newFile(const QFileInfo &pathInfo, QString newFilePath);
     static OperationResult newFolder(const QFileInfo &pathInfo, QString newFolderPath);
     static OperationResult duplicatePath(const QFileInfo &pathInfo);
-    bool deletePath(const QFileInfo &pathInfo);
+    static OperationResult deletePath(const QFileInfo &pathInfo);
 
 public slots:
     void newFile();
