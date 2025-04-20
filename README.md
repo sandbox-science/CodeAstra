@@ -30,7 +30,7 @@ CodeAstra is a modern, extensible, and lightweight code editor built using C++ a
 
 > [!TIP]
 > 
-> Join the [Matrix Server](https://matrix.to/#/!LaqamLFyMntTPNUvpx:matrix.org?via=matrix.org) for CodeAstra development log and discussion.
+> Join the [Matrix Server](https://matrix.to/#/#codeastra:matrix.org) for CodeAstra development log and discussion.
 
 > [!NOTE]
 > 
