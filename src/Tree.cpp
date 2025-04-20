@@ -220,7 +220,7 @@ void Tree::isSuccessful(OperationResult result)
 {
     if (result.success)
     {
-        qInfo() << QString::fromStdString(result.message) << " created successfully.";
+        qInfo() << QString::fromStdString(result.message);
     }
     else
     {
