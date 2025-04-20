@@ -21,7 +21,7 @@ FileManager::~FileManager() {}
 
 void FileManager::initialize(CodeEditor *editor, MainWindow *mainWindow)
 {
-    m_editor     = editor;
+    m_editor = editor;
     m_mainWindow = mainWindow;
 }
 
@@ -37,7 +37,68 @@ void FileManager::setCurrentFileName(const QString fileName)
 
 void FileManager::newFile()
 {
-    // Logic to create a new file
+    QString m_currentFileName = getCurrentFileName();
+    bool isFileSaved = !m_currentFileName.isEmpty();
+    bool isTextEditorEmpty = this->m_editor->toPlainText().isEmpty();
+
+    // File has not been saved and the text editor is not empty
+    if (!isFileSaved && !isTextEditorEmpty)
+    {
+        // Create box to prompt user to save changes to file
+        QMessageBox promptBox;
+        promptBox.setWindowTitle("Save Current File");
+        promptBox.setText("Would you like to save the file?");
+        promptBox.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
+        promptBox.setDefaultButton(QMessageBox::Save);
+
+        int option = promptBox.exec();
+        // return if the user hit Cancel button
+        if (option == QMessageBox::Cancel)
+        {
+            return;
+        }
+
+        saveFile();
+    }
+    // File has been previously saved
+    else if (isFileSaved)
+    {
+        // Read from saved file and compare to current file
+        QFile file(m_currentFileName);
+
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+            return;
+        QTextStream in(&file);
+
+        QString savedFileContents = in.readAll();
+        if (savedFileContents != this->m_editor->toPlainText().trimmed())
+        {
+            // Create box to prompt user to save changes to file
+            QMessageBox promptBox;
+            promptBox.setWindowTitle("Changes Detected");
+            promptBox.setText("Would you like to save the current changes to the file?");
+            promptBox.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
+            promptBox.setDefaultButton(QMessageBox::Save);
+            int option = promptBox.exec();
+            // return if the user hit Cancel button
+            if (option == QMessageBox::Cancel)
+            {
+                return;
+            }
+
+            saveFile();
+        }
+    }
+    else
+    {
+        MainWindow *newWindow = new MainWindow();
+        newWindow->setWindowTitle("Code Astra ~ untitled");
+        newWindow->show();
+    }
+
+    // // New window will be created with the untitled name
+
+    // newWindow->~MainWindow();
 }
 
 void FileManager::saveFile()
@@ -75,7 +136,7 @@ void FileManager::saveFile()
 void FileManager::saveFileAs()
 {
     QString fileExtension = getFileExtension();
-    QString filter        = "All Files (*);;C++ Files (*.cpp *.h);;Text Files (*.txt)";
+    QString filter = "All Files (*);;C++ Files (*.cpp *.h);;Text Files (*.txt)";
     if (!fileExtension.isEmpty())
     {
         filter = QString("%1 Files (*.%2);;%3").arg(fileExtension.toUpper(), fileExtension, filter);
@@ -235,14 +296,14 @@ OperationResult FileManager::deletePath(const QFileInfo &pathInfo)
     }
 
     std::filesystem::path pathToDelete = pathInfo.absoluteFilePath().toStdString();
-
+    QString qPathToDelete = QString::fromStdString(pathToDelete.string());
     // Validate the input path
     if (!isValidPath(pathToDelete))
     {
         return {false, "ERROR: invalid file path." + pathToDelete.filename().string()};
     }
 
-    if (!QFile::moveToTrash(pathToDelete))
+    if (!QFile::moveToTrash(qPathToDelete))
     {
         return {false, "ERROR: failed to delete: " + pathToDelete.string()};
     }
@@ -324,11 +385,11 @@ OperationResult FileManager::duplicatePath(const QFileInfo &pathInfo)
     // Validate the input path
     if (!isValidPath(filePath))
     {
-        return {false , "Invalid path."};
+        return {false, "Invalid path."};
     }
 
-    std::string fileName           = filePath.stem().string();
-    std::filesystem::path dupPath  = filePath.parent_path() / (fileName + "_copy" + filePath.extension().c_str());
+    std::string fileName = filePath.stem().string();
+    std::filesystem::path dupPath = filePath.parent_path() / (fileName + "_copy" + filePath.extension().c_str());
 
     int counter = 1;
     while (QFileInfo(dupPath).exists())

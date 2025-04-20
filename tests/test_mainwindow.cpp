@@ -51,19 +51,19 @@ void TestMainWindow::testMenuBar()
 {
   QMenuBar *menuBar = mainWindow->menuBar();
   QVERIFY2(menuBar != nullptr, "MainWindow must have a QMenuBar.");
-  QCOMPARE_EQ(menuBar->actions().size(), 3); // File, Help, CodeAstra
+  QCOMPARE_H(menuBar->actions().size(), 3); // File, Help, CodeAstra
 
   QMenu *fileMenu = menuBar->findChild<QMenu *>("File");
   QVERIFY2(fileMenu != nullptr, "QMenuBar must contain a 'File' menu.");
-  QCOMPARE_EQ(fileMenu->title(), "File");
+  QCOMPARE_H(fileMenu->title(), "File");
 
   QMenu *helpMenu = menuBar->findChild<QMenu *>("Help");
   QVERIFY2(helpMenu != nullptr, "QMenuBar must contain a 'Help' menu.");
-  QCOMPARE_EQ(helpMenu->title(), "Help");
+  QCOMPARE_H(helpMenu->title(), "Help");
 
   QMenu *appMenu = menuBar->findChild<QMenu *>("CodeAstra");
   QVERIFY2(appMenu != nullptr, "QMenuBar must contain a 'CodeAstra' menu.");
-  QCOMPARE_EQ(appMenu->title(), "CodeAstra");
+  QCOMPARE_H(appMenu->title(), "CodeAstra");
 }
 
 void TestMainWindow::testInitTree()
@@ -71,35 +71,36 @@ void TestMainWindow::testInitTree()
   QSplitter *splitter = dynamic_cast<QSplitter *>(mainWindow->centralWidget());
   QVERIFY2(splitter != nullptr, "Central widget should be a QSplitter.");
 
-  QCOMPARE_EQ(splitter->handleWidth(), 5);
-  QCOMPARE_EQ(splitter->childrenCollapsible(), false);
-  QCOMPARE_EQ(splitter->opaqueResize(), true);
+  QCOMPARE_H(splitter->handleWidth(), 5);
+  QCOMPARE_H(splitter->childrenCollapsible(), false);
+  QCOMPARE_H(splitter->opaqueResize(), true);
 
   QList<int> sizes = splitter->sizes();
-  QCOMPARE_EQ(sizes.size(), 2);
+  QCOMPARE_H(sizes.size(), 2);
 }
 
 void TestMainWindow::testCreateAction()
 {
-    // Mock parameters for createAction
-    QIcon icon;
-    QString text          = "Test Action";
-    QKeySequence shortcut = QKeySequence(Qt::CTRL | Qt::Key_T);
-    QString statusTip     = "This is a test action";
-    bool slotCalled       = false;
-  
-    auto slot = [&slotCalled]() { slotCalled = true; };
-  
-    QAction *action = mainWindow->createAction(icon, text, shortcut, statusTip, slot);
-  
-    QVERIFY2(action != nullptr, "Action should be successfully created.");
-    QCOMPARE_EQ(action->text(), text);
-    QCOMPARE_EQ(action->shortcuts().first(), shortcut);
-    QCOMPARE_EQ(action->statusTip(), statusTip);
-  
-    // Simulate triggering the action
-    action->trigger();
-    QCOMPARE_EQ(slotCalled, true);
+  // Mock parameters for createAction
+  QIcon icon;
+  QString text = "Test Action";
+  QKeySequence shortcut = QKeySequence(Qt::CTRL | Qt::Key_T);
+  QString statusTip = "This is a test action";
+  bool slotCalled = false;
+
+  auto slot = [&slotCalled]()
+  { slotCalled = true; };
+
+  QAction *action = mainWindow->createAction(icon, text, shortcut, statusTip, slot);
+
+  QVERIFY2(action != nullptr, "Action should be successfully created.");
+  QCOMPARE_H(action->text(), text);
+  QCOMPARE_H(action->shortcuts().first(), shortcut);
+  QCOMPARE_H(action->statusTip(), statusTip);
+
+  // Simulate triggering the action
+  action->trigger();
+  QCOMPARE_H(slotCalled, true);
 }
 
 QTEST_MAIN(TestMainWindow)
