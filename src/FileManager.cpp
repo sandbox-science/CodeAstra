@@ -147,7 +147,7 @@ QString FileManager::getFileExtension() const
 {
     if (m_currentFileName.isEmpty())
     {
-        qDebug() << "Error: No File name set!";
+        qDebug() << "ERROR: no file name set!";
         return QString();
     }
 
@@ -177,7 +177,7 @@ OperationResult FileManager::renamePath(const QFileInfo &pathInfo, const QString
 {
     if (!pathInfo.exists())
     {
-        return {false, "Path does not exist: " + pathInfo.fileName().toStdString()};
+        return {false, "ERROR: path does not exist: " + pathInfo.fileName().toStdString()};
     }
 
     std::filesystem::path oldPath = pathInfo.absoluteFilePath().toStdString();
@@ -185,7 +185,7 @@ OperationResult FileManager::renamePath(const QFileInfo &pathInfo, const QString
     // Validate the input path
     if (!isValidPath(oldPath))
     {
-        return {false, "Invalid file path."};
+        return {false, "ERROR: invalid file path."};
     }
 
     std::filesystem::path newPath = oldPath.parent_path() / newName.toStdString();
@@ -205,7 +205,7 @@ OperationResult FileManager::renamePath(const QFileInfo &pathInfo, const QString
         return {false, e.what()};
     }
 
-    return {true, newPath.filename().string()};
+    return {true, newPath.filename().string() + " renamed successfully."};
 }
 
 // Check if the path is a valid directory
@@ -214,7 +214,7 @@ bool isAValidDirectory(const QFileInfo &pathInfo)
 {
     if (!pathInfo.exists())
     {
-        qWarning() << "Path does not exist: " << pathInfo.fileName();
+        qWarning() << "ERROR: path does not exist: " << pathInfo.fileName();
         return false;
     }
 
@@ -247,7 +247,7 @@ OperationResult FileManager::deletePath(const QFileInfo &pathInfo)
         return {false, "ERROR: failed to delete: " + pathToDelete.string()};
     }
 
-    return {true, pathToDelete.filename().string()};
+    return {true, pathToDelete.filename().string() + " deleted successfully."};
 }
 
 OperationResult FileManager::newFile(const QFileInfo &pathInfo, QString newFilePath)
@@ -261,7 +261,7 @@ OperationResult FileManager::newFile(const QFileInfo &pathInfo, QString newFileP
 
     if (!isValidPath(dirPath))
     {
-        return {false, "invalid file path."};
+        return {false, "ERROR: invalid file path."};
     }
 
     std::filesystem::path filePath = dirPath / newFilePath.toStdString();
@@ -278,7 +278,7 @@ OperationResult FileManager::newFile(const QFileInfo &pathInfo, QString newFileP
     qDebug() << "New file created.";
 
     FileManager::getInstance().setCurrentFileName(QString::fromStdString(filePath.string()));
-    return {true, filePath.filename().string()};
+    return {true, filePath.filename().string() + " created successfully."};
 }
 
 OperationResult FileManager::newFolder(const QFileInfo &pathInfo, QString newFolderPath)
@@ -296,7 +296,7 @@ OperationResult FileManager::newFolder(const QFileInfo &pathInfo, QString newFol
     // Validate the input path
     if (!isValidPath(dirPath))
     {
-        return {false, "Invalid file path."};
+        return {false, "ERROR: invalid file path."};
     }
 
     std::filesystem::path newPath = dirPath / newFolderPath.toStdString();
@@ -314,7 +314,7 @@ OperationResult FileManager::newFolder(const QFileInfo &pathInfo, QString newFol
 
     qDebug() << "New folder created at:" << QString::fromStdString(newPath.string());
 
-    return {true, newPath.filename().string()};
+    return {true, newPath.filename().string() + " created successfully."};
 }
 
 OperationResult FileManager::duplicatePath(const QFileInfo &pathInfo)
@@ -324,7 +324,7 @@ OperationResult FileManager::duplicatePath(const QFileInfo &pathInfo)
     // Validate the input path
     if (!isValidPath(filePath))
     {
-        return {false , "Invalid path."};
+        return {false , "ERROR: invalid path."};
     }
 
     std::string fileName           = filePath.stem().string();
@@ -348,5 +348,5 @@ OperationResult FileManager::duplicatePath(const QFileInfo &pathInfo)
 
     qDebug() << "Duplicated file to:" << QString::fromStdString(dupPath.string());
 
-    return {true, dupPath.filename().string()};
+    return {true, dupPath.filename().string() + " duplicated successfully."};
 }
