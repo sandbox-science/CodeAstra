@@ -13,16 +13,16 @@ YAML::Node createTestConfig()
 
   YAML::Node category1;
   YAML::Node rule1;
-  rule1["regex"] = "\\bint\\b";
-  rule1["color"] = "#ff0000";
-  rule1["bold"] = true;
+  rule1["regex"]  = "\\bint\\b";
+  rule1["color"]  = "#ff0000";
+  rule1["bold"]   = true;
   rule1["italic"] = false;
   category1.push_back(rule1);
 
   YAML::Node rule2;
-  rule2["regex"] = "\\bfloat\\b";
-  rule2["color"] = "#00ff00";
-  rule2["bold"] = false;
+  rule2["regex"]  = "\\bfloat\\b";
+  rule2["color"]  = "#00ff00";
+  rule2["bold"]   = false;
   rule2["italic"] = true;
   category1.push_back(rule2);
 
@@ -51,7 +51,7 @@ void TestSyntax::initTestCase()
 {
   qDebug() << "Initializing TestSyntax tests...";
   document = new QTextDocument();
-  syntax = new Syntax(document, YAML::Node());
+  syntax   = new Syntax(document, YAML::Node());
 }
 
 void TestSyntax::cleanupTestCase()

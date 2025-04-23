@@ -81,26 +81,26 @@ void TestMainWindow::testInitTree()
 
 void TestMainWindow::testCreateAction()
 {
-  // Mock parameters for createAction
-  QIcon icon;
-  QString text = "Test Action";
-  QKeySequence shortcut = QKeySequence(Qt::CTRL | Qt::Key_T);
-  QString statusTip = "This is a test action";
-  bool slotCalled = false;
+    // Mock parameters for createAction
+    QIcon icon;
+    QString text = "Test Action";
+    QKeySequence shortcut = QKeySequence(Qt::CTRL | Qt::Key_T);
+    QString statusTip = "This is a test action";
+    bool slotCalled = false;
 
-  auto slot = [&slotCalled]()
-  { slotCalled = true; };
+    auto slot = [&slotCalled]()
+    { slotCalled = true; };
 
-  QAction *action = mainWindow->createAction(icon, text, shortcut, statusTip, slot);
+    QAction *action = mainWindow->createAction(icon, text, shortcut, statusTip, slot);
 
-  QVERIFY2(action != nullptr, "Action should be successfully created.");
-  QCOMPARE_H(action->text(), text);
-  QCOMPARE_H(action->shortcuts().first(), shortcut);
-  QCOMPARE_H(action->statusTip(), statusTip);
+    QVERIFY2(action != nullptr, "Action should be successfully created.");
+    QCOMPARE_H(action->text(), text);
+    QCOMPARE_H(action->shortcuts().first(), shortcut);
+    QCOMPARE_H(action->statusTip(), statusTip);
 
-  // Simulate triggering the action
-  action->trigger();
-  QCOMPARE_H(slotCalled, true);
+    // Simulate triggering the action
+    action->trigger();
+    QCOMPARE_H(slotCalled, true);
 }
 
 QTEST_MAIN(TestMainWindow)

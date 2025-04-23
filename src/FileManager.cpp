@@ -129,7 +129,7 @@ void FileManager::saveFile()
 void FileManager::saveFileAs()
 {
     QString fileExtension = getFileExtension();
-    QString filter = "All Files (*);;C++ Files (*.cpp *.h);;Text Files (*.txt)";
+    QString filter        = "All Files (*);;C++ Files (*.cpp *.h);;Text Files (*.txt)";
     if (!fileExtension.isEmpty())
     {
         filter = QString("%1 Files (*.%2);;%3").arg(fileExtension.toUpper(), fileExtension, filter);
@@ -377,11 +377,11 @@ OperationResult FileManager::duplicatePath(const QFileInfo &pathInfo)
     // Validate the input path
     if (!isValidPath(filePath))
     {
-        return {false, "Invalid path."};
+        return {false , "Invalid path."};
     }
 
-    std::string fileName          = filePath.stem().string();
-    std::filesystem::path dupPath = filePath.parent_path() / (fileName + "_copy" + filePath.extension().c_str());
+    std::string fileName           = filePath.stem().string();
+    std::filesystem::path dupPath  = filePath.parent_path() / (fileName + "_copy" + filePath.extension().c_str());
 
     int counter = 1;
     while (QFileInfo(dupPath).exists())
