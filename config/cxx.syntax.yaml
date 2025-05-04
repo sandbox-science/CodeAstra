@@ -1,4 +1,4 @@
-extensions: [cpp, c, h, hpp]
+extensions: [cpp, c, cc, h, hpp]
 
 keywords:
   keyword:
