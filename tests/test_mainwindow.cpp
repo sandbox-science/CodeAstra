@@ -38,7 +38,7 @@ void TestMainWindow::cleanupTestCase()
 
 void TestMainWindow::testWindowTitle()
 {
-  QCOMPARE(mainWindow->windowTitle(), "CodeAstra ~ Code Editor");
+  QCOMPARE_EQ(mainWindow->windowTitle(), "CodeAstra ~ Code Editor");
 }
 
 void TestMainWindow::testEditorInitialization()
@@ -83,20 +83,21 @@ void TestMainWindow::testCreateAction()
 {
     // Mock parameters for createAction
     QIcon icon;
-    QString text          = "Test Action";
+    QString text = "Test Action";
     QKeySequence shortcut = QKeySequence(Qt::CTRL | Qt::Key_T);
-    QString statusTip     = "This is a test action";
-    bool slotCalled       = false;
-  
-    auto slot = [&slotCalled]() { slotCalled = true; };
-  
+    QString statusTip = "This is a test action";
+    bool slotCalled = false;
+
+    auto slot = [&slotCalled]()
+    { slotCalled = true; };
+
     QAction *action = mainWindow->createAction(icon, text, shortcut, statusTip, slot);
-  
+
     QVERIFY2(action != nullptr, "Action should be successfully created.");
     QCOMPARE_EQ(action->text(), text);
     QCOMPARE_EQ(action->shortcuts().first(), shortcut);
     QCOMPARE_EQ(action->statusTip(), statusTip);
-  
+
     // Simulate triggering the action
     action->trigger();
     QCOMPARE_EQ(slotCalled, true);

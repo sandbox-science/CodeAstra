@@ -37,7 +37,63 @@ void FileManager::setCurrentFileName(const QString fileName)
 
 void FileManager::newFile()
 {
-    // Logic to create a new file
+    QString currentFileName = getCurrentFileName();
+    bool isFileSaved        = !currentFileName.isEmpty();
+    bool isTextEditorEmpty  = this->m_editor->toPlainText().isEmpty();
+    // File has not been saved and the text editor is not empty
+    if (!isFileSaved && !isTextEditorEmpty)
+    {
+        // Create box to prompt user to save changes to file
+        QMessageBox promptBox;
+        promptBox.setWindowTitle("Save Current File");
+        promptBox.setText("Would you like to save the file?");
+        promptBox.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
+        promptBox.setDefaultButton(QMessageBox::Save);
+
+        int option = promptBox.exec();
+        // return if the user hit Cancel button
+        if (option == QMessageBox::Cancel)
+        {
+            return;
+        }
+
+        saveFile();
+    }
+    // File has been previously saved
+    else if (isFileSaved)
+    {
+        // Read from saved file and compare to current file
+        QFile file(currentFileName);
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+            return;
+        QTextStream in(&file);
+        QString savedFileContents = in.readAll();
+        file.close();
+        if (savedFileContents != this->m_editor->toPlainText().trimmed())
+        {
+            // Create box to prompt user to save changes to file
+            QMessageBox promptBox;
+            promptBox.setWindowTitle("Changes Detected");
+            promptBox.setText("Would you like to save the current changes to the file?");
+            promptBox.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
+            promptBox.setDefaultButton(QMessageBox::Save);
+            int option = promptBox.exec();
+            // return if the user hit Cancel button
+            if (option == QMessageBox::Cancel)
+            {
+                return;
+            }
+            saveFile();
+        }
+    }
+
+    if (!m_currentFileName.isEmpty())
+    {
+        setCurrentFileName("");
+        m_editor->clear();
+        m_mainWindow->setWindowTitle("Code Astra ~ untitled");
+    }
+    
 }
 
 void FileManager::saveFile()
@@ -235,14 +291,13 @@ OperationResult FileManager::deletePath(const QFileInfo &pathInfo)
     }
 
     std::filesystem::path pathToDelete = pathInfo.absoluteFilePath().toStdString();
-
     // Validate the input path
     if (!isValidPath(pathToDelete))
     {
         return {false, "ERROR: invalid file path." + pathToDelete.filename().string()};
     }
-
-    if (!QFile::moveToTrash(pathToDelete))
+    QString qPathToDelete = QString::fromStdString(pathToDelete.string());
+    if (!QFile::moveToTrash(qPathToDelete))
     {
         return {false, "ERROR: failed to delete: " + pathToDelete.string()};
     }
