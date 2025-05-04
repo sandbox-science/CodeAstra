@@ -78,17 +78,17 @@ void TestSyntax::testLoadValidSyntaxRules()
 
   // Check the first rule
   const auto &rule1 = syntax->m_syntaxRules[0];
-  QCOMPARE_H(rule1.m_pattern.pattern(), "\\bint\\b");
-  QCOMPARE_H(rule1.m_format.foreground().color(), QColor("#ff0000"));
-  QCOMPARE_H(rule1.m_format.fontWeight(), QFont::Bold);
-  QCOMPARE_H(rule1.m_format.fontItalic(), true);
+  QCOMPARE_EQ(rule1.m_pattern.pattern(), "\\bint\\b");
+  QCOMPARE_EQ(rule1.m_format.foreground().color(), QColor("#ff0000"));
+  QCOMPARE_EQ(rule1.m_format.fontWeight(), QFont::Bold);
+  QCOMPARE_EQ(rule1.m_format.fontItalic(), true);
 
   // Check the second rule
   const auto &rule2 = syntax->m_syntaxRules[1];
-  QCOMPARE_H(rule2.m_pattern.pattern(), "\\bfloat\\b");
-  QCOMPARE_H(rule2.m_format.foreground().color(), QColor("#00ff00"));
-  QCOMPARE_H(rule2.m_format.fontWeight(), QFont::Normal);
-  QCOMPARE_H(rule2.m_format.fontItalic(), true);
+  QCOMPARE_EQ(rule2.m_pattern.pattern(), "\\bfloat\\b");
+  QCOMPARE_EQ(rule2.m_format.foreground().color(), QColor("#00ff00"));
+  QCOMPARE_EQ(rule2.m_format.fontWeight(), QFont::Normal);
+  QCOMPARE_EQ(rule2.m_format.fontItalic(), true);
 }
 
 void TestSyntax::testLoadMissingKeywords()
