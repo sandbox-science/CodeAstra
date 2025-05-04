@@ -34,11 +34,11 @@ CodeAstra is a modern, extensible, and lightweight code editor built using C++ a
 
 > [!NOTE]
 > 
-> CodeAstra is **under active development**—stay tuned for updates or feel free to contribute and help shape its future!
+> CodeAstra is **under active development**. Stay tuned for updates or feel free to contribute and help shape its future!
 
 > [!IMPORTANT]
 > 
-> CodeAstra has been tested on macOS and Linux and works as expected on those platforms. On Windows, the project has not been tested natively, but it works when using WSL (Windows Subsystem for Linux). Native Windows support is not guaranteed. 
+> CodeAstra has been tested on macOS and Linux and works as expected on those platforms. The project has not been tested natively on Windows, but it works when using **WSL** (Windows Subsystem for Linux). Native Windows support is not guaranteed. 
 
 ## How to install the project
 Please, check the [wiki](https://github.com/sandbox-science/CodeAstra/wiki) for recommended installation instructions.
@@ -46,14 +46,15 @@ Please, check the [wiki](https://github.com/sandbox-science/CodeAstra/wiki) for 
 ## Required Tools
 - CMake
 - Make
-- g++ compiler (with support of C++17 and beyond)
+- g++ compiler (with support of C++20 and beyond)
 - Qt6 Framework
 
 ## Roadmap
 - [x] Basic text editing
+  - [x] Open a Project
   - [x] Open a file
   - [x] Save file
-  - [ ] Create a new file ~ in progress
+  - [x] Create a new file
 - [x] File tree navigation
 - [ ] Syntax highlighting ~ in progress
   - Supported Languages:
