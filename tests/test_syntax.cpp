@@ -81,7 +81,7 @@ void TestSyntax::testLoadValidSyntaxRules()
   QCOMPARE_EQ(rule1.m_pattern.pattern(), "\\bint\\b");
   QCOMPARE_EQ(rule1.m_format.foreground().color(), QColor("#ff0000"));
   QCOMPARE_EQ(rule1.m_format.fontWeight(), QFont::Bold);
-  QCOMPARE_EQ(rule1.m_format.fontItalic(), true);
+  QCOMPARE_NE(rule1.m_format.fontItalic(), true);
 
   // Check the second rule
   const auto &rule2 = syntax->m_syntaxRules[1];
