@@ -38,7 +38,7 @@ void TestMainWindow::cleanupTestCase()
 
 void TestMainWindow::testWindowTitle()
 {
-  QCOMPARE(mainWindow->windowTitle(), "CodeAstra ~ Code Editor");
+  QCOMPARE_EQ(mainWindow->windowTitle(), "CodeAstra ~ Code Editor");
 }
 
 void TestMainWindow::testEditorInitialization()
@@ -51,7 +51,7 @@ void TestMainWindow::testMenuBar()
 {
   QMenuBar *menuBar = mainWindow->menuBar();
   QVERIFY2(menuBar != nullptr, "MainWindow must have a QMenuBar.");
-  QCOMPARE(menuBar->actions().size(), 3); // File, Help, CodeAstra
+  QCOMPARE_EQ(menuBar->actions().size(), 3); // File, Help, CodeAstra
 
   QMenu *fileMenu = menuBar->findChild<QMenu *>("File");
   QVERIFY2(fileMenu != nullptr, "QMenuBar must contain a 'File' menu.");
