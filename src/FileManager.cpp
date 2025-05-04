@@ -86,7 +86,9 @@ void FileManager::newFile()
             saveFile();
         }
     }
-    else {
+
+    if (!m_currentFileName.isEmpty())
+    {
         setCurrentFileName("");
         m_editor->clear();
         m_mainWindow->setWindowTitle("Code Astra ~ untitled");
