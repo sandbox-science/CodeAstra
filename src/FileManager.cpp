@@ -62,11 +62,6 @@ void FileManager::newFile()
         {
             // TODO: add the logic to discard the changes
         }
-
-        else
-        {
-            saveFile();
-        }
     }
 
     else if (isFileSaved)
@@ -76,10 +71,14 @@ void FileManager::newFile()
 
     if (!m_currentFileName.isEmpty())
     {
-        setCurrentFileName("");
+        m_currentFileName = "";
         m_editor->clear();
-        m_mainWindow->setWindowTitle("Code Astra ~ untitled");
+        m_mainWindow->setWindowTitle("Code Astra");
     }
+
+    saveFile();
+    m_currentFileName = getCurrentFileName();
+    loadFileInEditor(m_currentFileName);
 }
 
 QString lastSaved(QFileInfo file)
@@ -108,9 +107,11 @@ bool FileManager::isChanged(QString currentFileName)
     {
         return false;
     }
+
     QTextStream in(&file);
     QString savedFileContents = in.readAll();
     file.close();
+
     if (savedFileContents != this->m_editor->toPlainText())
     {
         QString timeSinceSave = lastSaved(QFileInfo(file));
@@ -121,20 +122,23 @@ bool FileManager::isChanged(QString currentFileName)
         promptBox.setInformativeText("The document has been modified. It was last edited " + timeSinceSave + ".");
         promptBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
         promptBox.setDefaultButton(QMessageBox::Save);
-        int option = promptBox.exec();
 
+        int option = promptBox.exec();
         if (option == QMessageBox::Cancel)
         {
             return false;
         }
+
         if (option == QMessageBox::Discard)
         {
             // If the user selects the option 'Discard',
             // the changes will not be saved.
             return true;
         }
+    
         saveFile();
     }
+
     return true;
 }
 
@@ -339,6 +343,7 @@ OperationResult FileManager::deletePath(const QFileInfo &pathInfo)
     {
         return {false, "ERROR: invalid file path." + pathToDelete.filename().string()};
     }
+
     QString qPathToDelete = QString::fromStdString(pathToDelete.string());
     if (!QFile::moveToTrash(qPathToDelete))
     {
