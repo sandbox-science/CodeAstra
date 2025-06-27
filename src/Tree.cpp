@@ -67,13 +67,16 @@ void Tree::openFile(const QModelIndex &index)
         return;
     }
 
-    QString current_file = FileManager::getInstance().getCurrentFileName();
-    bool isFileSaved     = FileManager::getInstance().isChanged(current_file);
-
-    if (isFileSaved || current_file.isEmpty())
+    FileManager &fm = FileManager::getInstance();
+    if (fm.getCurrentFileName() != filePath)
     {
-        FileManager::getInstance().setCurrentFileName(filePath);
-        FileManager::getInstance().loadFileInEditor(filePath);
+        if (!fm.promptUnsavedChanges())
+        {
+            return; // if user has cancelled
+        }
+
+        fm.setCurrentFileName(filePath);
+        fm.loadFileInEditor(filePath);
     }
 }
 

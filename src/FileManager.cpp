@@ -165,6 +165,15 @@ void FileManager::saveFile()
     }
     file.close();
 
+    if (m_mainWindow)
+    {
+        m_mainWindow->setWindowTitle("CodeAstra ~ " + QFileInfo(m_currentFileName).fileName());
+    }
+    else
+    {
+        qWarning() << "MainWindow is not initialized in FileManager.";
+    }
+
     m_isDirty = false;
     emit m_editor->statusMessageChanged("File saved successfully.");
 }
