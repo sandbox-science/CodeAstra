@@ -11,6 +11,7 @@
 #include <iostream>
 #include <fstream>
 
+
 FileManager::FileManager(CodeEditor *editor, MainWindow *mainWindow)
     : m_editor(editor), m_mainWindow(mainWindow)
 {
@@ -40,51 +41,37 @@ void FileManager::newFile()
     QString currentFileName = getCurrentFileName();
     bool isFileSaved        = !currentFileName.isEmpty();
     bool isTextEditorEmpty  = this->m_editor->toPlainText().isEmpty();
-    // File has not been saved and the text editor is not empty
+
     if (!isFileSaved && !isTextEditorEmpty)
     {
-        // Create box to prompt user to save changes to file
         QMessageBox promptBox;
         promptBox.setWindowTitle("Save Current File");
         promptBox.setText("Would you like to save the file?");
-        promptBox.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
+        promptBox.setInformativeText("The document will be lost if you don't save it!");
+        promptBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
         promptBox.setDefaultButton(QMessageBox::Save);
 
         int option = promptBox.exec();
-        // return if the user hit Cancel button
+
         if (option == QMessageBox::Cancel)
         {
             return;
         }
 
-        saveFile();
-    }
-    // File has been previously saved
-    else if (isFileSaved)
-    {
-        // Read from saved file and compare to current file
-        QFile file(currentFileName);
-        if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-            return;
-        QTextStream in(&file);
-        QString savedFileContents = in.readAll();
-        file.close();
-        if (savedFileContents != this->m_editor->toPlainText().trimmed())
+        else if (option == QMessageBox::Discard)
         {
-            // Create box to prompt user to save changes to file
-            QMessageBox promptBox;
-            promptBox.setWindowTitle("Changes Detected");
-            promptBox.setText("Would you like to save the current changes to the file?");
-            promptBox.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
-            promptBox.setDefaultButton(QMessageBox::Save);
-            int option = promptBox.exec();
-            // return if the user hit Cancel button
-            if (option == QMessageBox::Cancel)
-            {
-                return;
-            }
+            // TODO: add the logic to discard the changes
+        }
+
+        else
+        {
             saveFile();
         }
+    }
+
+    else if (isFileSaved)
+    {
+       isSaved(currentFileName);
     }
 
     if (!m_currentFileName.isEmpty())
@@ -93,7 +80,62 @@ void FileManager::newFile()
         m_editor->clear();
         m_mainWindow->setWindowTitle("Code Astra ~ untitled");
     }
-    
+}
+
+QString lastSaved(QFileInfo file)
+{
+    QDateTime lastSaved = file.lastModified();
+    QDateTime now       = QDateTime::currentDateTime();
+    qint64 seconds      = lastSaved.secsTo(now);
+
+    QString timeSinceSave;
+    int days = seconds / (60 * 60 * 24);
+    if (days == 0)
+        timeSinceSave = "today";
+    else if (days == 1)
+        timeSinceSave = "yesterday";
+    else
+        timeSinceSave = QString::number(days) + " days ago";
+
+    return timeSinceSave;
+}
+
+bool FileManager::isSaved(QString currentFileName)
+{
+    // Read from saved file and compare to current file
+    QFile file(currentFileName);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        return false;
+    }
+    QTextStream in(&file);
+    QString savedFileContents = in.readAll();
+    file.close();
+    if (savedFileContents != this->m_editor->toPlainText().trimmed())
+    {
+        QString timeSinceSave = lastSaved(QFileInfo(file));
+
+        QMessageBox promptBox;
+        promptBox.setWindowTitle("Changes Detected");
+        promptBox.setText("Would you like to save your changes?");
+        promptBox.setInformativeText("The document has been modified. It was last edited " + timeSinceSave);
+        promptBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+        promptBox.setDefaultButton(QMessageBox::Save);
+        int option = promptBox.exec();
+
+        if (option == QMessageBox::Cancel)
+        {
+            return false;
+        }
+        if (option == QMessageBox::Discard)
+        {
+            // If the user selects the option 'Discard',
+            // the changes will not be saved.
+            return true;
+        }
+        saveFile();
+    }
+    return true;
 }
 
 void FileManager::saveFile()
@@ -197,6 +239,7 @@ void FileManager::loadFileInEditor(const QString &filePath)
     {
         qWarning() << "MainWindow is not initialized in FileManager.";
     }
+
 }
 
 QString FileManager::getFileExtension() const
