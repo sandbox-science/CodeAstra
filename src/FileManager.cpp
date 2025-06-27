@@ -81,22 +81,19 @@ void FileManager::newFile()
     loadFileInEditor(m_currentFileName);
 }
 
-QString lastSaved(QFileInfo file)
+QString lastSaved(const QFileInfo& file)
 {
-    QDateTime lastSaved = file.lastModified();
-    QDateTime now       = QDateTime::currentDateTime();
-    qint64 seconds      = lastSaved.secsTo(now);
+    const auto lastSaved = file.lastModified();
+    const auto now       = QDateTime::currentDateTime();
+    const auto seconds   = lastSaved.secsTo(now);
 
-    QString timeSinceSave;
-    int days = seconds / (60 * 60 * 24);
+    const int days = seconds / (60 * 60 * 24);
     if (days == 0)
-        timeSinceSave = "today";
-    else if (days == 1)
-        timeSinceSave = "yesterday";
-    else
-        timeSinceSave = QString::number(days) + " days ago";
-
-    return timeSinceSave;
+        return "today";
+    if (days == 1)
+        return "yesterday";
+    
+    return QString::number(days) + " days ago";
 }
 
 bool FileManager::isChanged(QString currentFileName)
