@@ -111,7 +111,7 @@ bool FileManager::isChanged(QString currentFileName)
     QTextStream in(&file);
     QString savedFileContents = in.readAll();
     file.close();
-    if (savedFileContents != this->m_editor->toPlainText().trimmed())
+    if (savedFileContents != this->m_editor->toPlainText())
     {
         QString timeSinceSave = lastSaved(QFileInfo(file));
 
