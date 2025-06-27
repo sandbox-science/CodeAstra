@@ -67,8 +67,14 @@ void Tree::openFile(const QModelIndex &index)
         return;
     }
 
-    FileManager::getInstance().setCurrentFileName(filePath);
-    FileManager::getInstance().loadFileInEditor(filePath);
+    QString current_file = FileManager::getInstance().getCurrentFileName();
+    bool isFileSaved     = FileManager::getInstance().isSaved(current_file);
+
+    if (isFileSaved || current_file.isEmpty())
+    {
+        FileManager::getInstance().setCurrentFileName(filePath);
+        FileManager::getInstance().loadFileInEditor(filePath);
+    }
 }
 
 QFileSystemModel *Tree::getModel() const
