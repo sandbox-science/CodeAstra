@@ -59,8 +59,6 @@ void Syntax::loadSyntaxRules(const YAML::Node &config)
                 continue;
             }
 
-            qDebug() << "regex: " << regex;
-
             QColor color;
             try
             {
@@ -76,7 +74,7 @@ void Syntax::loadSyntaxRules(const YAML::Node &config)
             //checks if the color is a valid color
             if(!color.isValid())
             {
-                qWarning() << "Invalid COlor : Skipping...";
+                qWarning() << "Invalid Color : Skipping...";
                 continue;
             }
 
