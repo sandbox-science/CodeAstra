@@ -68,7 +68,7 @@ void Tree::openFile(const QModelIndex &index)
     }
 
     QString current_file = FileManager::getInstance().getCurrentFileName();
-    bool isFileSaved     = FileManager::getInstance().isSaved(current_file);
+    bool isFileSaved     = FileManager::getInstance().isChanged(current_file);
 
     if (isFileSaved || current_file.isEmpty())
     {

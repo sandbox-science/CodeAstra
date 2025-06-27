@@ -58,7 +58,7 @@ public slots:
     void saveFileAs();
     void openFile();
     void loadFileInEditor(const QString &filePath);
-    bool isSaved(QString currentFileName);
+    bool isChanged(QString currentFileName);
 
     QString getDirectoryPath() const;
 

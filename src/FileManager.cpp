@@ -71,7 +71,7 @@ void FileManager::newFile()
 
     else if (isFileSaved)
     {
-       isSaved(currentFileName);
+       isChanged(currentFileName);
     }
 
     if (!m_currentFileName.isEmpty())
@@ -100,7 +100,7 @@ QString lastSaved(QFileInfo file)
     return timeSinceSave;
 }
 
-bool FileManager::isSaved(QString currentFileName)
+bool FileManager::isChanged(QString currentFileName)
 {
     // Read from saved file and compare to current file
     QFile file(currentFileName);
@@ -118,7 +118,7 @@ bool FileManager::isSaved(QString currentFileName)
         QMessageBox promptBox;
         promptBox.setWindowTitle("Changes Detected");
         promptBox.setText("Would you like to save your changes?");
-        promptBox.setInformativeText("The document has been modified. It was last edited " + timeSinceSave);
+        promptBox.setInformativeText("The document has been modified. It was last edited " + timeSinceSave + ".");
         promptBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
         promptBox.setDefaultButton(QMessageBox::Save);
         int option = promptBox.exec();
