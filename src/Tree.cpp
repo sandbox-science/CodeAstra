@@ -10,6 +10,7 @@
 #include <filesystem>
 #include <QMessageBox>
 #include <QInputDialog>
+#include <QApplication>
 
 Tree::Tree(QSplitter *splitter)
     : QObject(splitter),
@@ -37,14 +38,37 @@ void Tree::setupModel(const QString &directory)
 
 void Tree::setupTree()
 {
+    QFont baseFont = QApplication::font(); 
+    QFont treeFont = baseFont;
+    treeFont.setPointSize(baseFont.pointSize() - 1);
+    m_tree->setStyleSheet(
+        "QTreeView { "
+        "   background-color: #1e1e1e;"
+        "   color: #d4d4d4;"
+        "   padding: 4px;"
+        " }"
+        "QTreeView::item:selected {"
+        "   background: #264f78;"
+        "   color: white;"
+        " }"
+        "QTreeView::item:hover {"
+        "   background: #333333;"
+        " }"
+        "QTreeView::item:focus {"
+        "   outline: none;"
+        " }"
+    );
+
+    m_tree->setFont(treeFont);
     m_tree->setModel(m_model.get());
     m_tree->setRootIndex(m_model->index(m_model->rootPath()));
     m_tree->setRootIsDecorated(true);
     m_tree->setAnimated(true);
-    m_tree->setIndentation(20);
+    m_tree->setIndentation(16);
     m_tree->setSortingEnabled(false);
     m_tree->sortByColumn(1, Qt::AscendingOrder);
     m_tree->setHeaderHidden(true);
+    m_tree->setUniformRowHeights(true);
 
     for (int i = 1; i <= m_model->columnCount(); ++i)
     {
