@@ -41,8 +41,33 @@ int main(int argc, char *argv[])
         qWarning() << "Failed to load round icon!";
     }
 
-    QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
-    font.setPointSize(12);
+    QStringList preferreFontFamilies = {"Monaco", "Menlo", "Consolas", "Courier New", "Monospace"};
+    QStringList availableFamilies = QFontDatabase::families();
+
+    QString chosenFamily;
+    for(QString family: preferreFontFamilies)
+    {
+        if (availableFamilies.contains(family))
+        {
+            chosenFamily = family;
+            break;
+        }
+    }
+
+    if (chosenFamily.isEmpty())
+    {
+        chosenFamily = QFontDatabase::systemFont(QFontDatabase::FixedFont).family();
+    }
+
+    QFont font;
+    font.setFamily(chosenFamily);
+    font.setFixedPitch(true);
+    font.setPointSize(13);
+
+    QPalette palette;
+    palette.setColor(QPalette::Base, QColor("#1e1e1e"));
+    palette.setColor(QPalette::Text, QColor("#d4d4d4"));
+    app.setPalette(palette);
 
     app.setFont(font);
     app.setWindowIcon(roundIcon);
