@@ -21,7 +21,11 @@ QTreeView {
     background-color: #1e1e1e;
     color: #e0e0e0;
     padding: 6px;
-    border-radius: 6px;    
+    border-radius: 6px;
+}
+
+QTreeView::item {
+    padding: 2px 4px;
 }
 
 QTreeView::item:selected {

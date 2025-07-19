@@ -387,7 +387,11 @@ OperationResult FileManager::newFile(const QFileInfo &pathInfo, QString newFileP
         file.close();
     }
 
-    FileManager::getInstance().setCurrentFileName(QString::fromStdString(filePath.string()));
+    QString fileName = QString::fromStdString(filePath.string());
+
+    FileManager::getInstance().setCurrentFileName(fileName);
+    FileManager::getInstance().loadFileInEditor(fileName);
+
     return {true, filePath.filename().string() + " created successfully."};
 }
 
