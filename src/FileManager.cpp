@@ -11,6 +11,7 @@
 #include <iostream>
 #include <fstream>
 
+
 FileManager::FileManager(CodeEditor *editor, MainWindow *mainWindow)
     : m_editor(editor), m_mainWindow(mainWindow)
 {
@@ -23,6 +24,8 @@ void FileManager::initialize(CodeEditor *editor, MainWindow *mainWindow)
 {
     m_editor     = editor;
     m_mainWindow = mainWindow;
+
+    connect(m_editor, &QPlainTextEdit::textChanged, this, [this](){m_isDirty = true;});
 }
 
 QString FileManager::getCurrentFileName() const
@@ -35,65 +38,102 @@ void FileManager::setCurrentFileName(const QString fileName)
     m_currentFileName = fileName;
 }
 
-void FileManager::newFile()
+QString getLastSaved(const QFileInfo& file)
 {
-    QString currentFileName = getCurrentFileName();
-    bool isFileSaved        = !currentFileName.isEmpty();
-    bool isTextEditorEmpty  = this->m_editor->toPlainText().isEmpty();
-    // File has not been saved and the text editor is not empty
-    if (!isFileSaved && !isTextEditorEmpty)
-    {
-        // Create box to prompt user to save changes to file
-        QMessageBox promptBox;
-        promptBox.setWindowTitle("Save Current File");
-        promptBox.setText("Would you like to save the file?");
-        promptBox.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
-        promptBox.setDefaultButton(QMessageBox::Save);
+    const auto lastSaved = file.lastModified();
+    const auto now       = QDateTime::currentDateTime();
+    const auto seconds   = lastSaved.secsTo(now);
 
-        int option = promptBox.exec();
-        // return if the user hit Cancel button
-        if (option == QMessageBox::Cancel)
-        {
-            return;
-        }
+    const int days = seconds / (60 * 60 * 24);
+    if (days == 0)
+        return "today";
+    if (days == 1)
+        return "yesterday";
+    
+    return QString::number(days) + " days ago";
+}
 
-        saveFile();
-    }
-    // File has been previously saved
-    else if (isFileSaved)
+bool FileManager::hasUnsavedChanges()
+{
+    if(!m_isDirty)
     {
-        // Read from saved file and compare to current file
-        QFile file(currentFileName);
-        if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-            return;
-        QTextStream in(&file);
-        QString savedFileContents = in.readAll();
-        file.close();
-        if (savedFileContents != this->m_editor->toPlainText().trimmed())
-        {
-            // Create box to prompt user to save changes to file
-            QMessageBox promptBox;
-            promptBox.setWindowTitle("Changes Detected");
-            promptBox.setText("Would you like to save the current changes to the file?");
-            promptBox.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
-            promptBox.setDefaultButton(QMessageBox::Save);
-            int option = promptBox.exec();
-            // return if the user hit Cancel button
-            if (option == QMessageBox::Cancel)
-            {
-                return;
-            }
-            saveFile();
-        }
+        return false;
     }
 
+    // Additional safeguard if content still matches file on disk
     if (!m_currentFileName.isEmpty())
     {
-        setCurrentFileName("");
-        m_editor->clear();
-        m_mainWindow->setWindowTitle("Code Astra ~ untitled");
+        QFile file(m_currentFileName);
+        if (file.open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            QTextStream in(&file);
+            QString diskContents = in.readAll();
+            if (diskContents == m_editor->toPlainText())
+            {
+                m_isDirty = false;
+                return false;
+            }
+        }
     }
-    
+
+    return true; // nothing changed
+}
+
+int FileManager::buildUnsavedChangesMessage() const
+{
+    QString infoText = "Your changes will be lost if you don't save.";
+    if (!m_currentFileName.isEmpty())
+    {
+        QFileInfo file(m_currentFileName);
+        if (file.exists())
+        {
+            QString timeSinceSave = getLastSaved(file);
+            infoText = "The document has been modified. It was last edited " + timeSinceSave + ".";
+        }
+    }
+
+    QMessageBox promptBox;
+    promptBox.setWindowTitle("Unsaved changes");
+    promptBox.setText("Would you like to save your changes?");
+    promptBox.setInformativeText(infoText);
+    promptBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+    promptBox.setDefaultButton(QMessageBox::Save);
+
+    return promptBox.exec();
+}
+
+bool FileManager::promptUnsavedChanges()
+{
+    if (!hasUnsavedChanges())
+    {
+        return true;
+    }
+
+    int option = buildUnsavedChangesMessage();
+    if (option == QMessageBox::Save)
+    {
+        saveFile();
+    }
+    else if (option == QMessageBox::Cancel)
+    {
+        return false;
+    }
+
+    // if discard selected, continue without saving.   
+    return true;
+}
+
+void FileManager::newFile()
+{
+    if (!promptUnsavedChanges())
+    {
+        return;
+    }
+
+    m_currentFileName = "";
+    m_editor->clear();
+    m_mainWindow->setWindowTitle("Untitle ~ Code Astra");
+    m_isDirty = false;
 }
 
 void FileManager::saveFile()
@@ -104,7 +144,7 @@ void FileManager::saveFile()
         return;
     }
 
-    qDebug() << "Saving file:" << m_currentFileName;
+    // qDebug() << "Saving file:" << m_currentFileName;
 
     QFile file(m_currentFileName);
     if (!file.open(QFile::WriteOnly | QFile::Text))
@@ -125,6 +165,16 @@ void FileManager::saveFile()
     }
     file.close();
 
+    if (m_mainWindow)
+    {
+        m_mainWindow->setWindowTitle("CodeAstra ~ " + QFileInfo(m_currentFileName).fileName());
+    }
+    else
+    {
+        qWarning() << "MainWindow is not initialized in FileManager.";
+    }
+
+    m_isDirty = false;
     emit m_editor->statusMessageChanged("File saved successfully.");
 }
 
@@ -152,7 +202,7 @@ void FileManager::openFile()
                                                     "All Files (*);;C++ Files (*.cpp *.h);;Text Files (*.txt)");
     if (!fileName.isEmpty())
     {
-        qDebug() << "Opening file: " << fileName;
+        // qDebug() << "Opening file: " << fileName;
         m_currentFileName = fileName;
         loadFileInEditor(fileName);
     }
@@ -164,7 +214,8 @@ void FileManager::openFile()
 
 void FileManager::loadFileInEditor(const QString &filePath)
 {
-    qDebug() << "Loading file:" << filePath;
+    // qDebug() << "Loading file:" << filePath;
+
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
@@ -175,7 +226,9 @@ void FileManager::loadFileInEditor(const QString &filePath)
     QTextStream in(&file);
     if (m_editor)
     {
+        m_editor->blockSignals(true);
         m_editor->setPlainText(in.readAll());
+        m_editor->blockSignals(false);
 
         delete m_currentHighlighter;
 
@@ -197,6 +250,8 @@ void FileManager::loadFileInEditor(const QString &filePath)
     {
         qWarning() << "MainWindow is not initialized in FileManager.";
     }
+
+    m_isDirty = false;
 }
 
 QString FileManager::getFileExtension() const
@@ -296,6 +351,7 @@ OperationResult FileManager::deletePath(const QFileInfo &pathInfo)
     {
         return {false, "ERROR: invalid file path." + pathToDelete.filename().string()};
     }
+
     QString qPathToDelete = QString::fromStdString(pathToDelete.string());
     if (!QFile::moveToTrash(qPathToDelete))
     {
@@ -330,7 +386,6 @@ OperationResult FileManager::newFile(const QFileInfo &pathInfo, QString newFileP
     {
         file.close();
     }
-    qDebug() << "New file created.";
 
     FileManager::getInstance().setCurrentFileName(QString::fromStdString(filePath.string()));
     return {true, filePath.filename().string() + " created successfully."};

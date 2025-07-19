@@ -52,12 +52,17 @@ public:
     static OperationResult duplicatePath(const QFileInfo &pathInfo);
     static OperationResult deletePath(const QFileInfo &pathInfo);
 
+    int buildUnsavedChangesMessage() const;
+    bool hasUnsavedChanges();
+
 public slots:
     void newFile();
     void saveFile();
     void saveFileAs();
     void openFile();
     void loadFileInEditor(const QString &filePath);
+
+    bool promptUnsavedChanges();
 
     QString getDirectoryPath() const;
 
@@ -69,4 +74,5 @@ private:
     MainWindow *m_mainWindow;
     QSyntaxHighlighter *m_currentHighlighter = nullptr;
     QString m_currentFileName;
+    bool m_isDirty = false;
 };
