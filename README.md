@@ -28,6 +28,8 @@
 
 CodeAstra is a modern, extensible, and lightweight code editor built using C++ and Qt6, designed to offer a fast, customizable, and feature-rich development experience. Inspired by NeoVim and VSCode, it **will** provide efficient file navigation, syntax highlighting, and a powerful plugin system, making it an ideal choice for developers who need speed, flexibility, and control. With a focus on performance and usability, the editor **will** support split views, an integrated terminal, customizable key bindings, and seamless Git integration, catering to both beginners and power users.
 
+![CodeAstra Demo](assets/demo_ui.png)
+
 > [!TIP]
 > 
 > Join the [Matrix Server](https://matrix.to/#/#codeastra:matrix.org) for CodeAstra development log and discussion.
