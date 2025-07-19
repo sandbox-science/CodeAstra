@@ -42,4 +42,7 @@ private:
     std::unique_ptr<QFileIconProvider> m_iconProvider;
     std::unique_ptr<QFileSystemModel> m_model;
     std::unique_ptr<QTreeView> m_tree;
+
+protected:
+    bool eventFilter(QObject *obj, QEvent *event) override;
 };
