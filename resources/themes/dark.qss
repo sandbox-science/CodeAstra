@@ -1,0 +1,111 @@
+* {
+    font-family: 'Fira Code', 'Menlo', 'Monaco', "Consolas", "Courier New", "Monospace";
+    font-size: 13pt;
+}
+
+QMainWindow {
+    background-color: #1e1e1e;
+    color: white;
+    border-radius: 6px;
+}
+
+QStatusBar {
+    background-color: #1e1e1e;
+    color: #cccccc;
+    border-top: 1px solid #333;
+    font-size: 11pt;
+    padding: 4px 8px;
+}
+
+QTreeView {
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+    padding: 4px;
+    border-radius: 4px;    
+}
+
+QTreeView::item:selected {
+    background: #264f78;
+    color: white;
+}
+
+QTreeView::item:hover {
+    background: #333333;
+}
+
+QTreeView::item:focus {
+	outline: none;
+}
+
+QScrollBar:vertical, QScrollBar:horizontal {
+    background: #1e1e1e;
+    width: 10px;
+    margin: 0px;
+}
+
+QScrollBar::handle {
+    background: #5a5a5a;
+    border-radius: 4px;
+}
+
+QScrollBar::handle:hover {
+    background: #7a7a7a;
+}
+
+QMenuBar {
+    background-color: #1e1e1e;
+    color: white;
+    padding: 4px 8px;
+}
+
+QMenu {
+    background-color: #2d2d2d;
+    color: white;
+    border: 1px solid #444;
+}
+
+QMenu::item:selected {
+    background-color: #3c3c3c;
+}
+
+QMenu::item::hover {
+	background-color: #3c3c3c;
+}
+
+QPlainTextEdit, QLineEdit {
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+    border-radius: 4px;
+    padding: 6px;
+}
+
+QPlainTextEdit {
+	selection-background-color: #264f78;
+    selection-color: white;
+}
+
+QPlainTextEdit:focus, QTreeView:focus {
+    border: 1px solid #264f78;
+}
+
+QTabBar::tab {
+	background: #2d2d2d;
+    color: #d4d4d4;
+    padding: 6px 12px;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    margin-right: 1px;
+}
+
+QTabBar::tab:selected {
+    background: #1e1e1e;
+    color: white;
+}
+
+QToolTip {
+    background-color: #2d2d2d;
+    color: #d4d4d4;
+    border: 1px solid #444;
+    padding: 4px;
+    border-radius: 4px;
+}
