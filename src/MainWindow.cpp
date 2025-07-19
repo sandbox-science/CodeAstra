@@ -30,7 +30,6 @@ MainWindow::MainWindow(QWidget *parent)
     int spaceWidth = metrics.horizontalAdvance(" ");
     m_editor->setTabStopDistance(spaceWidth * 4);
     m_editor->setLineWrapMode(QPlainTextEdit::NoWrap);
-    this->setStyleSheet("QMainWindow { background-color:rgb(75, 73, 73)); color: white; border-radius: 6px; }");
 
     initTree();
     createMenuBar();

@@ -41,23 +41,6 @@ void Tree::setupTree()
     QFont baseFont = QApplication::font(); 
     QFont treeFont = baseFont;
     treeFont.setPointSize(baseFont.pointSize() - 1);
-    m_tree->setStyleSheet(
-        "QTreeView { "
-        "   background-color: #1e1e1e;"
-        "   color: #d4d4d4;"
-        "   padding: 4px;"
-        " }"
-        "QTreeView::item:selected {"
-        "   background: #264f78;"
-        "   color: white;"
-        " }"
-        "QTreeView::item:hover {"
-        "   background: #333333;"
-        " }"
-        "QTreeView::item:focus {"
-        "   outline: none;"
-        " }"
-    );
 
     m_tree->setFont(treeFont);
     m_tree->setModel(m_model.get());
