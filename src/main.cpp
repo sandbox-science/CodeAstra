@@ -8,6 +8,7 @@
 #include <QBitmap>
 #include <QFont>
 #include <QFontDatabase>
+#include <QFile>
 
 // Function to create a round icon
 QIcon createRoundIcon(const QString &iconPath)
@@ -67,8 +68,8 @@ int main(int argc, char *argv[])
     QPalette palette;
     palette.setColor(QPalette::Base, QColor("#1e1e1e"));
     palette.setColor(QPalette::Text, QColor("#d4d4d4"));
-    app.setPalette(palette);
 
+    app.setPalette(palette);
     app.setFont(font);
     app.setWindowIcon(roundIcon);
 
@@ -78,6 +79,13 @@ int main(int argc, char *argv[])
     app.setApplicationDisplayName(QStringLiteral("CodeAstra"));
 
     app.setStyle("Fusion");
+    
+    QFile styleFile(":/resources/themes/dark.qss");
+	if (styleFile.open(QFile::ReadOnly))
+    {
+    		QString style = styleFile.readAll();
+    		app.setStyleSheet(style);
+	}
 
     QScopedPointer<MainWindow> window(new MainWindow);
     window->show();
