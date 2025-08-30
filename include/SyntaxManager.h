@@ -28,6 +28,7 @@ public:
      * @return A unique pointer to the appropriate syntax highlighter, or nullptr if not available.
      */
     static std::unique_ptr<QSyntaxHighlighter> createSyntaxHighlighter(const QString &extension, QTextDocument *doc);
+    static void initializeUserSyntaxConfig();
 
 private:
     static std::unique_ptr<QSyntaxHighlighter> createHighlighter(QTextDocument *doc, const std::vector<YAML::Node> &config, const QString &extension);
