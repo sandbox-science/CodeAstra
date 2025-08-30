@@ -36,7 +36,7 @@ jobs:
       - name: Set up C++ environment (macOS)
         if: matrix.os == 'macos-latest'
         run: |
-          brew install make cmake yaml-cpp
+          brew install yaml-cpp
           echo 'export PATH="/usr/local/opt/gcc/bin:$PATH"' >> ~/.bash_profile
           source ~/.bash_profile
           g++ --version
