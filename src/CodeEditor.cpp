@@ -71,14 +71,16 @@ void CodeEditor::keyPressEvent(QKeyEvent *event)
         }
         else if (event->modifiers() == Qt::ControlModifier && event->key() == Qt::Key_Slash)
         {
-        	addComment();
+            addComment();
             return;
         }
         else if (event->modifiers() == Qt::ControlModifier && event->key() == Qt::Key_Backspace)
    		{
-			moveCursor(QTextCursor::WordLeft, QTextCursor::KeepAnchor);
-			textCursor().removeSelectedText();
-			textCursor().deletePreviousChar();
+            QTextCursor cursor = textCursor();
+            cursor.movePosition(QTextCursor::WordLeft, QTextCursor::KeepAnchor);
+            cursor.removeSelectedText();
+            setTextCursor(cursor);
+
 			return;
 	    }
         else
@@ -263,7 +265,7 @@ void CodeEditor::highlightCurrentLine()
         QTextEdit::ExtraSelection selection;
 
         QColor lineColor = QColor(Qt::lightGray).lighter(60);
-        lineColor.setAlpha(100);
+        lineColor.setAlpha(80);
 
         selection.format.setBackground(lineColor);
         selection.format.setProperty(QTextFormat::FullWidthSelection, true);

@@ -10,6 +10,9 @@
 #include <filesystem>
 #include <QMessageBox>
 #include <QInputDialog>
+#include <QApplication>
+#include <QHeaderView>
+#include <QMimeData>
 
 Tree::Tree(QSplitter *splitter)
     : QObject(splitter),
@@ -17,7 +20,7 @@ Tree::Tree(QSplitter *splitter)
       m_model(std::make_unique<QFileSystemModel>()),
       m_tree(std::make_unique<QTreeView>(splitter))
 {
-    connect(m_tree.get(), &QTreeView::doubleClicked, this, &Tree::openFile);
+    connect(m_tree.get(), &QTreeView::clicked, this, &Tree::openFile);
 }
 
 Tree::~Tree() {}
@@ -33,18 +36,33 @@ void Tree::setupModel(const QString &directory)
     m_model->setRootPath(directory);
     m_model->setIconProvider(m_iconProvider.get());
     m_model->setFilter(QDir::AllEntries | QDir::Hidden | QDir::NoDotAndDotDot);
+    m_model->setReadOnly(false);
 }
 
 void Tree::setupTree()
 {
+    QFont baseFont = QApplication::font(); 
+    QFont treeFont = baseFont;
+    treeFont.setPointSize(baseFont.pointSize() - 1);
+
+    m_tree->setFont(treeFont);
     m_tree->setModel(m_model.get());
     m_tree->setRootIndex(m_model->index(m_model->rootPath()));
     m_tree->setRootIsDecorated(true);
     m_tree->setAnimated(true);
-    m_tree->setIndentation(20);
+    m_tree->setIndentation(16);
     m_tree->setSortingEnabled(false);
     m_tree->sortByColumn(1, Qt::AscendingOrder);
     m_tree->setHeaderHidden(true);
+    m_tree->setUniformRowHeights(true);
+
+    // Configure file/folder drag & drop
+    m_tree->setDragDropMode(QAbstractItemView::InternalMove);
+    m_tree->setDragEnabled(true);
+    m_tree->setAcceptDrops(true);
+    m_tree->setDropIndicatorShown(true);
+    m_tree->setDefaultDropAction(Qt::MoveAction);
+    m_tree->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     for (int i = 1; i <= m_model->columnCount(); ++i)
     {
@@ -53,6 +71,37 @@ void Tree::setupTree()
 
     m_tree->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(m_tree.get(), &QTreeView::customContextMenuRequested, this, &Tree::showContextMenu);
+
+    // Connect to dragEnter and dragMove events
+    m_tree->installEventFilter(this);
+}
+
+bool Tree::eventFilter(QObject *obj, QEvent *event)
+{
+    if (obj == m_tree.get())
+    {
+        if (event->type() == QEvent::DragEnter)
+        {
+            QDragEnterEvent *dragEvent = static_cast<QDragEnterEvent *>(event);
+            if (dragEvent->mimeData()->hasUrls())
+            {
+                dragEvent->acceptProposedAction();
+                return true;
+            }
+        }
+
+        else if (event->type() == QEvent::DragMove)
+        {
+            QDragMoveEvent *dragEvent = static_cast<QDragMoveEvent *>(event);
+            if (dragEvent->mimeData()->hasUrls())
+            {
+                dragEvent->acceptProposedAction();
+                return true;
+            }
+        }
+    }
+
+    return QObject::eventFilter(obj, event);
 }
 
 void Tree::openFile(const QModelIndex &index)

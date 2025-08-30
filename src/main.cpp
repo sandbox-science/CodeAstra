@@ -8,6 +8,7 @@
 #include <QBitmap>
 #include <QFont>
 #include <QFontDatabase>
+#include <QFile>
 
 // Function to create a round icon
 QIcon createRoundIcon(const QString &iconPath)
@@ -31,28 +32,76 @@ QIcon createRoundIcon(const QString &iconPath)
     return QIcon(roundPixmap);
 }
 
+QFont setFont()
+{
+    QStringList preferreFontFamilies = {"Monaco", "Menlo", "Consolas", "Courier New", "Monospace"};
+    QStringList availableFamilies    = QFontDatabase::families();
+
+    QString chosenFamily;
+    for(QString family: preferreFontFamilies)
+    {
+        if (availableFamilies.contains(family))
+        {
+            chosenFamily = family;
+            break;
+        }
+    }
+
+    if (chosenFamily.isEmpty())
+    {
+        chosenFamily = QFontDatabase::systemFont(QFontDatabase::FixedFont).family();
+    }
+
+    QFont font;
+    font.setFamily(chosenFamily);
+    font.setFixedPitch(true);
+    font.setPointSize(13);
+    
+    return font;
+}
+
+QPalette setPalette()
+{
+	QPalette palette;
+    palette.setColor(QPalette::Base, QColor("#1e1e1e"));
+    palette.setColor(QPalette::Text, QColor("#d4d4d4"));
+    
+    return palette;
+}
+
+QString getStyleConfig()
+{
+	QFile styleFile(":/resources/themes/dark.qss");
+    if (styleFile.open(QFile::ReadOnly))
+    {
+        return QString::fromUtf8(styleFile.readAll());
+    }
+    
+    return QString{};
+}
+
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    QIcon roundIcon = createRoundIcon(":/resources/app_icon.png");
-    if (roundIcon.isNull())
+	QIcon windowIcon = createRoundIcon(":/resources/app_icon.png");
+    QFont font       = setFont();
+    QPalette palette = setPalette();
+    QString theme    = getStyleConfig();
+    if (!theme.isEmpty())
     {
-        qWarning() << "Failed to load round icon!";
+    	app.setStyleSheet(theme);
     }
 
-    QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
-    font.setPointSize(12);
-
+    app.setPalette(palette);
     app.setFont(font);
-    app.setWindowIcon(roundIcon);
+    app.setWindowIcon(windowIcon);
+    app.setStyle("Fusion");
 
-    app.setApplicationVersion(QStringLiteral("0.1.0"));
+    app.setApplicationVersion(QStringLiteral("0.2.0"));
     app.setOrganizationName(QStringLiteral("Chris Dedman"));
     app.setApplicationName(QStringLiteral("CodeAstra"));
     app.setApplicationDisplayName(QStringLiteral("CodeAstra"));
-
-    app.setStyle("Fusion");
 
     QScopedPointer<MainWindow> window(new MainWindow);
     window->show();
