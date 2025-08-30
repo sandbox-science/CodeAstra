@@ -67,7 +67,9 @@ std::unique_ptr<QSyntaxHighlighter> SyntaxManager::createSyntaxHighlighter(const
         }
     }
 
-//     qDebug() << "[SyntaxManager] Using config directory:" << baseDir;
+#ifdef DEBUG
+    qDebug() <<  "[SyntaxManager] Using config directory:" << baseDir;
+#endif
 
     QDir syntaxDir(baseDir);
     QStringList yamlFilePath = syntaxDir.entryList({"*.yaml", "*.yml"}, QDir::Files);
@@ -81,8 +83,9 @@ std::unique_ptr<QSyntaxHighlighter> SyntaxManager::createSyntaxHighlighter(const
         {
             YAML::Node fileConfig = YAML::Load(file.readAll().toStdString());
             file.close();
-            // qDebug() << "[SyntaxManager] Loaded config for extension:" << extension << "from:" << file.fileName();
-
+#ifdef DEBUG
+            qDebug() << "[SyntaxManager] Loaded config for extension:" << extension << "from:" << file.fileName();
+#endif
             config.push_back(fileConfig);
         }
         else
@@ -97,7 +100,11 @@ std::unique_ptr<QSyntaxHighlighter> SyntaxManager::createSyntaxHighlighter(const
 
 std::unique_ptr<QSyntaxHighlighter> SyntaxManager::createHighlighter(QTextDocument *doc, const std::vector<YAML::Node> &config, const QString &extension)
 {
-    // qDebug() << "[SyntaxManager] Creating highlighter for extension:" << extension;
+
+#ifdef DEBUG
+    qDebug() << "[SyntaxManager] Creating highlighter for extension:" << extension;
+#endif
+
     for (const auto &node : config)
     {
         if (node["extensions"])
@@ -116,7 +123,8 @@ std::unique_ptr<QSyntaxHighlighter> SyntaxManager::createHighlighter(QTextDocume
             qDebug() << "No extensions key in YAML config.";
         }
     }
-
+#ifdef DEBUG
     qDebug() << "No matching highlighter found for extension:" << extension;
+#endif
     return nullptr;
 }
