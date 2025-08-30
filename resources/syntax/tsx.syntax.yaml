@@ -16,7 +16,7 @@ keywords:
       color: "#DCDCAA"  # Yellow for template literals
 
   number:
-    - regex: "\\b\\d+(\\.\\d+)?\\b"
+    - regex: "\\b(0b[01]+|0o[0-7]+|0x[0-9a-fA-F]+|\\d+(\\.\\d+)?)\\b"
       color: "#B5CEA8"  # Light green
 
   keyword:
