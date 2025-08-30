@@ -49,10 +49,3 @@ elseif(APPLE OR UNIX)
     target_compile_options(${EXECUTABLE_NAME} PRIVATE -Wall -Wextra -Wpedantic -Werror -Wshadow -Wconversion -Wsign-conversion -fsanitize=address,undefined -fstack-protector)
     target_link_options(${EXECUTABLE_NAME} PRIVATE -fsanitize=address,undefined)
 endif()
-
-# Copy config files
-file(GLOB YAML_FILES "${CMAKE_SOURCE_DIR}/config/*.yaml")
-file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/config)
-foreach(YAML_FILE ${YAML_FILES})
-    configure_file(${YAML_FILE} ${CMAKE_BINARY_DIR}/config/ COPYONLY)
-endforeach()
