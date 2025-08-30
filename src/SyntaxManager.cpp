@@ -120,11 +120,11 @@ std::unique_ptr<QSyntaxHighlighter> SyntaxManager::createHighlighter(QTextDocume
         }
         else
         {
-            qDebug() << "No extensions key in YAML config.";
+            qDebug() << "[SyntaxManager] No extensions key in YAML config.";
         }
     }
 #ifdef DEBUG
-    qDebug() << "No matching highlighter found for extension:" << extension;
+    qDebug() << "[SyntaxManager] No matching highlighter found for extension:" << extension;
 #endif
     return nullptr;
 }
