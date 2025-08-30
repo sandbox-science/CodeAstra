@@ -2,5 +2,11 @@
     <qresource prefix="/">
         <file>resources/app_icon.png</file>
         <file>resources/themes/dark.qss</file>
+        <file>resources/syntax/cxx.syntax.yaml</file>
+        <file>resources/syntax/python.syntax.yaml</file>
+        <file>resources/syntax/go.syntax.yaml</file>
+        <file>resources/syntax/tsx.syntax.yaml</file>
+        <file>resources/syntax/yaml.syntax.yaml</file>
+        <file>resources/syntax/markdown.syntax.yaml</file>
     </qresource>
 </RCC>

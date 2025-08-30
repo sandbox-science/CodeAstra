@@ -1,0 +1,36 @@
+extensions: [tsx, ts, js]
+
+keywords:
+  comment:
+    - regex: "//.*"
+      color: "#6A9955"  # Green
+    - regex: "/\\*[^*]*\\*+(?:[^/*][^*]*\\*+)*/"
+      color: "#6A9955"  # Green
+
+  string:
+    - regex: "'(?:\\\\.|[^'\\\\])*'"
+      color: "#CE9178"  # Reddish
+    - regex: "\"(?:\\\\.|[^\"\\\\])*\""
+      color: "#CE9178"  # Reddish
+    - regex: "`(?:\\\\.|[^`\\\\])*`"
+      color: "#DCDCAA"  # Yellow for template literals
+
+  number:
+    - regex: "\\b\\d+(\\.\\d+)?\\b"
+      color: "#B5CEA8"  # Light green
+
+  keyword:
+    - regex: "\\b(?:let|const|var|function|class|interface|extends|implements|public|private|protected|static|new|return|if|else|for|while|do|switch|case|break|continue|try|catch|finally|throw|typeof|instanceof|in|of|void|async|await|import|from|export|default|as|enum|type|declare|namespace|abstract|readonly|get|set|yield|with|super|this)\\b"
+      color: "#569CD6"  # Blue
+
+  type:
+    - regex: "\\b(?:string|number|boolean|any|unknown|never|void|object|undefined|null|bigint|symbol)\\b"
+      color: "#4EC9B0"  # Cyan
+
+  boolean:
+    - regex: "\\b(?:true|false)\\b"
+      color: "#569CD6"  # Blue
+
+  operator:
+    - regex: "\\+|-|\\*|\\/|=|==|===|!=|!==|<|>|<=|>=|\\?|:|\\.|,|\\||&|\\^|~|!"
+      color: "#D4D4D4"  # Light gray
