@@ -43,9 +43,16 @@ qt_add_resources(APP_RESOURCES ${CMAKE_SOURCE_DIR}/resources.qrc)
 target_sources(${EXECUTABLE_NAME} PRIVATE ${APP_RESOURCES})
 
 # OS-specific flags
+option(DEBUG "Enable debug mode" OFF)
+
 if(MSVC)
     target_compile_options(${EXECUTABLE_NAME} PRIVATE /W4 /WX /analyze /sdl /guard:cf)
 elseif(APPLE OR UNIX)
     target_compile_options(${EXECUTABLE_NAME} PRIVATE -Wall -Wextra -Wpedantic -Werror -Wshadow -Wconversion -Wsign-conversion -fsanitize=address,undefined -fstack-protector)
     target_link_options(${EXECUTABLE_NAME} PRIVATE -fsanitize=address,undefined)
+
+    # Add the preprocessor symbol only when DEBUG is ON
+    if (DEBUG)
+        target_compile_definitions(${EXECUTABLE_NAME} PRIVATE DEBUG=1)
+    endif()
 endif()
