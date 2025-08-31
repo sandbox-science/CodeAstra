@@ -20,5 +20,5 @@ keywords:
       color: "#E37100" # Orange
 
   number:
-    - regex: "\\b\\d+\\b"
+    - regex: "\\b(0b[01]+|0o[0-7]+|0x[0-9a-fA-F]+|\\d+(\\.\\d+)?)\\b"
       color: "#0000FF" # Blue

@@ -1,4 +1,5 @@
 #include "MainWindow.h"
+#include "SyntaxManager.h"
 
 #include <QApplication>
 #include <QMainWindow>
@@ -34,6 +35,7 @@ QIcon createRoundIcon(const QString &iconPath)
 
 QFont setFont()
 {
+	SyntaxManager::initializeUserSyntaxConfig();
     QStringList preferreFontFamilies = {"Monaco", "Menlo", "Consolas", "Courier New", "Monospace"};
     QStringList availableFamilies    = QFontDatabase::families();
 

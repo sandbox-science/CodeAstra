@@ -1,3 +1,4 @@
+DEBUG      ?= OFF
 PROJECT    = CodeAstra
 BUILD_DIR  = $(PWD)/build
 
@@ -10,7 +11,7 @@ all: install
 build:
 	@echo "Building $(PROJECT)..."
 	@mkdir -p $(BUILD_DIR)
-	@cd $(BUILD_DIR) && cmake $(CMAKE_OPTIONS)
+	@cd $(BUILD_DIR) && cmake $(CMAKE_OPTIONS) -DDEBUG=$(DEBUG)
 
 clean:
 	@echo "Cleaning the build directory..."

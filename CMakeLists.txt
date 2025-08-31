@@ -32,4 +32,3 @@ find_package(yaml-cpp REQUIRED CONFIG)
 # Add subdirectories
 add_subdirectory(src)
 add_subdirectory(tests)
-
