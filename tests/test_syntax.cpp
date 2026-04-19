@@ -49,6 +49,7 @@ private slots:
   void testLoadEmptySyntaxRules();
   void testLoadMissingKeywords();
   void testCreateSyntaxHighlighter_skipsInvalidYaml();
+  void testLoadUnsafeRegexRules_skipsRiskyPatterns();
 };
 
 void TestSyntax::initTestCase()
@@ -121,6 +122,34 @@ void TestSyntax::testCreateSyntaxHighlighter_skipsInvalidYaml()
   qunsetenv("CONFIG_DIR");
 
   QVERIFY2(highlighter == nullptr, "Malformed YAML should be skipped without crashing.");
+}
+
+void TestSyntax::testLoadUnsafeRegexRules_skipsRiskyPatterns()
+{
+  YAML::Node config;
+  YAML::Node keywords = config["keywords"];
+  YAML::Node category;
+
+  YAML::Node riskyRule;
+  riskyRule["regex"] = "(a+)+";
+  riskyRule["color"] = "#ff0000";
+  category.push_back(riskyRule);
+
+  YAML::Node backrefRule;
+  backrefRule["regex"] = "(a)\\\\1";
+  backrefRule["color"] = "#00ff00";
+  category.push_back(backrefRule);
+
+  YAML::Node safeRule;
+  safeRule["regex"] = "\\bint\\b";
+  safeRule["color"] = "#0000ff";
+  category.push_back(safeRule);
+
+  keywords["types"] = category;
+  syntax->loadSyntaxRules(config);
+
+  QCOMPARE_EQ(syntax->m_syntaxRules.size(), 1);
+  QCOMPARE_EQ(syntax->m_syntaxRules[0].m_pattern.pattern(), "\\bint\\b");
 }
 
 QTEST_MAIN(TestSyntax)

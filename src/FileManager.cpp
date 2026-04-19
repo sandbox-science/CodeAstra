@@ -9,7 +9,9 @@
 #include <QFileInfo>
 #include <QDateTime>
 #include <QDir>
+#include <QRegularExpression>
 #include <filesystem>
+#include <optional>
 #include <iostream>
 #include <fstream>
 
@@ -300,6 +302,32 @@ bool isValidPath(const std::filesystem::path &path)
     return true;
 }
 
+bool isSafePathComponent(const QString &name)
+{
+    if (name.isEmpty() || name == "." || name == "..")
+    {
+        return false;
+    }
+
+    if (QDir::isAbsolutePath(name))
+    {
+        return false;
+    }
+
+    static const QRegularExpression separatorPattern(R"([/\\])");
+    return !separatorPattern.match(name).hasMatch();
+}
+
+std::optional<std::filesystem::path> resolveChildPath(const std::filesystem::path &basePath, const QString &name)
+{
+    if (!isSafePathComponent(name))
+    {
+        return std::nullopt;
+    }
+
+    return basePath / name.toStdString();
+}
+
 OperationResult FileManager::renamePath(const QFileInfo &pathInfo, const QString &newName)
 {
     if (!pathInfo.exists())
@@ -315,16 +343,20 @@ OperationResult FileManager::renamePath(const QFileInfo &pathInfo, const QString
         return {false, "ERROR: invalid file path."};
     }
 
-    std::filesystem::path newPath = oldPath.parent_path() / newName.toStdString();
-
-    if (QFileInfo(newPath).exists())
+    std::optional<std::filesystem::path> newPath = resolveChildPath(oldPath.parent_path(), newName);
+    if (!newPath.has_value())
     {
-        return {false, newPath.filename().string() + " already takken."};
+        return {false, "ERROR: invalid target name."};
+    }
+
+    if (QFileInfo(newPath.value()).exists())
+    {
+        return {false, newPath->filename().string() + " already takken."};
     }
 
     try
     {
-        std::filesystem::rename(oldPath, newPath);
+        std::filesystem::rename(oldPath, newPath.value());
     }
     catch (const std::filesystem::filesystem_error &e)
     {
@@ -332,7 +364,7 @@ OperationResult FileManager::renamePath(const QFileInfo &pathInfo, const QString
         return {false, e.what()};
     }
 
-    return {true, newPath.filename().string() + " renamed successfully."};
+    return {true, newPath->filename().string() + " renamed successfully."};
 }
 
 // Check if the path is a valid directory
@@ -409,24 +441,29 @@ OperationResult FileManager::newFile(const QFileInfo &pathInfo, QString newFileP
         return {false, "ERROR: invalid file path."};
     }
 
-    std::filesystem::path filePath = dirPath / newFilePath.toStdString();
-    if (QFileInfo(filePath).exists())
+    std::optional<std::filesystem::path> filePath = resolveChildPath(dirPath, newFilePath);
+    if (!filePath.has_value())
     {
-        return {false, filePath.filename().string() + " already used."};
+        return {false, "ERROR: invalid file name."};
     }
 
-    std::ofstream file(filePath);
+    if (QFileInfo(filePath.value()).exists())
+    {
+        return {false, filePath->filename().string() + " already used."};
+    }
+
+    std::ofstream file(filePath.value());
     if (file.is_open())
     {
         file.close();
     }
 
-    QString fileName = QString::fromStdString(filePath.string());
+    QString fileName = QString::fromStdString(filePath->string());
 
     FileManager &fileManager = FileManager::getInstance();
     if (fileManager.m_editor == nullptr || fileManager.m_mainWindow == nullptr)
     {
-        return {true, filePath.filename().string() + " created successfully."};
+        return {true, filePath->filename().string() + " created successfully."};
     }
 
     if (!fileManager.loadFileInEditor(fileName))
@@ -434,7 +471,7 @@ OperationResult FileManager::newFile(const QFileInfo &pathInfo, QString newFileP
         return {false, "ERROR: failed to open newly created file."};
     }
 
-    return {true, filePath.filename().string() + " created successfully."};
+    return {true, filePath->filename().string() + " created successfully."};
 }
 
 OperationResult FileManager::newFolder(const QFileInfo &pathInfo, QString newFolderPath)
@@ -455,22 +492,27 @@ OperationResult FileManager::newFolder(const QFileInfo &pathInfo, QString newFol
         return {false, "ERROR: invalid file path."};
     }
 
-    std::filesystem::path newPath = dirPath / newFolderPath.toStdString();
-    if (QFileInfo(newPath).exists())
+    std::optional<std::filesystem::path> newPath = resolveChildPath(dirPath, newFolderPath);
+    if (!newPath.has_value())
     {
-        return {false, newPath.filename().string() + " already used."};
+        return {false, "ERROR: invalid folder name."};
     }
 
-    std::filesystem::create_directory(newPath, err);
+    if (QFileInfo(newPath.value()).exists())
+    {
+        return {false, newPath->filename().string() + " already used."};
+    }
+
+    std::filesystem::create_directory(newPath.value(), err);
     if (err)
     {
         qDebug() << "Error creating directory:" << QString::fromStdString(err.message());
         return {false, err.message().c_str()};
     }
 
-    qDebug() << "New folder created at:" << QString::fromStdString(newPath.string());
+    qDebug() << "New folder created at:" << QString::fromStdString(newPath->string());
 
-    return {true, newPath.filename().string() + " created successfully."};
+    return {true, newPath->filename().string() + " created successfully."};
 }
 
 OperationResult FileManager::duplicatePath(const QFileInfo &pathInfo)
