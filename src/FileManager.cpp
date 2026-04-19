@@ -7,6 +7,8 @@
 #include <QMessageBox>
 #include <QTextStream>
 #include <QFileInfo>
+#include <QDateTime>
+#include <QDir>
 #include <filesystem>
 #include <iostream>
 #include <fstream>
@@ -112,7 +114,7 @@ bool FileManager::promptUnsavedChanges()
     int option = buildUnsavedChangesMessage();
     if (option == QMessageBox::Save)
     {
-        saveFile();
+        return saveFile();
     }
     else if (option == QMessageBox::Cancel)
     {
@@ -136,12 +138,11 @@ void FileManager::newFile()
     m_isDirty = false;
 }
 
-void FileManager::saveFile()
+bool FileManager::saveFile()
 {
     if (m_currentFileName.isEmpty())
     {
-        saveFileAs();
-        return;
+        return saveFileAs();
     }
 
     // qDebug() << "Saving file:" << m_currentFileName;
@@ -150,7 +151,7 @@ void FileManager::saveFile()
     if (!file.open(QFile::WriteOnly | QFile::Text))
     {
         QMessageBox::warning(nullptr, "Error", "Cannot save file: " + file.errorString());
-        return;
+        return false;
     }
 
     QTextStream out(&file);
@@ -161,7 +162,7 @@ void FileManager::saveFile()
     else
     {
         QMessageBox::critical(nullptr, "Error", "Editor is not initialized.");
-        return;
+        return false;
     }
     file.close();
 
@@ -176,9 +177,10 @@ void FileManager::saveFile()
 
     m_isDirty = false;
     emit m_editor->statusMessageChanged("File saved successfully.");
+    return true;
 }
 
-void FileManager::saveFileAs()
+bool FileManager::saveFileAs()
 {
     QString fileExtension = getFileExtension();
     QString filter        = "All Files (*);;C++ Files (*.cpp *.h);;Text Files (*.txt)";
@@ -189,30 +191,42 @@ void FileManager::saveFileAs()
 
     QString fileName = QFileDialog::getSaveFileName(nullptr, "Save File As", QString(), filter);
 
-    if (!fileName.isEmpty())
+    if (fileName.isEmpty())
     {
-        m_currentFileName = fileName;
-        saveFile();
+        return false;
     }
+
+    const QString previousFileName = m_currentFileName;
+    m_currentFileName = fileName;
+
+    if (saveFile())
+    {
+        return true;
+    }
+
+    m_currentFileName = previousFileName;
+    return false;
 }
 
 void FileManager::openFile()
 {
     QString fileName = QFileDialog::getOpenFileName(nullptr, "Open File", QString(),
                                                     "All Files (*);;C++ Files (*.cpp *.h);;Text Files (*.txt)");
-    if (!fileName.isEmpty())
-    {
-        // qDebug() << "Opening file: " << fileName;
-        m_currentFileName = fileName;
-        loadFileInEditor(fileName);
-    }
-    else
+    if (fileName.isEmpty())
     {
         qDebug() << "No file selected.";
+        return;
     }
+
+    if (!promptUnsavedChanges())
+    {
+        return;
+    }
+
+    loadFileInEditor(fileName);
 }
 
-void FileManager::loadFileInEditor(const QString &filePath)
+bool FileManager::loadFileInEditor(const QString &filePath)
 {
     // qDebug() << "Loading file:" << filePath;
 
@@ -220,12 +234,13 @@ void FileManager::loadFileInEditor(const QString &filePath)
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         QMessageBox::warning(nullptr, "Error", "Cannot open file: " + file.errorString());
-        return;
+        return false;
     }
 
     QTextStream in(&file);
     if (m_editor)
     {
+        m_currentFileName = filePath;
         m_editor->blockSignals(true);
         m_editor->setPlainText(in.readAll());
         m_editor->blockSignals(false);
@@ -238,7 +253,7 @@ void FileManager::loadFileInEditor(const QString &filePath)
     else
     {
         QMessageBox::critical(nullptr, "Error", "Editor is not initialized.");
-        return;
+        return false;
     }
     file.close();
 
@@ -252,6 +267,7 @@ void FileManager::loadFileInEditor(const QString &filePath)
     }
 
     m_isDirty = false;
+    return true;
 }
 
 QString FileManager::getFileExtension() const
@@ -329,7 +345,8 @@ bool isAValidDirectory(const QFileInfo &pathInfo)
         return false;
     }
 
-    if (pathInfo.absolutePath() == "/" || pathInfo.absolutePath() == QDir::homePath())
+    const QString targetPath = QDir::cleanPath(pathInfo.absoluteFilePath());
+    if (targetPath == "/" || targetPath == QDir::homePath())
     {
         QMessageBox::critical(nullptr, "Error", "Cannot delete system or home directory.");
         return false;
@@ -353,7 +370,24 @@ OperationResult FileManager::deletePath(const QFileInfo &pathInfo)
     }
 
     QString qPathToDelete = QString::fromStdString(pathToDelete.string());
-    if (!QFile::moveToTrash(qPathToDelete))
+    if (QFile::moveToTrash(qPathToDelete))
+    {
+        return {true, pathToDelete.filename().string() + " deleted successfully."};
+    }
+
+    bool removed = false;
+    if (pathInfo.isDir())
+    {
+        QDir dir(qPathToDelete);
+        removed = dir.removeRecursively();
+    }
+    else
+    {
+        QFile file(qPathToDelete);
+        removed = file.remove();
+    }
+
+    if (!removed)
     {
         return {false, "ERROR: failed to delete: " + pathToDelete.string()};
     }
@@ -389,8 +423,16 @@ OperationResult FileManager::newFile(const QFileInfo &pathInfo, QString newFileP
 
     QString fileName = QString::fromStdString(filePath.string());
 
-    FileManager::getInstance().setCurrentFileName(fileName);
-    FileManager::getInstance().loadFileInEditor(fileName);
+    FileManager &fileManager = FileManager::getInstance();
+    if (fileManager.m_editor == nullptr || fileManager.m_mainWindow == nullptr)
+    {
+        return {true, filePath.filename().string() + " created successfully."};
+    }
+
+    if (!fileManager.loadFileInEditor(fileName))
+    {
+        return {false, "ERROR: failed to open newly created file."};
+    }
 
     return {true, filePath.filename().string() + " created successfully."};
 }

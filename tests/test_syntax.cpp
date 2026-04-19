@@ -1,8 +1,11 @@
 #include <QtTest>
 #include "Syntax.h"
+#include "SyntaxManager.h"
 
 #include <QTextDocument>
 #include <QColor>
+#include <QFile>
+#include <QTemporaryDir>
 #include <yaml-cpp/yaml.h>
 
 // Helper function to create a YAML node for testing
@@ -45,6 +48,7 @@ private slots:
   void testLoadValidSyntaxRules();
   void testLoadEmptySyntaxRules();
   void testLoadMissingKeywords();
+  void testCreateSyntaxHighlighter_skipsInvalidYaml();
 };
 
 void TestSyntax::initTestCase()
@@ -99,6 +103,24 @@ void TestSyntax::testLoadMissingKeywords()
 
   // Verify that no rules were loaded
   QVERIFY(syntax->m_syntaxRules.isEmpty());
+}
+
+void TestSyntax::testCreateSyntaxHighlighter_skipsInvalidYaml()
+{
+  QTemporaryDir tempDir;
+  QVERIFY2(tempDir.isValid(), "Temporary directory should be valid.");
+
+  QFile invalidConfig(tempDir.filePath("broken.syntax.yaml"));
+  QVERIFY2(invalidConfig.open(QIODevice::WriteOnly | QIODevice::Text),
+           "Malformed syntax config should be writable.");
+  invalidConfig.write("keywords: [broken");
+  invalidConfig.close();
+
+  qputenv("CONFIG_DIR", tempDir.path().toUtf8());
+  auto highlighter = SyntaxManager::createSyntaxHighlighter("cpp", document);
+  qunsetenv("CONFIG_DIR");
+
+  QVERIFY2(highlighter == nullptr, "Malformed YAML should be skipped without crashing.");
 }
 
 QTEST_MAIN(TestSyntax)

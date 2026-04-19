@@ -81,7 +81,17 @@ std::unique_ptr<QSyntaxHighlighter> SyntaxManager::createSyntaxHighlighter(const
         QFile file(syntaxDir.filePath(fileName));
         if (file.open(QIODevice::ReadOnly | QIODevice::Text))
         {
-            YAML::Node fileConfig = YAML::Load(file.readAll().toStdString());
+            YAML::Node fileConfig;
+            try
+            {
+                fileConfig = YAML::Load(file.readAll().toStdString());
+            }
+            catch (const YAML::Exception &e)
+            {
+                qWarning() << "[SyntaxManager] Failed to parse syntax config:" << file.fileName() << "-" << e.what();
+                file.close();
+                continue;
+            }
             file.close();
 #ifdef DEBUG
             qDebug() << "[SyntaxManager] Loaded config for extension:" << extension << "from:" << file.fileName();
