@@ -28,6 +28,9 @@ private slots:
     void testNewFile();
     void testNewFolder();
     void testNewFolderFail();
+    void testNewFileRejectsTraversal();
+    void testNewFolderRejectsTraversal();
+    void testRenameRejectsTraversal();
     void testDuplicatePath();
 };
 
@@ -65,8 +68,9 @@ void TestFileManager::testRenamePath()
     file.write("// test content");
     file.close();
 
-    QString newFilePath = tempDir.path() + "/renamedTestFile.cpp";
-    OperationResult fileRenamed = FileManager::getInstance().renamePath(QFileInfo(originalFilePath), newFilePath);
+    QString newFileName = "renamedTestFile.cpp";
+    QString newFilePath = tempDir.path() + "/" + newFileName;
+    OperationResult fileRenamed = FileManager::getInstance().renamePath(QFileInfo(originalFilePath), newFileName);
 
     QVERIFY2(fileRenamed.success, fileRenamed.message.c_str());
     QVERIFY2(QFile::exists(newFilePath), "Renamed file should exist.");
@@ -150,6 +154,43 @@ void TestFileManager::testNewFolderFail()
     OperationResult folderCreated = FileManager::getInstance().newFolder(QFileInfo(folderPath), "");
 
     QVERIFY2(!folderCreated.success, "Folder creation should fail.");
+}
+
+void TestFileManager::testNewFileRejectsTraversal()
+{
+    QTemporaryDir tempDir;
+    QVERIFY2(tempDir.isValid(), "Temporary directory should be valid.");
+
+    OperationResult fileCreated = FileManager::getInstance().newFile(QFileInfo(tempDir.path()), "../escape.txt");
+
+    QVERIFY2(!fileCreated.success, "New file should reject path traversal.");
+    QVERIFY2(!QFile::exists(tempDir.path() + "/../escape.txt"), "Traversal target should not be created.");
+}
+
+void TestFileManager::testNewFolderRejectsTraversal()
+{
+    QTemporaryDir tempDir;
+    QVERIFY2(tempDir.isValid(), "Temporary directory should be valid.");
+
+    OperationResult folderCreated = FileManager::getInstance().newFolder(QFileInfo(tempDir.path()), "../escape_dir");
+
+    QVERIFY2(!folderCreated.success, "New folder should reject path traversal.");
+}
+
+void TestFileManager::testRenameRejectsTraversal()
+{
+    QTemporaryDir tempDir;
+    QVERIFY2(tempDir.isValid(), "Temporary directory should be valid.");
+
+    QString originalFilePath = tempDir.path() + "/testFile.cpp";
+    QFile file(originalFilePath);
+    QVERIFY2(file.open(QIODevice::WriteOnly), "File should be created successfully.");
+    file.close();
+
+    OperationResult fileRenamed = FileManager::getInstance().renamePath(QFileInfo(originalFilePath), "../renamedTestFile.cpp");
+
+    QVERIFY2(!fileRenamed.success, "Rename should reject path traversal.");
+    QVERIFY2(QFile::exists(originalFilePath), "Original file should still exist.");
 }
 
 void TestFileManager::testDuplicatePath()

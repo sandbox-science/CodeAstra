@@ -124,7 +124,6 @@ void Tree::openFile(const QModelIndex &index)
             return; // if user has cancelled
         }
 
-        fm.setCurrentFileName(filePath);
         fm.loadFileInEditor(filePath);
     }
 }

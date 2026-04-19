@@ -1,8 +1,11 @@
 #include <QtTest>
 #include "Syntax.h"
+#include "SyntaxManager.h"
 
 #include <QTextDocument>
 #include <QColor>
+#include <QFile>
+#include <QTemporaryDir>
 #include <yaml-cpp/yaml.h>
 
 // Helper function to create a YAML node for testing
@@ -45,6 +48,8 @@ private slots:
   void testLoadValidSyntaxRules();
   void testLoadEmptySyntaxRules();
   void testLoadMissingKeywords();
+  void testCreateSyntaxHighlighter_skipsInvalidYaml();
+  void testLoadUnsafeRegexRules_skipsRiskyPatterns();
 };
 
 void TestSyntax::initTestCase()
@@ -99,6 +104,52 @@ void TestSyntax::testLoadMissingKeywords()
 
   // Verify that no rules were loaded
   QVERIFY(syntax->m_syntaxRules.isEmpty());
+}
+
+void TestSyntax::testCreateSyntaxHighlighter_skipsInvalidYaml()
+{
+  QTemporaryDir tempDir;
+  QVERIFY2(tempDir.isValid(), "Temporary directory should be valid.");
+
+  QFile invalidConfig(tempDir.filePath("broken.syntax.yaml"));
+  QVERIFY2(invalidConfig.open(QIODevice::WriteOnly | QIODevice::Text),
+           "Malformed syntax config should be writable.");
+  invalidConfig.write("keywords: [broken");
+  invalidConfig.close();
+
+  qputenv("CONFIG_DIR", tempDir.path().toUtf8());
+  auto highlighter = SyntaxManager::createSyntaxHighlighter("cpp", document);
+  qunsetenv("CONFIG_DIR");
+
+  QVERIFY2(highlighter == nullptr, "Malformed YAML should be skipped without crashing.");
+}
+
+void TestSyntax::testLoadUnsafeRegexRules_skipsRiskyPatterns()
+{
+  YAML::Node config;
+  YAML::Node keywords = config["keywords"];
+  YAML::Node category;
+
+  YAML::Node riskyRule;
+  riskyRule["regex"] = "(a+)+";
+  riskyRule["color"] = "#ff0000";
+  category.push_back(riskyRule);
+
+  YAML::Node backrefRule;
+  backrefRule["regex"] = "(a)\\\\1";
+  backrefRule["color"] = "#00ff00";
+  category.push_back(backrefRule);
+
+  YAML::Node safeRule;
+  safeRule["regex"] = "\\bint\\b";
+  safeRule["color"] = "#0000ff";
+  category.push_back(safeRule);
+
+  keywords["types"] = category;
+  syntax->loadSyntaxRules(config);
+
+  QCOMPARE_EQ(syntax->m_syntaxRules.size(), 1);
+  QCOMPARE_EQ(syntax->m_syntaxRules[0].m_pattern.pattern(), "\\bint\\b");
 }
 
 QTEST_MAIN(TestSyntax)

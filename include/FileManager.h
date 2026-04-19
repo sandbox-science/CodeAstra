@@ -57,10 +57,10 @@ public:
 
 public slots:
     void newFile();
-    void saveFile();
-    void saveFileAs();
+    bool saveFile();
+    bool saveFileAs();
     void openFile();
-    void loadFileInEditor(const QString &filePath);
+    bool loadFileInEditor(const QString &filePath);
 
     bool promptUnsavedChanges();
 

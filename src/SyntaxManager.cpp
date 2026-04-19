@@ -4,6 +4,46 @@
 #include <QDir>
 #include <QFile>
 #include <QDebug>
+#include <QFileInfo>
+
+#ifdef Q_OS_UNIX
+#include <unistd.h>
+#endif
+
+namespace
+{
+constexpr int kMaxSyntaxConfigFiles = 64;
+constexpr qint64 kMaxSyntaxConfigSizeBytes = 256 * 1024;
+
+bool canUseEnvironmentSyntaxDir()
+{
+#ifdef Q_OS_UNIX
+    return geteuid() == getuid() && geteuid() != 0;
+#else
+    return true;
+#endif
+}
+
+QString resolveSyntaxBaseDir()
+{
+    if (qEnvironmentVariableIsSet("CONFIG_DIR") && canUseEnvironmentSyntaxDir())
+    {
+        QFileInfo configuredDir(qEnvironmentVariable("CONFIG_DIR"));
+        if (configuredDir.exists() && configuredDir.isDir() && configuredDir.isReadable())
+        {
+            return configuredDir.canonicalFilePath();
+        }
+    }
+
+    QString userSyntaxDir = QDir::homePath() + "/.config/codeastra/syntax";
+    if (QDir(userSyntaxDir).exists())
+    {
+        return userSyntaxDir;
+    }
+
+    return "config";
+}
+}
 
 void SyntaxManager::initializeUserSyntaxConfig()
 {
@@ -48,24 +88,7 @@ void SyntaxManager::initializeUserSyntaxConfig()
 
 std::unique_ptr<QSyntaxHighlighter> SyntaxManager::createSyntaxHighlighter(const QString &extension, QTextDocument *doc)
 {
-    QString baseDir;
-
-    if (qEnvironmentVariableIsSet("CONFIG_DIR"))
-    {
-        baseDir = qEnvironmentVariable("CONFIG_DIR");
-    }
-    else
-    {
-        QString userSyntaxDir = QDir::homePath() + "/.config/codeastra/syntax";
-        if (QDir(userSyntaxDir).exists())
-        {
-            baseDir = userSyntaxDir;
-        }
-        else
-        {
-            baseDir = "config";
-        }
-    }
+    QString baseDir = resolveSyntaxBaseDir();
 
 #ifdef DEBUG
     qDebug() <<  "[SyntaxManager] Using config directory:" << baseDir;
@@ -73,6 +96,11 @@ std::unique_ptr<QSyntaxHighlighter> SyntaxManager::createSyntaxHighlighter(const
 
     QDir syntaxDir(baseDir);
     QStringList yamlFilePath = syntaxDir.entryList({"*.yaml", "*.yml"}, QDir::Files);
+    if (yamlFilePath.size() > kMaxSyntaxConfigFiles)
+    {
+        qWarning() << "[SyntaxManager] Too many syntax config files in:" << baseDir;
+        return nullptr;
+    }
 
     std::vector<YAML::Node> config;
     // Iterate over all YAML files and store their contents as separate nodes
@@ -81,7 +109,24 @@ std::unique_ptr<QSyntaxHighlighter> SyntaxManager::createSyntaxHighlighter(const
         QFile file(syntaxDir.filePath(fileName));
         if (file.open(QIODevice::ReadOnly | QIODevice::Text))
         {
-            YAML::Node fileConfig = YAML::Load(file.readAll().toStdString());
+            if (file.size() > kMaxSyntaxConfigSizeBytes)
+            {
+                qWarning() << "[SyntaxManager] Syntax config too large:" << file.fileName();
+                file.close();
+                continue;
+            }
+
+            YAML::Node fileConfig;
+            try
+            {
+                fileConfig = YAML::Load(file.readAll().toStdString());
+            }
+            catch (const YAML::Exception &e)
+            {
+                qWarning() << "[SyntaxManager] Failed to parse syntax config:" << file.fileName() << "-" << e.what();
+                file.close();
+                continue;
+            }
             file.close();
 #ifdef DEBUG
             qDebug() << "[SyntaxManager] Loaded config for extension:" << extension << "from:" << file.fileName();

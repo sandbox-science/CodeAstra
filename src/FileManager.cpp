@@ -7,7 +7,11 @@
 #include <QMessageBox>
 #include <QTextStream>
 #include <QFileInfo>
+#include <QDateTime>
+#include <QDir>
+#include <QRegularExpression>
 #include <filesystem>
+#include <optional>
 #include <iostream>
 #include <fstream>
 
@@ -112,7 +116,7 @@ bool FileManager::promptUnsavedChanges()
     int option = buildUnsavedChangesMessage();
     if (option == QMessageBox::Save)
     {
-        saveFile();
+        return saveFile();
     }
     else if (option == QMessageBox::Cancel)
     {
@@ -136,12 +140,11 @@ void FileManager::newFile()
     m_isDirty = false;
 }
 
-void FileManager::saveFile()
+bool FileManager::saveFile()
 {
     if (m_currentFileName.isEmpty())
     {
-        saveFileAs();
-        return;
+        return saveFileAs();
     }
 
     // qDebug() << "Saving file:" << m_currentFileName;
@@ -150,7 +153,7 @@ void FileManager::saveFile()
     if (!file.open(QFile::WriteOnly | QFile::Text))
     {
         QMessageBox::warning(nullptr, "Error", "Cannot save file: " + file.errorString());
-        return;
+        return false;
     }
 
     QTextStream out(&file);
@@ -161,7 +164,7 @@ void FileManager::saveFile()
     else
     {
         QMessageBox::critical(nullptr, "Error", "Editor is not initialized.");
-        return;
+        return false;
     }
     file.close();
 
@@ -176,9 +179,10 @@ void FileManager::saveFile()
 
     m_isDirty = false;
     emit m_editor->statusMessageChanged("File saved successfully.");
+    return true;
 }
 
-void FileManager::saveFileAs()
+bool FileManager::saveFileAs()
 {
     QString fileExtension = getFileExtension();
     QString filter        = "All Files (*);;C++ Files (*.cpp *.h);;Text Files (*.txt)";
@@ -189,30 +193,42 @@ void FileManager::saveFileAs()
 
     QString fileName = QFileDialog::getSaveFileName(nullptr, "Save File As", QString(), filter);
 
-    if (!fileName.isEmpty())
+    if (fileName.isEmpty())
     {
-        m_currentFileName = fileName;
-        saveFile();
+        return false;
     }
+
+    const QString previousFileName = m_currentFileName;
+    m_currentFileName = fileName;
+
+    if (saveFile())
+    {
+        return true;
+    }
+
+    m_currentFileName = previousFileName;
+    return false;
 }
 
 void FileManager::openFile()
 {
     QString fileName = QFileDialog::getOpenFileName(nullptr, "Open File", QString(),
                                                     "All Files (*);;C++ Files (*.cpp *.h);;Text Files (*.txt)");
-    if (!fileName.isEmpty())
-    {
-        // qDebug() << "Opening file: " << fileName;
-        m_currentFileName = fileName;
-        loadFileInEditor(fileName);
-    }
-    else
+    if (fileName.isEmpty())
     {
         qDebug() << "No file selected.";
+        return;
     }
+
+    if (!promptUnsavedChanges())
+    {
+        return;
+    }
+
+    loadFileInEditor(fileName);
 }
 
-void FileManager::loadFileInEditor(const QString &filePath)
+bool FileManager::loadFileInEditor(const QString &filePath)
 {
     // qDebug() << "Loading file:" << filePath;
 
@@ -220,12 +236,13 @@ void FileManager::loadFileInEditor(const QString &filePath)
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         QMessageBox::warning(nullptr, "Error", "Cannot open file: " + file.errorString());
-        return;
+        return false;
     }
 
     QTextStream in(&file);
     if (m_editor)
     {
+        m_currentFileName = filePath;
         m_editor->blockSignals(true);
         m_editor->setPlainText(in.readAll());
         m_editor->blockSignals(false);
@@ -238,7 +255,7 @@ void FileManager::loadFileInEditor(const QString &filePath)
     else
     {
         QMessageBox::critical(nullptr, "Error", "Editor is not initialized.");
-        return;
+        return false;
     }
     file.close();
 
@@ -252,6 +269,7 @@ void FileManager::loadFileInEditor(const QString &filePath)
     }
 
     m_isDirty = false;
+    return true;
 }
 
 QString FileManager::getFileExtension() const
@@ -284,6 +302,32 @@ bool isValidPath(const std::filesystem::path &path)
     return true;
 }
 
+bool isSafePathComponent(const QString &name)
+{
+    if (name.isEmpty() || name == "." || name == "..")
+    {
+        return false;
+    }
+
+    if (QDir::isAbsolutePath(name))
+    {
+        return false;
+    }
+
+    static const QRegularExpression separatorPattern(R"([/\\])");
+    return !separatorPattern.match(name).hasMatch();
+}
+
+std::optional<std::filesystem::path> resolveChildPath(const std::filesystem::path &basePath, const QString &name)
+{
+    if (!isSafePathComponent(name))
+    {
+        return std::nullopt;
+    }
+
+    return basePath / name.toStdString();
+}
+
 OperationResult FileManager::renamePath(const QFileInfo &pathInfo, const QString &newName)
 {
     if (!pathInfo.exists())
@@ -299,16 +343,20 @@ OperationResult FileManager::renamePath(const QFileInfo &pathInfo, const QString
         return {false, "ERROR: invalid file path."};
     }
 
-    std::filesystem::path newPath = oldPath.parent_path() / newName.toStdString();
-
-    if (QFileInfo(newPath).exists())
+    std::optional<std::filesystem::path> newPath = resolveChildPath(oldPath.parent_path(), newName);
+    if (!newPath.has_value())
     {
-        return {false, newPath.filename().string() + " already takken."};
+        return {false, "ERROR: invalid target name."};
+    }
+
+    if (QFileInfo(newPath.value()).exists())
+    {
+        return {false, newPath->filename().string() + " already takken."};
     }
 
     try
     {
-        std::filesystem::rename(oldPath, newPath);
+        std::filesystem::rename(oldPath, newPath.value());
     }
     catch (const std::filesystem::filesystem_error &e)
     {
@@ -316,7 +364,7 @@ OperationResult FileManager::renamePath(const QFileInfo &pathInfo, const QString
         return {false, e.what()};
     }
 
-    return {true, newPath.filename().string() + " renamed successfully."};
+    return {true, newPath->filename().string() + " renamed successfully."};
 }
 
 // Check if the path is a valid directory
@@ -329,7 +377,8 @@ bool isAValidDirectory(const QFileInfo &pathInfo)
         return false;
     }
 
-    if (pathInfo.absolutePath() == "/" || pathInfo.absolutePath() == QDir::homePath())
+    const QString targetPath = QDir::cleanPath(pathInfo.absoluteFilePath());
+    if (targetPath == "/" || targetPath == QDir::homePath())
     {
         QMessageBox::critical(nullptr, "Error", "Cannot delete system or home directory.");
         return false;
@@ -353,7 +402,24 @@ OperationResult FileManager::deletePath(const QFileInfo &pathInfo)
     }
 
     QString qPathToDelete = QString::fromStdString(pathToDelete.string());
-    if (!QFile::moveToTrash(qPathToDelete))
+    if (QFile::moveToTrash(qPathToDelete))
+    {
+        return {true, pathToDelete.filename().string() + " deleted successfully."};
+    }
+
+    bool removed = false;
+    if (pathInfo.isDir())
+    {
+        QDir dir(qPathToDelete);
+        removed = dir.removeRecursively();
+    }
+    else
+    {
+        QFile file(qPathToDelete);
+        removed = file.remove();
+    }
+
+    if (!removed)
     {
         return {false, "ERROR: failed to delete: " + pathToDelete.string()};
     }
@@ -375,24 +441,37 @@ OperationResult FileManager::newFile(const QFileInfo &pathInfo, QString newFileP
         return {false, "ERROR: invalid file path."};
     }
 
-    std::filesystem::path filePath = dirPath / newFilePath.toStdString();
-    if (QFileInfo(filePath).exists())
+    std::optional<std::filesystem::path> filePath = resolveChildPath(dirPath, newFilePath);
+    if (!filePath.has_value())
     {
-        return {false, filePath.filename().string() + " already used."};
+        return {false, "ERROR: invalid file name."};
     }
 
-    std::ofstream file(filePath);
+    if (QFileInfo(filePath.value()).exists())
+    {
+        return {false, filePath->filename().string() + " already used."};
+    }
+
+    std::ofstream file(filePath.value());
     if (file.is_open())
     {
         file.close();
     }
 
-    QString fileName = QString::fromStdString(filePath.string());
+    QString fileName = QString::fromStdString(filePath->string());
 
-    FileManager::getInstance().setCurrentFileName(fileName);
-    FileManager::getInstance().loadFileInEditor(fileName);
+    FileManager &fileManager = FileManager::getInstance();
+    if (fileManager.m_editor == nullptr || fileManager.m_mainWindow == nullptr)
+    {
+        return {true, filePath->filename().string() + " created successfully."};
+    }
 
-    return {true, filePath.filename().string() + " created successfully."};
+    if (!fileManager.loadFileInEditor(fileName))
+    {
+        return {false, "ERROR: failed to open newly created file."};
+    }
+
+    return {true, filePath->filename().string() + " created successfully."};
 }
 
 OperationResult FileManager::newFolder(const QFileInfo &pathInfo, QString newFolderPath)
@@ -413,22 +492,27 @@ OperationResult FileManager::newFolder(const QFileInfo &pathInfo, QString newFol
         return {false, "ERROR: invalid file path."};
     }
 
-    std::filesystem::path newPath = dirPath / newFolderPath.toStdString();
-    if (QFileInfo(newPath).exists())
+    std::optional<std::filesystem::path> newPath = resolveChildPath(dirPath, newFolderPath);
+    if (!newPath.has_value())
     {
-        return {false, newPath.filename().string() + " already used."};
+        return {false, "ERROR: invalid folder name."};
     }
 
-    std::filesystem::create_directory(newPath, err);
+    if (QFileInfo(newPath.value()).exists())
+    {
+        return {false, newPath->filename().string() + " already used."};
+    }
+
+    std::filesystem::create_directory(newPath.value(), err);
     if (err)
     {
         qDebug() << "Error creating directory:" << QString::fromStdString(err.message());
         return {false, err.message().c_str()};
     }
 
-    qDebug() << "New folder created at:" << QString::fromStdString(newPath.string());
+    qDebug() << "New folder created at:" << QString::fromStdString(newPath->string());
 
-    return {true, newPath.filename().string() + " created successfully."};
+    return {true, newPath->filename().string() + " created successfully."};
 }
 
 OperationResult FileManager::duplicatePath(const QFileInfo &pathInfo)
